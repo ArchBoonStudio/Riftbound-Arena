@@ -4,17 +4,17 @@
   const BENCH_SLOTS = 8;
   const INTERNAL_WIDTH = 1512;
   const INTERNAL_HEIGHT = 1040;
-  // Measured from assets/ui/battlefield-background.png (1512x1040).
-  // The art has a 9-column painted field; gameplay remains the existing 8x6.
-  const BOARD_X = 215;
-  const BOARD_Y = 100;
-  const BOARD_W = 1082;
-  const BOARD_H = 678;
+  // Measured from assets/ui/battlefield-background.png (1511x1041).
+  // The flat art is painted as the existing 8x6 board plus 8 bench slots.
+  const BOARD_X = 214;
+  const BOARD_Y = 78;
+  const BOARD_W = 1076;
+  const BOARD_H = 748;
   const TILE_GAP = 0;
-  const BENCH_X = 193;
-  const BENCH_Y = 820;
-  const BENCH_W = 1120;
-  const BENCH_H = 154;
+  const BENCH_X = 210;
+  const BENCH_Y = 868;
+  const BENCH_W = 1104;
+  const BENCH_H = 133;
   const TILE_W = BOARD_W / BOARD_COLS;
   const TILE_H = BOARD_H / BOARD_ROWS;
   const BENCH_SLOT_W = BENCH_W / BENCH_SLOTS;
@@ -27,7 +27,7 @@
   const TOKEN_HP_Y = 50;
   const TOKEN_EN_Y = 68;
   const BACKGROUND_KEY = 'battlefield-background';
-  const BACKGROUND_PATH = 'assets/ui/battlefield-background.png';
+  const BACKGROUND_PATH = 'assets/ui/battlefield-background.png?v=flat-sync-1';
   const USE_ART_BACKGROUND = true;
 
   const rarityColors = {

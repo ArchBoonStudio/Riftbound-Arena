@@ -184,6 +184,7 @@
       super('GameScene');
       this.unitViews = new Map();
       this.benchViews = new Map();
+      this.unitHighlights = new Map();
       this.latestState = null;
     }
 
@@ -505,6 +506,7 @@
 
       this.unitViews.forEach((view, id) => {
         if (!liveIds.has(id)) {
+          this.clearUnitHighlight(id);
           view.root.destroy(true);
           view.hitZone?.destroy();
           this.unitViews.delete(id);
@@ -898,6 +900,7 @@
       });
       this.unitViews.forEach((view, id) => {
         if (!seen.has(id)) {
+          this.clearUnitHighlight(id);
           view.root.destroy(true);
           this.unitViews.delete(id);
         }
@@ -906,6 +909,46 @@
 
     findUnitView(unitId) {
       return this.unitViews.get(unitId);
+    }
+
+    highlightUnitsByIds(unitIds = [], style = 'pantheon') {
+      this.clearUnitHighlights();
+      const color = style === 'pantheon' ? 0xf2c96b : style === 'class' ? 0x73a7ff : 0xc78cff;
+      unitIds.forEach(unitId => {
+        const view = this.findUnitView(unitId);
+        if (!view) return;
+        const glow = this.add.circle(0, -8, TOKEN_RADIUS + 18, color, 0.13)
+          .setStrokeStyle(4, color, 0.68);
+        const pulse = this.add.circle(0, -8, TOKEN_RADIUS + 6, color, 0)
+          .setStrokeStyle(2, color, 0.9);
+        glow.setDepth(-2);
+        pulse.setDepth(-1);
+        view.root.add([glow, pulse]);
+        this.unitHighlights.set(unitId, [glow, pulse]);
+        this.tweens.add({
+          targets: [glow, pulse],
+          alpha: { from: 0.18, to: 0.42 },
+          scale: { from: 0.96, to: 1.08 },
+          duration: 720,
+          yoyo: true,
+          repeat: -1,
+          ease: 'Sine.easeInOut'
+        });
+      });
+    }
+
+    clearUnitHighlight(unitId) {
+      const highlights = this.unitHighlights.get(unitId);
+      if (!highlights) return;
+      highlights.forEach(item => {
+        this.tweens.killTweensOf(item);
+        item.destroy();
+      });
+      this.unitHighlights.delete(unitId);
+    }
+
+    clearUnitHighlights() {
+      [...this.unitHighlights.keys()].forEach(unitId => this.clearUnitHighlight(unitId));
     }
 
     flashUnit(unitId, color, scale = 1.12) {
@@ -1111,6 +1154,14 @@
     boardScene.invalidDropFlash(cell);
   }
 
+  function highlightUnitsByIds(unitIds = [], style = 'pantheon') {
+    boardScene?.highlightUnitsByIds(unitIds, style);
+  }
+
+  function clearUnitHighlights() {
+    boardScene?.clearUnitHighlights();
+  }
+
   window.initPhaserBoard = initPhaserBoard;
   window.refreshPhaserBoard = refreshPhaserBoard;
   window.updateUnitBars = updateUnitBars;
@@ -1125,4 +1176,6 @@
   window.previewPhaserBoardDrop = previewPhaserBoardDrop;
   window.endPhaserBoardDrag = endPhaserBoardDrag;
   window.flashInvalidPhaserDrop = flashInvalidPhaserDrop;
+  window.highlightUnitsByIds = highlightUnitsByIds;
+  window.clearUnitHighlights = clearUnitHighlights;
 })();

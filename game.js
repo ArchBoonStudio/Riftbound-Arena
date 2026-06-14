@@ -572,6 +572,10 @@ const state = {
   starterChosen: false,
   selectedUnitId: null,
   draggedUnitId: null,
+  inspectedSynergyKey: '',
+  selectedSynergyKey: '',
+  latestCombatRecap: null,
+  currentBattleStats: null,
   codexPantheon: 'All',
   selectedCodexId: ''
 };
@@ -594,6 +598,7 @@ const shopGoldTextEl = $('shopGoldText');
 const shopLockBtn = $('shopLockBtn');
 const shopLockStateEl = $('shopLockState');
 const timerTextEl = $('timerText');
+const combatRecapEl = $('combatRecap');
 
 const IMPORTANT_LOG_TYPES = new Set(['round', 'special', 'warning', 'boss', 'revive', 'death', 'victory', 'defeat']);
 
@@ -618,6 +623,10 @@ function init() {
   state.starterChosen = false;
   state.selectedUnitId = null;
   state.draggedUnitId = null;
+  state.inspectedSynergyKey = '';
+  state.selectedSynergyKey = '';
+  state.latestCombatRecap = null;
+  state.currentBattleStats = null;
   state.codexPantheon = 'All';
   state.selectedCodexId = UNIT_LIBRARY[0]?.type || '';
   clearTimers();
@@ -1002,8 +1011,10 @@ function render() {
   renderBench();
   renderSynergies();
   renderEnemyPreview();
+  renderCombatRecap();
   renderRelics();
   renderCodex();
+  applyCurrentSynergyHighlight();
 }
 
 function renderBattlefield() {
@@ -1086,6 +1097,141 @@ function renderBench() {
   }
 }
 
+function synergyInspectData(key, counts = getSynergyCounts()) {
+  const tiers = synergyTiers(key);
+  const current = counts[key] || 0;
+  const activeTiers = tiers.filter(s => current >= s.threshold);
+  const activeTier = activeTiers[activeTiers.length - 1] || null;
+  const nextTier = tiers.find(s => current < s.threshold) || null;
+  const targetTier = nextTier || tiers[tiers.length - 1];
+  const category = tiers[0]?.category || 'Synergy';
+  const progressPct = targetTier ? Math.min(100, Math.round((current / targetTier.threshold) * 100)) : 0;
+  const near = nextTier && nextTier.threshold - current <= 1;
+  const maxed = Boolean(activeTier && !nextTier);
+  return {
+    key,
+    tiers,
+    current,
+    activeTier,
+    nextTier,
+    targetTier,
+    category,
+    progressPct,
+    near,
+    maxed,
+    contributors: getSynergyContributors(key),
+    benchMatches: getBenchSynergyMatches(key)
+  };
+}
+
+function getSynergyContributors(key) {
+  const seenTypes = new Set();
+  return Object.values(state.board)
+    .filter(unit => {
+      if (!unit || seenTypes.has(unit.type)) return false;
+      const matches = unit.pantheon === key || unit.sourceType === key || unit.unitClass === key;
+      if (matches) seenTypes.add(unit.type);
+      return matches;
+    });
+}
+
+function getBenchSynergyMatches(key) {
+  const deployedTypes = new Set(Object.values(state.board).filter(Boolean).map(unit => unit.type));
+  const seenTypes = new Set();
+  return state.bench
+    .filter(unit => {
+      if (!unit || deployedTypes.has(unit.type) || seenTypes.has(unit.type)) return false;
+      const matches = unit.pantheon === key || unit.sourceType === key || unit.unitClass === key;
+      if (matches) seenTypes.add(unit.type);
+      return matches;
+    });
+}
+
+function renderSynergyInspector(key, counts = getSynergyCounts()) {
+  const data = synergyInspectData(key, counts);
+  const inspector = document.createElement('div');
+  inspector.className = `synergy-inspector ${String(data.category).toLowerCase()}`;
+  const activeText = data.activeTier
+    ? `${data.activeTier.threshold} ${key} - ${data.activeTier.text}`
+    : 'No active threshold yet.';
+  const nextText = data.nextTier
+    ? `${data.nextTier.threshold} ${key} - ${data.nextTier.text}`
+    : 'All listed thresholds are active.';
+  const contributorNames = data.contributors.map(unit => `${unit.name} ${starLabel(unit.star)}`);
+  const benchNames = data.benchMatches.map(unit => unit.name);
+  inspector.innerHTML = `
+    <div class="inspector-heading">
+      <strong>${key} ${data.current}/${data.nextTier?.threshold || data.current}</strong>
+      <span>${data.category}</span>
+    </div>
+    <p><b>Active:</b> ${activeText}</p>
+    <p><b>Next:</b> ${nextText}</p>
+    <p><b>Contributors:</b> ${contributorNames.length ? contributorNames.join(', ') : 'None deployed.'}</p>
+    ${benchNames.length ? `<p class="bench-note"><b>Bench matches:</b> ${benchNames.join(', ')} <span>not counted</span></p>` : ''}
+    ${state.selectedSynergyKey ? '<button class="ghost-btn small clear-synergy-inspector" type="button">Clear</button>' : ''}
+  `;
+  inspector.querySelector('.clear-synergy-inspector')?.addEventListener('click', () => clearSynergyInspection(true));
+  return inspector;
+}
+
+function inspectSynergy(key, pinned = false) {
+  const nextSelected = pinned ? (state.selectedSynergyKey === key ? '' : key) : state.selectedSynergyKey;
+  const nextInspected = nextSelected || key;
+  const changed = state.selectedSynergyKey !== nextSelected || state.inspectedSynergyKey !== nextInspected;
+  state.selectedSynergyKey = nextSelected;
+  state.inspectedSynergyKey = nextInspected;
+  applyCurrentSynergyHighlight();
+  if (changed) renderSynergies();
+}
+
+function clearSynergyInspection(forceSelected = false) {
+  if (forceSelected) state.selectedSynergyKey = '';
+  if (state.selectedSynergyKey) {
+    state.inspectedSynergyKey = state.selectedSynergyKey;
+    applyCurrentSynergyHighlight();
+    return;
+  }
+  const changed = Boolean(state.inspectedSynergyKey);
+  state.inspectedSynergyKey = '';
+  clearBoardUnitHighlights();
+  if (changed) renderSynergies();
+}
+
+function synergyHighlightStyle(key) {
+  const category = synergyTiers(key)[0]?.category || '';
+  if (category === 'Pantheon') return 'pantheon';
+  if (category === 'Class') return 'class';
+  return 'source';
+}
+
+function applyCurrentSynergyHighlight() {
+  const key = state.selectedSynergyKey || state.inspectedSynergyKey;
+  if (!key) {
+    clearBoardUnitHighlights();
+    return;
+  }
+  const ids = getSynergyContributors(key).map(unit => unit.id);
+  highlightBoardUnits(ids, synergyHighlightStyle(key));
+}
+
+function highlightBoardUnits(unitIds, style = 'pantheon') {
+  document.querySelectorAll('.unit-token').forEach(token => {
+    token.classList.remove('synergy-highlight-pantheon', 'synergy-highlight-class', 'synergy-highlight-source');
+  });
+  if (window.highlightUnitsByIds) window.highlightUnitsByIds(unitIds, style);
+  unitIds.forEach(id => {
+    const token = document.querySelector(`.unit-token[data-unit-id="${id}"]`);
+    token?.classList.add(`synergy-highlight-${style}`);
+  });
+}
+
+function clearBoardUnitHighlights() {
+  document.querySelectorAll('.unit-token').forEach(token => {
+    token.classList.remove('synergy-highlight-pantheon', 'synergy-highlight-class', 'synergy-highlight-source');
+  });
+  if (window.clearUnitHighlights) window.clearUnitHighlights();
+}
+
 function renderSynergies() {
   const counts = getSynergyCounts();
   synergyEl.innerHTML = '';
@@ -1094,22 +1240,22 @@ function renderSynergies() {
     .filter(key => (counts[key] || 0) > 0);
   if (!visibleKeys.length) {
     synergyEl.innerHTML = '<div class="empty-note">Deploy champions to reveal active and near-active synergies.</div>';
+    state.inspectedSynergyKey = '';
+    state.selectedSynergyKey = '';
+    clearBoardUnitHighlights();
     return;
   }
+  if (state.inspectedSynergyKey && !visibleKeys.includes(state.inspectedSynergyKey)) state.inspectedSynergyKey = '';
+  if (state.selectedSynergyKey && !visibleKeys.includes(state.selectedSynergyKey)) state.selectedSynergyKey = '';
 
   visibleKeys.forEach(key => {
-    const tiers = synergyTiers(key);
-    const current = counts[key] || 0;
-    const activeTiers = tiers.filter(s => current >= s.threshold);
-    const activeTier = activeTiers[activeTiers.length - 1] || null;
-    const nextTier = tiers.find(s => current < s.threshold) || null;
-    const targetTier = nextTier || tiers[tiers.length - 1];
-    const category = tiers[0]?.category || 'Synergy';
-    const progressPct = targetTier ? Math.min(100, Math.round((current / targetTier.threshold) * 100)) : 0;
-    const near = nextTier && nextTier.threshold - current <= 1;
-    const maxed = Boolean(activeTier && !nextTier);
+    const data = synergyInspectData(key, counts);
+    const { current, activeTier, nextTier, targetTier, category, progressPct, near, maxed } = data;
+    const selected = state.inspectedSynergyKey === key || state.selectedSynergyKey === key;
     const item = document.createElement('div');
-    item.className = `synergy-item ${activeTier ? 'active' : 'inactive'} ${near ? 'near' : ''} ${maxed ? 'maxed' : ''}`;
+    item.className = `synergy-item ${activeTier ? 'active' : 'inactive'} ${near ? 'near' : ''} ${maxed ? 'maxed' : ''} ${selected ? 'selected' : ''}`;
+    item.dataset.synergyKey = key;
+    item.tabIndex = 0;
     item.innerHTML = `
       <div class="synergy-main">
         <div class="synergy-title"><strong>${key}</strong><span>${category}</span></div>
@@ -1119,48 +1265,156 @@ function renderSynergies() {
       </div>
       <div class="synergy-count">${current}/${targetTier?.threshold || current}<small>${maxed ? 'Maxed' : activeTier ? 'Active' : near ? 'Close' : 'Inactive'}</small></div>
     `;
+    item.addEventListener('mouseenter', () => inspectSynergy(key, false));
+    item.addEventListener('mouseleave', () => {
+      if (!state.selectedSynergyKey) clearSynergyInspection(false);
+    });
+    item.addEventListener('focus', () => inspectSynergy(key, false));
+    item.addEventListener('blur', () => {
+      if (!state.selectedSynergyKey) clearSynergyInspection(false);
+    });
+    item.addEventListener('click', () => inspectSynergy(key, true));
+    item.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        inspectSynergy(key, true);
+      }
+      if (event.key === 'Escape') clearSynergyInspection(true);
+    });
     synergyEl.appendChild(item);
   });
+
+  const inspectedKey = state.selectedSynergyKey || state.inspectedSynergyKey;
+  if (inspectedKey && visibleKeys.includes(inspectedKey)) {
+    synergyEl.appendChild(renderSynergyInspector(inspectedKey, counts));
+  }
+}
+
+function previewTemplatesForRound(round) {
+  const picks = ENEMY_LAYOUTS[round] || ENEMY_LAYOUTS[state.maxRound] || [];
+  return picks.map(idx => ENEMY_LIBRARY[idx]).filter(Boolean);
+}
+
+function unitClassName(unit) {
+  return unit?.unitClass || unit?.class || 'Unit';
+}
+
+function countByName(units) {
+  return units.reduce((counts, unit) => {
+    const name = unit.name || 'Unknown';
+    counts[name] = (counts[name] || 0) + 1;
+    return counts;
+  }, {});
+}
+
+function topClassSummary(units) {
+  const counts = units.reduce((acc, unit) => {
+    const key = unitClassName(unit);
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {});
+  return Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([key, count]) => count > 1 ? `${key} x${count}` : key)
+    .join(', ') || 'Mixed';
+}
+
+function threatTextForPreview(units, kind) {
+  if (kind === 'trickster') return 'Your past formation returns as an enemy echo. Expect familiar damage patterns and positioning.';
+  if (kind === 'boss') {
+    const boss = units.find(unit => unitClassName(unit) === 'Boss') || units[0];
+    return boss
+      ? `${boss.name} brings ${boss.abilityName || 'a boss power'}, high pressure, and punishing combat stats.`
+      : 'Boss round warning: expect a high-health threat with heavy pressure.';
+  }
+  const classes = new Set(units.map(unitClassName));
+  if (classes.has('Assassin') && classes.has('Mage')) return 'Assassins and mages pressure your backline.';
+  if (classes.has('Healer')) return 'Sustain can drag the fight out; focus damage matters.';
+  if (classes.has('Guardian') || classes.has('Bruiser')) return 'Frontline enemies may stall your squad while damage dealers work.';
+  if (classes.has('Ranger')) return 'Ranged attackers punish exposed units.';
+  return 'A mixed wave tests your frontline, damage, and positioning.';
+}
+
+function buildEnemyPreview() {
+  const round = state.round;
+  const trickster = isTricksterRound(round);
+  const snapshot = trickster ? latestBoardSnapshotBefore(round) : null;
+  const boss = isBossRound(round);
+  let kind = boss ? 'boss' : 'normal';
+  let units = previewTemplatesForRound(round);
+  let title = round === state.secretRound ? 'Secret Round 21' : boss ? `Boss Round ${round}` : `Round ${round}: ${WAVE_NAMES[round]}`;
+  let heading = WAVE_NAMES[round] || 'Unknown Wave';
+  const stats = [];
+
+  if (trickster && snapshot) {
+    kind = 'trickster';
+    title = `Trickster Round ${round}: Mirror of Round ${snapshot.round}`;
+    heading = 'Trickster Mirror';
+    units = snapshot.units
+      .map(snapshotUnit => {
+        const template = getTemplateByType(snapshotUnit.type);
+        return template ? { ...template, name: `Echo ${template.name}` } : null;
+      })
+      .filter(Boolean)
+      .slice(0, ENEMY_SLOTS.length);
+    const scale = 0.75 + Math.min(round, state.maxRound) * 0.05;
+    stats.push({ label: 'Mirrored Round', value: snapshot.round });
+    stats.push({ label: 'Copied Units', value: units.length });
+    stats.push({ label: 'Scaling', value: `${scale.toFixed(2)}x` });
+  } else if (trickster) {
+    kind = 'trickster';
+    title = `Trickster Round ${round}`;
+    heading = 'No mirror found';
+    stats.push({ label: 'Fallback', value: 'Normal wave incoming' });
+  }
+
+  if (!trickster || !snapshot) {
+    stats.push({ label: boss ? 'Boss Units' : 'Enemies', value: units.length });
+    stats.push({ label: 'Main Types', value: topClassSummary(units) });
+  }
+
+  if (boss && !trickster) {
+    const bossUnit = units.find(unit => unitClassName(unit) === 'Boss') || units[0];
+    if (bossUnit) stats.unshift({ label: 'Boss', value: bossUnit.name });
+  }
+
+  return {
+    kind,
+    title,
+    heading,
+    stats,
+    counts: countByName(units),
+    threat: trickster && !snapshot
+      ? 'No stored formation was found, so the rift will safely use the normal enemy wave.'
+      : threatTextForPreview(units, kind)
+  };
 }
 
 function renderEnemyPreview() {
   if (!enemyPreviewEl) return;
-  const tricksterSnapshot = isTricksterRound(state.round) ? latestBoardSnapshotBefore(state.round) : null;
-  const picks = ENEMY_LAYOUTS[state.round] || ENEMY_LAYOUTS[state.maxRound];
-  const counts = {};
-  if (tricksterSnapshot) {
-    tricksterSnapshot.units.forEach(unit => {
-      const template = getTemplateByType(unit.type);
-      if (!template) return;
-      counts[template.name] = (counts[template.name] || 0) + 1;
-    });
-  } else {
-    picks.forEach(idx => {
-      const enemy = ENEMY_LIBRARY[idx];
-      if (!enemy) return;
-      counts[enemy.name] = (counts[enemy.name] || 0) + 1;
-    });
-  }
-  if (enemyPreviewTitleEl) {
-    enemyPreviewTitleEl.textContent = tricksterSnapshot
-      ? `Trickster Round ${state.round}: Mirror of Round ${tricksterSnapshot.round}`
-      : state.round === state.secretRound
-      ? 'Secret Round 21'
-      : isBossRound(state.round)
-        ? `Boss Round ${state.round}`
-      : `Round ${state.round}: ${WAVE_NAMES[state.round]}`;
-  }
-  enemyPreviewEl.innerHTML = Object.entries(counts).map(([name, count]) => {
+  const preview = buildEnemyPreview();
+  if (enemyPreviewTitleEl) enemyPreviewTitleEl.textContent = preview.title;
+  const statRows = preview.stats.map(stat => `<span><b>${stat.label}:</b> ${stat.value}</span>`).join('');
+  const chips = Object.entries(preview.counts).map(([name, count]) => {
     const enemy = ENEMY_LIBRARY.find(item => item.name === name) || CHAMPION_POOL.find(item => item.name === name) || UNIT_LIBRARY.find(item => item.name === name);
-    const preview = enemy || { rarity: 'Rare', pantheon: 'Trickster', sourceType: 'Mirror', unitClass: 'Echo' };
+    const unitPreview = enemy || { rarity: 'Rare', pantheon: 'Trickster', sourceType: 'Mirror', unitClass: 'Echo' };
     const countText = count > 1 ? ` x${count}` : '';
     return `
-      <div class="preview-chip rarity-${String(preview.rarity || 'Rare').toLowerCase()}">
+      <div class="preview-chip rarity-${String(unitPreview.rarity || 'Rare').toLowerCase()}">
         <strong>${name}${countText}</strong>
-        <span>${preview.pantheon} / ${preview.sourceType} / ${preview.unitClass}</span>
+        <span>${unitPreview.pantheon} / ${unitPreview.sourceType} / ${unitPreview.unitClass || unitPreview.class}</span>
       </div>
     `;
   }).join('');
+  enemyPreviewEl.innerHTML = `
+    <div class="preview-summary ${preview.kind}">
+      <strong>${preview.heading}</strong>
+      <div class="preview-stat-row">${statRows}</div>
+      <p>${preview.threat}</p>
+    </div>
+    <div class="preview-chip-list">${chips}</div>
+  `;
 }
 
 function renderRelics() {
@@ -1667,6 +1921,55 @@ function moveUnitToBench(unitId, index) {
   render();
 }
 
+function initBattleStats(playerUnits, enemyUnits) {
+  state.currentBattleStats = {
+    round: state.round,
+    waveName: WAVE_NAMES[state.round] || 'Unknown Wave',
+    trickster: isTricksterRound(state.round),
+    tricksterSnapshotRound: latestBoardSnapshotBefore(state.round)?.round || null,
+    player: {},
+    enemy: {}
+  };
+  [...playerUnits, ...enemyUnits].forEach(unit => ensureCombatStatUnit(unit));
+}
+
+function ensureCombatStatUnit(unit) {
+  if (!state.currentBattleStats || !unit?.id) return null;
+  const bucket = unit.side === 'enemy' ? state.currentBattleStats.enemy : state.currentBattleStats.player;
+  if (!bucket[unit.id]) {
+    bucket[unit.id] = {
+      id: unit.id,
+      name: unit.name,
+      type: unit.type,
+      side: unit.side,
+      star: unit.star || 1,
+      pantheon: unit.pantheon,
+      sourceType: unit.sourceType,
+      unitClass: unit.unitClass || unit.class,
+      damageDealt: 0,
+      damageTaken: 0,
+      healingDone: 0,
+      shieldingDone: 0,
+      kills: 0,
+      survived: false
+    };
+  }
+  return bucket[unit.id];
+}
+
+function addCombatStat(unit, field, amount) {
+  if (!unit || !state.currentBattleStats || amount <= 0) return;
+  const entry = ensureCombatStatUnit(unit);
+  if (!entry) return;
+  entry[field] += Math.round(amount);
+}
+
+function recordDamageDealt(unit, amount) { addCombatStat(unit, 'damageDealt', amount); }
+function recordDamageTaken(unit, amount) { addCombatStat(unit, 'damageTaken', amount); }
+function recordHealing(unit, amount) { addCombatStat(unit, 'healingDone', amount); }
+function recordShielding(unit, amount) { addCombatStat(unit, 'shieldingDone', amount); }
+function recordKill(unit) { addCombatStat(unit, 'kills', 1); }
+
 function startBattle() {
   if (state.mode !== 'planning' || state.runComplete) return;
   if (Object.keys(state.board).length === 0) return warnPlayer('Deploy at least one unit before starting battle.');
@@ -1687,6 +1990,7 @@ function startBattle() {
   const playerUnits = Object.values(state.board).map(u => cloneForCombat(u));
   const enemyUnits = spawnEnemies(state.round);
   state.combatUnits = [...playerUnits, ...enemyUnits];
+  initBattleStats(playerUnits, enemyUnits);
   beginRoundLog(state.round, playerUnits, enemyUnits);
   if (isBossRound(state.round) && window.playBossIntroEffect) window.playBossIntroEffect();
   applySynergyBonuses(state.combatUnits);
@@ -2323,6 +2627,7 @@ function castAbility(caster, target) {
     case 'shield': {
       const shieldGain = Math.round((56 + caster.star * 14) * caster.abilityDamageMult * caster.shieldMult);
       caster.shield += shieldGain;
+      recordShielding(caster, shieldGain);
       if (window.playShieldPopup) window.playShieldPopup(caster.id, `+${shieldGain}`);
       else popDamage(caster, `+${shieldGain}`);
       log(`${caster.name} gains ${shieldGain} shield.`, 'shield');
@@ -2340,7 +2645,7 @@ function castAbility(caster, target) {
     case 'heal': {
       const healTarget = chooseHealTarget(caster);
       if (healTarget) {
-        healUnit(healTarget, (52 + caster.star * 12) * caster.healMult, caster.name);
+        healUnit(healTarget, (52 + caster.star * 12) * caster.healMult, caster.name, false, caster);
       } else {
         log(`${caster.name} finds no urgent wounds and turns the blessing into an attack.`, 'damage');
         applyDamage(target, caster.damage * 1.15 * caster.abilityDamageMult, { attacker: caster, canDodge: true, attackType: 'healer strike' });
@@ -2393,6 +2698,8 @@ function applyDamage(target, amount, options = {}) {
 
   const hpDamage = Math.max(0, remaining);
   target.hp -= hpDamage;
+  if (attacker) recordDamageDealt(attacker, hpDamage);
+  recordDamageTaken(target, hpDamage + absorbed);
   const popText = options.isDot ? `🔥${hpDamage}` : (hpDamage > 0 ? hpDamage : 'Shielded');
   popDamage(target, popText);
 
@@ -2407,6 +2714,7 @@ function applyDamage(target, amount, options = {}) {
 
   if (target.hp <= 0) {
     handleDeath(target);
+    if (attacker?.alive && !target.alive) recordKill(attacker);
     if (attacker?.alive && !target.alive && attacker.killEnergyGain > 0) {
       gainEnergy(attacker, attacker.killEnergyGain, null);
     }
@@ -2447,24 +2755,27 @@ function handleDeath(target) {
   log(`${target.name} falls.`, 'death');
 }
 
-function healUnit(target, amount, sourceName, silent = false) {
+function healUnit(target, amount, sourceName, silent = false, sourceUnit = null) {
   const heal = Math.max(1, Math.round(amount));
   const before = target.hp;
   target.hp = Math.min(target.maxHp, target.hp + heal);
   const actual = target.hp - before;
   const overheal = Math.max(0, heal - actual);
   if (actual > 0) {
+    if (sourceUnit) recordHealing(sourceUnit, actual);
     popDamage(target, `+${actual}`);
     if (!silent) log(`${sourceName} heals ${target.name} for ${actual}.`, 'heal');
     if (target.healShieldOnHealed > 0) {
       const shieldGain = Math.max(1, Math.round(actual * target.healShieldOnHealed));
       target.shield += shieldGain;
+      if (sourceUnit) recordShielding(sourceUnit, shieldGain);
       log(`${target.name} gains ${shieldGain} shield from sacred healing.`, 'shield');
     }
   }
   if (overheal > 0 && target.overhealShieldMult > 0) {
     const shieldGain = Math.max(1, Math.round(overheal * target.overhealShieldMult));
     target.shield += shieldGain;
+    if (sourceUnit) recordShielding(sourceUnit, shieldGain);
     log(`${target.name} converts overhealing into ${shieldGain} shield.`, 'shield');
   }
 }
@@ -2516,6 +2827,124 @@ function popDamage(target, amount) {
   setTimeout(() => pop.remove(), 760);
 }
 
+function finalizeCombatRecap(playerWon, options = {}) {
+  if (!state.currentBattleStats) return;
+  state.combatUnits.forEach(unit => {
+    const entry = ensureCombatStatUnit(unit);
+    if (entry) entry.survived = unit.alive !== false;
+  });
+  state.latestCombatRecap = buildCombatRecap(playerWon, options);
+  state.currentBattleStats = null;
+}
+
+function combatStatEntries(side = 'player') {
+  const stats = state.currentBattleStats;
+  if (!stats) return [];
+  return Object.values(side === 'enemy' ? stats.enemy : stats.player);
+}
+
+function topStat(entries, field) {
+  return [...entries].sort((a, b) => (b[field] || 0) - (a[field] || 0))[0] || null;
+}
+
+function mvpEntry(entries) {
+  return [...entries].sort((a, b) => mvpScore(b) - mvpScore(a))[0] || null;
+}
+
+function mvpScore(entry) {
+  return (entry.damageDealt || 0)
+    + (entry.kills || 0) * 180
+    + (entry.healingDone || 0) * 0.7
+    + (entry.shieldingDone || 0) * 0.5
+    + (entry.survived ? 80 : 0);
+}
+
+function statLabel(entry, field, suffix = '') {
+  if (!entry || !entry[field]) return 'None recorded';
+  const stars = entry.star > 1 ? ` ${starLabel(entry.star)}` : '';
+  return `${entry.name}${stars} - ${Math.round(entry[field]).toLocaleString()}${suffix}`;
+}
+
+function recapLesson(playerWon, recap, playerEntries, enemyEntries) {
+  if (playerWon && recap.trickster) return 'You beat your own echo; your current board has outgrown that old formation.';
+  if (playerWon) return 'Your strongest contributors carried the round. Keep building around the units that showed up here.';
+  const enemyMvp = mvpEntry(enemyEntries);
+  if (enemyMvp?.unitClass === 'Assassin') return 'Your backline was pressured early. Consider safer positioning or sturdier guards.';
+  if (enemyMvp?.unitClass === 'Boss') return 'Bosses punish slow fights. More damage, sustain, or stronger carries may help.';
+  const playerHealing = topStat(playerEntries, 'healingDone');
+  if (!playerHealing?.healingDone) return 'Very little healing was recorded. A healer or more sustain may stabilize the next attempt.';
+  return 'The enemy outlasted your board. Check whether your damage dealers stayed protected long enough.';
+}
+
+function buildCombatRecap(playerWon, options = {}) {
+  const stats = state.currentBattleStats;
+  const playerEntries = combatStatEntries('player');
+  const enemyEntries = combatStatEntries('enemy');
+  const playerMvp = mvpEntry(playerEntries);
+  const enemyMvp = mvpEntry(enemyEntries);
+  const topDamage = topStat(playerEntries, 'damageDealt');
+  const topTank = topStat(playerEntries, 'damageTaken');
+  const topHealing = topStat(playerEntries, 'healingDone');
+  const topShielding = topStat(playerEntries, 'shieldingDone');
+  const topKills = topStat(playerEntries, 'kills');
+  const recap = {
+    result: playerWon ? 'Victory' : 'Defeat',
+    round: stats.round,
+    waveName: stats.waveName,
+    trickster: stats.trickster,
+    tricksterSnapshotRound: stats.tricksterSnapshotRound,
+    topDamage: statLabel(topDamage, 'damageDealt'),
+    topTank: statLabel(topTank, 'damageTaken', ' taken'),
+    topHealing: statLabel(topHealing, 'healingDone', ' healed'),
+    topShielding: statLabel(topShielding, 'shieldingDone', ' shielded'),
+    mostKills: topKills?.kills ? `${topKills.name} - ${topKills.kills}` : 'None recorded',
+    mvp: playerMvp ? playerMvp.name : 'None recorded',
+    enemyMvp: enemyMvp ? `${enemyMvp.name} - ${Math.round(mvpScore(enemyMvp)).toLocaleString()} score` : 'None recorded',
+    goldEarned: options.goldAward?.total || 0,
+    hpLost: options.hpLost || 0
+  };
+  recap.lesson = recapLesson(playerWon, recap, playerEntries, enemyEntries);
+  return recap;
+}
+
+function renderCombatRecap() {
+  if (!combatRecapEl) return;
+  const recap = state.latestCombatRecap;
+  if (!recap) {
+    combatRecapEl.classList.add('hidden');
+    combatRecapEl.innerHTML = '';
+    return;
+  }
+  const won = recap.result === 'Victory';
+  combatRecapEl.className = `combat-recap ${won ? 'victory' : 'defeat'} ${recap.trickster ? 'trickster' : ''}`;
+  combatRecapEl.innerHTML = `
+    <div class="recap-header">
+      <div>
+        <p class="eyebrow">Combat Recap</p>
+        <h3>${recap.result}: Round ${recap.round} - ${recap.waveName}</h3>
+      </div>
+      <button class="ghost-btn small" type="button" data-dismiss-recap>Dismiss</button>
+    </div>
+    <div class="recap-grid">
+      <div><span>Top Damage</span><strong>${recap.topDamage}</strong></div>
+      <div><span>Top Tank</span><strong>${recap.topTank}</strong></div>
+      <div><span>Top Healing</span><strong>${recap.topHealing}</strong></div>
+      <div><span>Top Shielding</span><strong>${recap.topShielding}</strong></div>
+      <div><span>Most Kills</span><strong>${recap.mostKills}</strong></div>
+      <div><span>${won ? 'MVP' : 'Enemy MVP'}</span><strong>${won ? recap.mvp : recap.enemyMvp}</strong></div>
+    </div>
+    <div class="recap-footer">
+      <span>Rewards: +${recap.goldEarned} gold${recap.trickster && won ? ' | Trickster Mirror cleared' : ''}</span>
+      ${!won && recap.hpLost ? `<span>HP Lost: ${recap.hpLost}</span>` : ''}
+      <p>${recap.lesson}</p>
+    </div>
+  `;
+  combatRecapEl.querySelector('[data-dismiss-recap]')?.addEventListener('click', () => {
+    state.latestCombatRecap = null;
+    renderCombatRecap();
+  });
+}
+
 function goldInterestFor(amount) {
   return Math.min(5, Math.floor(Math.max(0, amount) / 10));
 }
@@ -2552,6 +2981,7 @@ function endBattle(playerWon) {
   if (playerWon) {
     const goldAward = awardGoldWithInterest(roundGoldRewardFor(state.round), 'Round gold', 'victory');
     log(`Victory! ${WAVE_NAMES[state.round]} cleared. Earned ${goldAward.total} gold total.`, 'victory');
+    finalizeCombatRecap(true, { goldAward });
 
     if (state.round === state.secretRound) {
       state.runComplete = true;
@@ -2589,11 +3019,13 @@ function endBattle(playerWon) {
       : `${livingEnemies.length} enemies survived x ${damagePerEnemy} HP each.`;
     log(`Defeat on ${WAVE_NAMES[state.round]}. You lost ${damage} HP. ${damageText}`, 'defeat');
     if (state.playerHp <= 0) {
+      finalizeCombatRecap(false, { hpLost: damage });
       showModal('Run Lost', state.round === state.secretRound || bossAlive
         ? 'A boss survived the battle. Boss defeats are instant loss. Reset the run and try a different squad.'
         : `Your team was defeated. ${damageText} Reset the run and try a different squad.`);
     } else {
       const goldAward = awardGoldWithInterest(roundGoldRewardFor(state.round), 'Round gold');
+      finalizeCombatRecap(false, { goldAward, hpLost: damage });
       showModal('Defeat', `You lost ${damage} HP (${damageText}) but gained ${goldAward.total} gold${interestSummary(goldAward.interest)}. Rebuild and try this round again.`);
     }
   }
@@ -2798,7 +3230,12 @@ function loadRun() {
   state.battleFlags = {};
   state.selectedUnitId = null;
   state.draggedUnitId = null;
+  state.inspectedSynergyKey = '';
+  state.selectedSynergyKey = '';
+  state.latestCombatRecap = null;
+  state.currentBattleStats = null;
   if (window.endPhaserBoardDrag) window.endPhaserBoardDrag();
+  clearBoardUnitHighlights();
   state.shop = Array.isArray(payload.shop)
     ? payload.shop.map(restoreShopItem).filter(Boolean)
     : [];

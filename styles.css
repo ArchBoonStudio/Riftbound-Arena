@@ -1322,3 +1322,396 @@ body.reduced-motion *::after {
   .log-actions button { flex: 1; }
   .log-line { grid-template-columns: 62px 1fr; }
 }
+
+/* HTML shell graphic polish */
+html {
+  background: #05070d;
+}
+
+body {
+  position: relative;
+  overflow-x: hidden;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.025), transparent 18%),
+    repeating-linear-gradient(135deg, rgba(242, 201, 107, 0.025) 0 1px, transparent 1px 26px),
+    radial-gradient(ellipse at center top, rgba(44, 60, 102, 0.36), transparent 58%),
+    linear-gradient(135deg, #050711 0%, #090f1d 43%, #06070c 100%);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, rgba(9, 12, 22, 0.92), transparent 18%, transparent 82%, rgba(9, 12, 22, 0.92)),
+    linear-gradient(180deg, rgba(0,0,0,0.14), transparent 28%, rgba(0,0,0,0.46));
+}
+
+.topbar {
+  align-items: stretch;
+  padding: 18px;
+  border: 1px solid rgba(242, 201, 107, 0.18);
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(18, 25, 44, 0.94), rgba(8, 12, 23, 0.88)),
+    linear-gradient(90deg, rgba(242, 201, 107, 0.08), transparent 30%, transparent 70%, rgba(115, 167, 255, 0.08));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.09),
+    inset 0 -1px 0 rgba(0,0,0,0.5),
+    0 22px 54px rgba(0,0,0,0.32);
+}
+
+.topbar > div:first-child {
+  min-width: 280px;
+  display: grid;
+  align-content: center;
+  padding-left: 14px;
+  border-left: 3px solid rgba(242, 201, 107, 0.55);
+}
+
+h1 {
+  color: #fff7da;
+  letter-spacing: -0.035em;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.55), 0 0 22px rgba(242, 201, 107, 0.18);
+}
+
+h2,
+h3 {
+  color: #f6f1df;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.4);
+}
+
+.eyebrow {
+  color: #c6a75e;
+  letter-spacing: 0.2em;
+}
+
+.resource-row {
+  align-content: stretch;
+}
+
+.resource-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 78px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.025)),
+    rgba(11, 17, 31, 0.92);
+  border-color: rgba(242, 201, 107, 0.14);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    0 16px 38px rgba(0,0,0,0.26);
+}
+
+.resource-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(90deg, rgba(242, 201, 107, 0.75), rgba(115, 167, 255, 0.34), transparent);
+}
+
+.resource-card span {
+  color: rgba(214, 224, 245, 0.68);
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.resource-card strong {
+  color: #fff7da;
+}
+
+.panel,
+.flow-section,
+.info-box,
+.combat-log-panel,
+.combat-recap,
+.modal-card,
+.codex-window-card,
+.settings-window-card {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.065), rgba(255,255,255,0.018)),
+    rgba(12, 18, 34, 0.94);
+  border-color: rgba(177, 149, 88, 0.24);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    inset 0 -1px 0 rgba(0,0,0,0.58),
+    0 22px 60px rgba(0,0,0,0.34);
+}
+
+.panel::before,
+.flow-section::before,
+.info-box::before,
+.combat-log-panel::before,
+.codex-window-card::before,
+.settings-window-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    linear-gradient(135deg, rgba(242, 201, 107, 0.18), transparent 18%, transparent 82%, rgba(115, 167, 255, 0.12));
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  padding: 1px;
+}
+
+.arena-panel > .panel-heading {
+  padding: 14px;
+  border-radius: 18px;
+  background:
+    linear-gradient(90deg, rgba(242, 201, 107, 0.08), rgba(115, 167, 255, 0.045)),
+    rgba(0,0,0,0.14);
+  border: 1px solid rgba(255,255,255,0.07);
+}
+
+.panel-heading.compact {
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(242, 201, 107, 0.09);
+}
+
+.panel-note {
+  color: rgba(214, 224, 245, 0.76);
+}
+
+.primary-btn,
+.ghost-btn,
+.reward-choice,
+.codex-entry {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 22px rgba(0,0,0,0.18);
+}
+
+.primary-btn {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.02)),
+    linear-gradient(135deg, #936f28, #5a7adf 54%, #6240a5);
+  border-color: rgba(242, 201, 107, 0.28);
+}
+
+.ghost-btn {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.025)),
+    rgba(9, 14, 27, 0.74);
+  border-color: rgba(242, 201, 107, 0.14);
+}
+
+.ghost-btn:hover:not(:disabled),
+.primary-btn:hover:not(:disabled) {
+  border-color: rgba(242, 201, 107, 0.45);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 14px 26px rgba(0,0,0,0.25), 0 0 18px rgba(242, 201, 107, 0.09);
+}
+
+.battle-info-grid {
+  gap: 14px;
+}
+
+.info-box {
+  overflow: hidden;
+}
+
+.preview-summary,
+.preview-chip,
+.relic-item,
+.synergy-item,
+.synergy-inspector,
+.settings-group,
+.recap-grid div {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.018)),
+    rgba(5, 9, 18, 0.48);
+  border-color: rgba(242, 201, 107, 0.11);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.preview-summary strong,
+.relic-item strong,
+.preview-chip strong {
+  color: #fff2c8;
+}
+
+.shop-section {
+  background:
+    linear-gradient(180deg, rgba(242, 201, 107, 0.055), rgba(255,255,255,0.018)),
+    rgba(12, 18, 34, 0.94);
+}
+
+.shop-list {
+  gap: 12px;
+}
+
+.unit-card {
+  overflow: hidden;
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.02)),
+    rgba(7, 12, 23, 0.86);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.07),
+    0 16px 32px rgba(0,0,0,0.25);
+}
+
+.unit-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: rgba(188, 201, 218, 0.36);
+}
+
+.unit-card.rarity-uncommon::before { background: var(--green); }
+.unit-card.rarity-rare::before { background: var(--blue); }
+.unit-card.rarity-epic::before { background: var(--purple); }
+.unit-card.rarity-legendary::before { background: var(--gold); }
+.unit-card.rarity-mythic::before { background: var(--red); }
+
+.unit-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(242, 201, 107, 0.28);
+}
+
+.unit-name {
+  color: #fff7da;
+}
+
+.tag,
+.pill,
+.shop-gold,
+.shop-lock-state,
+.preview-stat-row span {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.015)),
+    rgba(0,0,0,0.18);
+  border-color: rgba(242, 201, 107, 0.12);
+}
+
+.cost-pill,
+.shop-gold {
+  color: #ffd987;
+}
+
+.shop-controls {
+  padding: 8px;
+  border-radius: 14px;
+  background: rgba(0,0,0,0.16);
+  border: 1px solid rgba(255,255,255,0.055);
+}
+
+.sell-zone {
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(242, 201, 107, 0.11), rgba(255,255,255,0.02)),
+    rgba(7, 12, 22, 0.88);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 12px 28px rgba(0,0,0,0.22);
+}
+
+.side-column .flow-section {
+  background:
+    linear-gradient(180deg, rgba(199, 140, 255, 0.055), rgba(255,255,255,0.018)),
+    rgba(12, 18, 34, 0.94);
+}
+
+.synergy-item {
+  border-radius: 12px;
+}
+
+.synergy-item.active {
+  border-color: rgba(127, 242, 178, 0.42);
+  box-shadow: inset 0 0 22px rgba(127, 242, 178, 0.06);
+}
+
+.synergy-item.maxed {
+  border-color: rgba(242, 201, 107, 0.58);
+  box-shadow: inset 0 0 28px rgba(242, 201, 107, 0.10), 0 0 22px rgba(242, 201, 107, 0.08);
+}
+
+.synergy-progress {
+  height: 6px;
+  background: rgba(0,0,0,0.28);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.synergy-progress div {
+  background: linear-gradient(90deg, #8aa9ff, #7ff2b2 58%, #f2c96b);
+  box-shadow: 0 0 12px rgba(127, 242, 178, 0.22);
+}
+
+.combat-log-panel {
+  border-color: rgba(115, 167, 255, 0.16);
+}
+
+.combat-log-header {
+  background:
+    linear-gradient(90deg, rgba(115, 167, 255, 0.085), rgba(242, 201, 107, 0.04)),
+    rgba(255,255,255,0.026);
+}
+
+.combat-log {
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.06), rgba(0,0,0,0.18));
+  scrollbar-color: rgba(242, 201, 107, 0.42) rgba(255,255,255,0.04);
+}
+
+.log-line {
+  border-bottom-color: rgba(242, 201, 107, 0.045);
+}
+
+.modal,
+.codex-window,
+.settings-window {
+  background:
+    linear-gradient(180deg, rgba(4, 6, 11, 0.72), rgba(0,0,0,0.78)),
+    rgba(0,0,0,0.62);
+}
+
+.modal-card,
+.codex-window-card,
+.settings-window-card {
+  border-color: rgba(242, 201, 107, 0.24);
+}
+
+.modal-card h2,
+.codex-window-card h2,
+.settings-window-card h2 {
+  color: #fff2c8;
+}
+
+.settings-group h3 {
+  color: #ffd987;
+}
+
+.settings-field select,
+.settings-field input[type="range"] {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.018)),
+    rgba(0,0,0,0.22);
+  border-color: rgba(242, 201, 107, 0.16);
+}
+
+.codex-entry.active,
+.reward-choice:hover {
+  border-color: rgba(242, 201, 107, 0.45);
+  box-shadow: inset 0 0 18px rgba(242, 201, 107, 0.08);
+}
+
+.feedback-banner {
+  background:
+    linear-gradient(90deg, rgba(242, 201, 107, 0.16), rgba(255,255,255,0.035)),
+    rgba(0,0,0,0.2);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+@media (max-width: 1120px) {
+  .topbar > div:first-child {
+    min-width: 0;
+  }
+}

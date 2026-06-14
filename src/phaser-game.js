@@ -642,7 +642,7 @@
         `${unit.name} ${'*'.repeat(unit.star || 1)}`,
         `${unit.pantheon || 'Unknown'} / ${unit.sourceType || 'Unknown'} / ${unit.unitClass || unit.class || 'Unit'}`,
         `${unit.rarity || 'Common'} | HP ${Math.max(0, Math.round(unit.hp || 0))}/${Math.max(1, Math.round(unit.maxHp || 1))} | EN ${Math.round(unit.mana || 0)}/${unit.energyMax || 100}`,
-        `DMG ${unit.damage} | RNG ${unit.range} | ARM ${unit.armor || 0}`,
+        `DMG ${unit.damage} | RNG ${unit.range} | ARM ${unit.armor || 0} | BLK ${Math.round(Math.max(0, unit.blockChance || 0) * 100)}%`,
         `${unit.abilityName || 'Ability'}: ${unit.abilityText || unit.abilityDescription || 'No ability text.'}`
       ];
       const longest = lines.reduce((max, line) => Math.max(max, line.length), 0);

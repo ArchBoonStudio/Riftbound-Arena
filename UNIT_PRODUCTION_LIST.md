@@ -14,6 +14,8 @@ Status guide: `Playable` appears in the shop, `Enemy Only` appears in waves, `Bo
 
 The player-facing shop now focuses on all major Empyrean gods and Arthurian powers, plus exactly two Common Worshiper units per pantheon. Heroic, Sacred, Spirit, Fae, and bloodline filler units are retained as Locked production entries, while Wyrdbound monsters and horrors are mostly Enemy Only or Boss Only.
 
+Current combat notes: Guardian units have a visible block chance that improves through Guardian class synergy, and Healer abilities heal allies only when a living ally is missing at least 10% HP. If no ally needs that much healing, the Healer uses the cast offensively. Several playable gods and Arthurian powers were reassigned to improve class distribution across pantheons.
+
 ### Status Counts
 
 - Playable: 107
@@ -42,20 +44,20 @@ The player-facing shop now focuses on all major Empyrean gods and Arthurian powe
 |---:|---|---|---|---:|---|---|---|---|
 | 173 | Arthur Pendragon | Guardian | Mythic | 6 | Playable | Oath Ward | TODO: final lore description. Current ability note: Gains a shield when energy is full. | TODO: Arthurian Empyrean Guardian, mythic auto-battler sprite. |
 | 189 | Avalon Queens | Mage | Legendary | 5 | Playable | Mythic Burst | TODO: final lore description. Current ability note: Damages enemies near the target. | TODO: Arthurian Empyrean Mage, legendary auto-battler sprite. |
-| 183 | Bedivere | Guardian | Legendary | 5 | Playable | Oath Ward | TODO: final lore description. Current ability note: Gains a shield when energy is full. | TODO: Arthurian Empyrean Guardian, legendary auto-battler sprite. |
-| 179 | Galahad | Guardian | Legendary | 5 | Playable | Oath Ward | TODO: final lore description. Current ability note: Gains a shield when energy is full. | TODO: Arthurian Empyrean Guardian, legendary auto-battler sprite. |
+| 183 | Bedivere | Assassin | Legendary | 5 | Playable | Final Strike | TODO: final lore description. Current ability note: Deals a heavy critical strike. | TODO: Arthurian Empyrean Assassin, legendary auto-battler sprite. |
+| 179 | Galahad | Healer | Legendary | 5 | Playable | Pure Grail | TODO: final lore description. Current ability note: Heals allies missing at least 10% HP, otherwise attacks. | TODO: Arthurian Empyrean Healer, legendary auto-battler sprite. |
 | 181 | Gawain | Bruiser | Legendary | 5 | Playable | Titan Breaker | TODO: final lore description. Current ability note: Hits the target and adjacent enemies. | TODO: Arthurian Empyrean Bruiser, legendary auto-battler sprite. |
-| 185 | Guinevere | Healer | Legendary | 5 | Playable | Sacred Mend | TODO: final lore description. Current ability note: Heals the lowest-health ally. | TODO: Arthurian Empyrean Healer, legendary auto-battler sprite. |
+| 185 | Guinevere | Ranger | Legendary | 5 | Playable | Royal Volley | TODO: final lore description. Current ability note: Fires two quick strikes at the target. | TODO: Arthurian Empyrean Ranger, legendary auto-battler sprite. |
 | 180 | Lancelot | Bruiser | Legendary | 5 | Playable | Titan Breaker | TODO: final lore description. Current ability note: Hits the target and adjacent enemies. | TODO: Arthurian Empyrean Bruiser, legendary auto-battler sprite. |
 | 174 | Merlin | Mage | Mythic | 6 | Playable | Mythic Burst | TODO: final lore description. Current ability note: Damages enemies near the target. | TODO: Arthurian Empyrean Mage, mythic auto-battler sprite. |
 | 175 | Morgan le Fay | Mage | Legendary | 5 | Playable | Mythic Burst | TODO: final lore description. Current ability note: Damages enemies near the target. | TODO: Arthurian Empyrean Mage, legendary auto-battler sprite. |
 | 176 | Nimue / Viviane | Healer | Legendary | 5 | Playable | Sacred Mend | TODO: final lore description. Current ability note: Heals the lowest-health ally. | TODO: Arthurian Empyrean Healer, legendary auto-battler sprite. |
 | 182 | Percival | Ranger | Legendary | 5 | Playable | Twin Shot | TODO: final lore description. Current ability note: Fires two quick strikes at the target. | TODO: Arthurian Empyrean Ranger, legendary auto-battler sprite. |
-| 178 | The Fisher King | Guardian | Legendary | 5 | Playable | Oath Ward | TODO: final lore description. Current ability note: Gains a shield when energy is full. | TODO: Arthurian Empyrean Guardian, legendary auto-battler sprite. |
-| 187 | The Grail Maidens | Healer | Legendary | 5 | Playable | Sacred Mend | TODO: final lore description. Current ability note: Heals the lowest-health ally. | TODO: Arthurian Empyrean Healer, legendary auto-battler sprite. |
+| 178 | The Fisher King | Healer | Legendary | 5 | Playable | Wounded Grail | TODO: final lore description. Current ability note: Heals allies missing at least 10% HP, otherwise attacks. | TODO: Arthurian Empyrean Healer, legendary auto-battler sprite. |
+| 187 | The Grail Maidens | Mage | Legendary | 5 | Playable | Grail Radiance | TODO: final lore description. Current ability note: Damages enemies near the target. | TODO: Arthurian Empyrean Mage, legendary auto-battler sprite. |
 | 186 | The Green Knight | Bruiser | Epic | 4 | Playable | Titan Breaker | TODO: final lore description. Current ability note: Hits the target and adjacent enemies. | TODO: Arthurian Empyrean Bruiser, epic auto-battler sprite. |
-| 177 | The Lady of the Lake | Healer | Legendary | 5 | Playable | Sacred Mend | TODO: final lore description. Current ability note: Heals the lowest-health ally. | TODO: Arthurian Empyrean Healer, legendary auto-battler sprite. |
-| 188 | The Pendragon Line | Guardian | Legendary | 5 | Playable | Oath Ward | TODO: final lore description. Current ability note: Gains a shield when energy is full. | TODO: Arthurian Empyrean Guardian, legendary auto-battler sprite. |
+| 177 | The Lady of the Lake | Mage | Legendary | 5 | Playable | Lakefire Rite | TODO: final lore description. Current ability note: Damages enemies near the target. | TODO: Arthurian Empyrean Mage, legendary auto-battler sprite. |
+| 188 | The Pendragon Line | Bruiser | Legendary | 5 | Playable | Dragon Oath | TODO: final lore description. Current ability note: Hits the target and adjacent enemies. | TODO: Arthurian Empyrean Bruiser, legendary auto-battler sprite. |
 | 184 | Tristan | Assassin | Legendary | 5 | Playable | Fated Strike | TODO: final lore description. Current ability note: Deals a heavy critical strike. | TODO: Arthurian Empyrean Assassin, legendary auto-battler sprite. |
 
 ## Arthurian / Fae
@@ -113,24 +115,24 @@ The player-facing shop now focuses on all major Empyrean gods and Arthurian powe
 
 | # | Unit | Class | Rarity | Cost | Status | Ability | Description Notes | Sprite Notes |
 |---:|---|---|---|---:|---|---|---|---|
-| 142 | Arawn | Mage | Legendary | 5 | Playable | Mythic Burst | TODO: final lore description. Current ability note: Damages enemies near the target. | TODO: Celtic Empyrean Mage, legendary auto-battler sprite. |
+| 142 | Arawn | Assassin | Legendary | 5 | Playable | Otherworld Ambush | TODO: final lore description. Current ability note: Deals a heavy critical strike. | TODO: Celtic Empyrean Assassin, legendary auto-battler sprite. |
 | 149 | Badb | Mage | Legendary | 5 | Playable | Mythic Burst | TODO: final lore description. Current ability note: Damages enemies near the target. | TODO: Celtic Empyrean Mage, legendary auto-battler sprite. |
 | 137 | Brigid | Healer | Legendary | 5 | Playable | Sacred Mend | TODO: final lore description. Current ability note: Heals the lowest-health ally. | TODO: Celtic Empyrean Healer, legendary auto-battler sprite. |
 | 144 | Cernunnos | Bruiser | Legendary | 5 | Playable | Titan Breaker | TODO: final lore description. Current ability note: Hits the target and adjacent enemies. | TODO: Celtic Empyrean Bruiser, legendary auto-battler sprite. |
-| 141 | Danu | Healer | Legendary | 5 | Playable | Sacred Mend | TODO: final lore description. Current ability note: Heals the lowest-health ally. | TODO: Celtic Empyrean Healer, legendary auto-battler sprite. |
+| 141 | Danu | Mage | Legendary | 5 | Playable | Well of Stars | TODO: final lore description. Current ability note: Damages enemies near the target. | TODO: Celtic Empyrean Mage, legendary auto-battler sprite. |
 | 146 | Dian Cecht | Healer | Legendary | 5 | Playable | Sacred Mend | TODO: final lore description. Current ability note: Heals the lowest-health ally. | TODO: Celtic Empyrean Healer, legendary auto-battler sprite. |
 | 154 | Epona | Ranger | Legendary | 5 | Playable | Twin Shot | TODO: final lore description. Current ability note: Fires two quick strikes at the target. | TODO: Celtic Empyrean Ranger, legendary auto-battler sprite. |
-| 150 | Eriu | Guardian | Legendary | 5 | Playable | Oath Ward | TODO: final lore description. Current ability note: Gains a shield when energy is full. | TODO: Celtic Empyrean Guardian, legendary auto-battler sprite. |
+| 150 | Eriu | Healer | Legendary | 5 | Playable | Sovereign Grace | TODO: final lore description. Current ability note: Heals allies missing at least 10% HP, otherwise attacks. | TODO: Celtic Empyrean Healer, legendary auto-battler sprite. |
 | 151 | Flidais | Ranger | Legendary | 5 | Playable | Twin Shot | TODO: final lore description. Current ability note: Fires two quick strikes at the target. | TODO: Celtic Empyrean Ranger, legendary auto-battler sprite. |
 | 147 | Goibniu | Guardian | Legendary | 5 | Playable | Oath Ward | TODO: final lore description. Current ability note: Gains a shield when energy is full. | TODO: Celtic Empyrean Guardian, legendary auto-battler sprite. |
 | 138 | Lugh | Ranger | Legendary | 5 | Playable | Twin Shot | TODO: final lore description. Current ability note: Fires two quick strikes at the target. | TODO: Celtic Empyrean Ranger, legendary auto-battler sprite. |
 | 148 | Macha | Assassin | Legendary | 5 | Playable | Fated Strike | TODO: final lore description. Current ability note: Deals a heavy critical strike. | TODO: Celtic Empyrean Assassin, legendary auto-battler sprite. |
-| 140 | Manannan mac Lir | Mage | Legendary | 5 | Playable | Mythic Burst | TODO: final lore description. Current ability note: Damages enemies near the target. | TODO: Celtic Empyrean Mage, legendary auto-battler sprite. |
-| 152 | Nantosuelta | Healer | Legendary | 5 | Playable | Sacred Mend | TODO: final lore description. Current ability note: Heals the lowest-health ally. | TODO: Celtic Empyrean Healer, legendary auto-battler sprite. |
+| 140 | Manannan mac Lir | Ranger | Legendary | 5 | Playable | Mist-Spear Volley | TODO: final lore description. Current ability note: Fires two quick strikes at the target. | TODO: Celtic Empyrean Ranger, legendary auto-battler sprite. |
+| 152 | Nantosuelta | Guardian | Legendary | 5 | Playable | Household Ward | TODO: final lore description. Current ability note: Gains a shield when energy is full. | TODO: Celtic Empyrean Guardian, legendary auto-battler sprite. |
 | 139 | Nuada | Guardian | Legendary | 5 | Playable | Oath Ward | TODO: final lore description. Current ability note: Gains a shield when energy is full. | TODO: Celtic Empyrean Guardian, legendary auto-battler sprite. |
-| 145 | Ogma | Guardian | Legendary | 5 | Playable | Oath Ward | TODO: final lore description. Current ability note: Gains a shield when energy is full. | TODO: Celtic Empyrean Guardian, legendary auto-battler sprite. |
+| 145 | Ogma | Mage | Legendary | 5 | Playable | Ogham Burst | TODO: final lore description. Current ability note: Damages enemies near the target. | TODO: Celtic Empyrean Mage, legendary auto-battler sprite. |
 | 143 | Rhiannon | Healer | Epic | 4 | Playable | Sacred Mend | TODO: final lore description. Current ability note: Heals the lowest-health ally. | TODO: Celtic Empyrean Healer, epic auto-battler sprite. |
-| 153 | Taranis | Mage | Legendary | 5 | Playable | Mythic Burst | TODO: final lore description. Current ability note: Damages enemies near the target. | TODO: Celtic Empyrean Mage, legendary auto-battler sprite. |
+| 153 | Taranis | Bruiser | Legendary | 5 | Playable | Thunder Hammer | TODO: final lore description. Current ability note: Hits the target and adjacent enemies. | TODO: Celtic Empyrean Bruiser, legendary auto-battler sprite. |
 | 135 | The Dagda | Bruiser | Mythic | 6 | Playable | Titan Breaker | TODO: final lore description. Current ability note: Hits the target and adjacent enemies. | TODO: Celtic Empyrean Bruiser, mythic auto-battler sprite. |
 | 136 | The Morrigan | Mage | Mythic | 6 | Playable | Mythic Burst | TODO: final lore description. Current ability note: Damages enemies near the target. | TODO: Celtic Empyrean Mage, mythic auto-battler sprite. |
 
@@ -190,15 +192,15 @@ The player-facing shop now focuses on all major Empyrean gods and Arthurian powe
 |---:|---|---|---|---:|---|---|---|---|
 | 101 | Anubis | Assassin | Legendary | 5 | Playable | Fated Strike | TODO: final lore description. Current ability note: Deals a heavy critical strike. | TODO: Egyptian Empyrean Assassin, legendary auto-battler sprite. |
 | 104 | Bastet | Assassin | Epic | 4 | Playable | Fated Strike | TODO: final lore description. Current ability note: Deals a heavy critical strike. | TODO: Egyptian Empyrean Assassin, epic auto-battler sprite. |
-| 113 | Geb | Guardian | Legendary | 5 | Playable | Oath Ward | TODO: final lore description. Current ability note: Gains a shield when energy is full. | TODO: Egyptian Empyrean Guardian, legendary auto-battler sprite. |
-| 106 | Hathor | Healer | Epic | 4 | Playable | Sacred Mend | TODO: final lore description. Current ability note: Heals the lowest-health ally. | TODO: Egyptian Empyrean Healer, epic auto-battler sprite. |
+| 113 | Geb | Bruiser | Legendary | 5 | Playable | Earthbreaker | TODO: final lore description. Current ability note: Hits the target and adjacent enemies. | TODO: Egyptian Empyrean Bruiser, legendary auto-battler sprite. |
+| 106 | Hathor | Ranger | Epic | 4 | Playable | Sistrum Volley | TODO: final lore description. Current ability note: Fires two quick strikes at the target. | TODO: Egyptian Empyrean Ranger, epic auto-battler sprite. |
 | 99 | Horus | Ranger | Legendary | 5 | Playable | Twin Shot | TODO: final lore description. Current ability note: Fires two quick strikes at the target. | TODO: Egyptian Empyrean Ranger, legendary auto-battler sprite. |
 | 98 | Isis | Healer | Legendary | 5 | Playable | Sacred Mend | TODO: final lore description. Current ability note: Heals the lowest-health ally. | TODO: Egyptian Empyrean Healer, legendary auto-battler sprite. |
-| 110 | Khnum | Healer | Legendary | 5 | Playable | Sacred Mend | TODO: final lore description. Current ability note: Heals the lowest-health ally. | TODO: Egyptian Empyrean Healer, legendary auto-battler sprite. |
+| 110 | Khnum | Guardian | Legendary | 5 | Playable | Potter Ward | TODO: final lore description. Current ability note: Gains a shield when energy is full. | TODO: Egyptian Empyrean Guardian, legendary auto-battler sprite. |
 | 103 | Ma'at | Guardian | Legendary | 5 | Playable | Oath Ward | TODO: final lore description. Current ability note: Gains a shield when energy is full. | TODO: Egyptian Empyrean Guardian, legendary auto-battler sprite. |
 | 111 | Neith | Ranger | Legendary | 5 | Playable | Twin Shot | TODO: final lore description. Current ability note: Fires two quick strikes at the target. | TODO: Egyptian Empyrean Ranger, legendary auto-battler sprite. |
 | 108 | Nephthys | Mage | Legendary | 5 | Playable | Mythic Burst | TODO: final lore description. Current ability note: Damages enemies near the target. | TODO: Egyptian Empyrean Mage, legendary auto-battler sprite. |
-| 112 | Nut | Mage | Legendary | 5 | Playable | Mythic Burst | TODO: final lore description. Current ability note: Damages enemies near the target. | TODO: Egyptian Empyrean Mage, legendary auto-battler sprite. |
+| 112 | Nut | Healer | Legendary | 5 | Playable | Starfield Mend | TODO: final lore description. Current ability note: Heals allies missing at least 10% HP, otherwise attacks. | TODO: Egyptian Empyrean Healer, legendary auto-battler sprite. |
 | 97 | Osiris | Healer | Mythic | 6 | Playable | Sacred Mend | TODO: final lore description. Current ability note: Heals the lowest-health ally. | TODO: Egyptian Empyrean Healer, mythic auto-battler sprite. |
 | 109 | Ptah | Guardian | Legendary | 5 | Playable | Oath Ward | TODO: final lore description. Current ability note: Gains a shield when energy is full. | TODO: Egyptian Empyrean Guardian, legendary auto-battler sprite. |
 | 96 | Ra | Mage | Mythic | 6 | Playable | Mythic Burst | TODO: final lore description. Current ability note: Damages enemies near the target. | TODO: Egyptian Empyrean Mage, mythic auto-battler sprite. |
@@ -206,7 +208,7 @@ The player-facing shop now focuses on all major Empyrean gods and Arthurian powe
 | 100 | Set | Bruiser | Legendary | 5 | Playable | Titan Breaker | TODO: final lore description. Current ability note: Hits the target and adjacent enemies. | TODO: Egyptian Empyrean Bruiser, legendary auto-battler sprite. |
 | 114 | Shu | Ranger | Legendary | 5 | Playable | Twin Shot | TODO: final lore description. Current ability note: Fires two quick strikes at the target. | TODO: Egyptian Empyrean Ranger, legendary auto-battler sprite. |
 | 107 | Sobek | Bruiser | Legendary | 5 | Playable | Titan Breaker | TODO: final lore description. Current ability note: Hits the target and adjacent enemies. | TODO: Egyptian Empyrean Bruiser, legendary auto-battler sprite. |
-| 115 | Tefnut | Mage | Legendary | 5 | Playable | Mythic Burst | TODO: final lore description. Current ability note: Damages enemies near the target. | TODO: Egyptian Empyrean Mage, legendary auto-battler sprite. |
+| 115 | Tefnut | Bruiser | Legendary | 5 | Playable | Rainlash Breaker | TODO: final lore description. Current ability note: Hits the target and adjacent enemies. | TODO: Egyptian Empyrean Bruiser, legendary auto-battler sprite. |
 | 102 | Thoth | Mage | Legendary | 5 | Playable | Mythic Burst | TODO: final lore description. Current ability note: Damages enemies near the target. | TODO: Egyptian Empyrean Mage, legendary auto-battler sprite. |
 | 116 | Wepwawet | Assassin | Epic | 4 | Playable | Fated Strike | TODO: final lore description. Current ability note: Deals a heavy critical strike. | TODO: Egyptian Empyrean Assassin, epic auto-battler sprite. |
 
@@ -255,18 +257,18 @@ The player-facing shop now focuses on all major Empyrean gods and Arthurian powe
 | 10 | Artemis | Ranger | Legendary | 5 | Playable | Moon Hunt | TODO: final lore description. Current ability note: Fires two quick strikes at the target. | TODO: Hellenic Empyrean Ranger, legendary auto-battler sprite. |
 | 7 | Athena | Guardian | Legendary | 5 | Playable | Aegis Formation | TODO: final lore description. Current ability note: Gains a shield when energy is full. | TODO: Hellenic Empyrean Guardian, legendary auto-battler sprite. |
 | 5 | Demeter | Healer | Legendary | 5 | Playable | Harvest Grace | TODO: final lore description. Current ability note: Heals the lowest-health ally. | TODO: Hellenic Empyrean Healer, legendary auto-battler sprite. |
-| 14 | Dionysus | Mage | Epic | 4 | Playable | Raving Revel | TODO: final lore description. Current ability note: Damages enemies near the target. | TODO: Hellenic Empyrean Mage, epic auto-battler sprite. |
+| 14 | Dionysus | Bruiser | Epic | 4 | Playable | Raving Revel | TODO: final lore description. Current ability note: Hits the target and adjacent enemies. | TODO: Hellenic Empyrean Bruiser, epic auto-battler sprite. |
 | 4 | Hades | Mage | Mythic | 6 | Playable | Underworld Bloom | TODO: final lore description. Current ability note: Unleashes shadow damage near the target. | TODO: Hellenic Empyrean Mage, mythic auto-battler sprite. |
 | 15 | Hecate | Mage | Legendary | 5 | Playable | Crossroads Hex | TODO: final lore description. Current ability note: Damages enemies near the target. | TODO: Hellenic Empyrean Mage, legendary auto-battler sprite. |
-| 17 | Helios | Mage | Legendary | 5 | Playable | Sun Chariot | TODO: final lore description. Current ability note: Damages enemies near the target. | TODO: Hellenic Empyrean Mage, legendary auto-battler sprite. |
+| 17 | Helios | Ranger | Legendary | 5 | Playable | Sun Chariot | TODO: final lore description. Current ability note: Fires two quick strikes at the target. | TODO: Hellenic Empyrean Ranger, legendary auto-battler sprite. |
 | 13 | Hephaestus | Guardian | Epic | 4 | Playable | Forge Shield | TODO: final lore description. Current ability note: Gains a shield when energy is full. | TODO: Hellenic Empyrean Guardian, epic auto-battler sprite. |
 | 2 | Hera | Guardian | Legendary | 5 | Playable | Queenly Aegis | TODO: final lore description. Current ability note: Raises a divine shield when energy is full. | TODO: Hellenic Empyrean Guardian, legendary auto-battler sprite. |
 | 11 | Hermes | Assassin | Epic | 4 | Playable | Winged Ambush | TODO: final lore description. Current ability note: Deals a heavy critical strike. | TODO: Hellenic Empyrean Assassin, epic auto-battler sprite. |
-| 19 | Hypnos | Mage | Epic | 4 | Playable | Dream Fog | TODO: final lore description. Current ability note: Damages enemies near the target. | TODO: Hellenic Empyrean Mage, epic auto-battler sprite. |
+| 19 | Hypnos | Healer | Epic | 4 | Playable | Dream Fog | TODO: final lore description. Current ability note: Heals allies missing at least 10% HP, otherwise attacks. | TODO: Hellenic Empyrean Healer, epic auto-battler sprite. |
 | 16 | Nike | Assassin | Epic | 4 | Playable | Victory Dive | TODO: final lore description. Current ability note: Deals a heavy critical strike. | TODO: Hellenic Empyrean Assassin, epic auto-battler sprite. |
-| 6 | Persephone | Mage | Epic | 4 | Playable | Pomegranate Hex | TODO: final lore description. Current ability note: Damages enemies near the target. | TODO: Hellenic Empyrean Mage, epic auto-battler sprite. |
+| 6 | Persephone | Assassin | Epic | 4 | Playable | Pomegranate Hex | TODO: final lore description. Current ability note: Deals a heavy critical strike. | TODO: Hellenic Empyrean Assassin, epic auto-battler sprite. |
 | 3 | Poseidon | Bruiser | Mythic | 6 | Playable | Seaquake | TODO: final lore description. Current ability note: Crushes nearby enemies with a tidal blow. | TODO: Hellenic Empyrean Bruiser, mythic auto-battler sprite. |
-| 18 | Selene | Healer | Epic | 4 | Playable | Moonlit Mend | TODO: final lore description. Current ability note: Heals the lowest-health ally. | TODO: Hellenic Empyrean Healer, epic auto-battler sprite. |
+| 18 | Selene | Healer | Epic | 4 | Playable | Moonlit Mend | TODO: final lore description. Current ability note: Heals allies missing at least 10% HP, otherwise attacks. | TODO: Hellenic Empyrean Healer, epic auto-battler sprite. |
 | 20 | Thanatos | Assassin | Legendary | 5 | Playable | Death's Edge | TODO: final lore description. Current ability note: Deals a heavy critical strike. | TODO: Hellenic Empyrean Assassin, legendary auto-battler sprite. |
 | 1 | Zeus | Mage | Mythic | 6 | Playable | Thunderbolt | TODO: final lore description. Current ability note: Calls lightning around the target. | TODO: Hellenic Empyrean Mage, mythic auto-battler sprite. |
 
@@ -319,16 +321,16 @@ The player-facing shop now focuses on all major Empyrean gods and Arthurian powe
 | 63 | Baldr | Healer | Legendary | 5 | Playable | Sacred Mend | TODO: final lore description. Current ability note: Heals the lowest-health ally. | TODO: Norse Empyrean Healer, legendary auto-battler sprite. |
 | 69 | Bragi | Mage | Epic | 4 | Playable | Mythic Burst | TODO: final lore description. Current ability note: Damages enemies near the target. | TODO: Norse Empyrean Mage, epic auto-battler sprite. |
 | 74 | Forseti | Guardian | Legendary | 5 | Playable | Oath Ward | TODO: final lore description. Current ability note: Gains a shield when energy is full. | TODO: Norse Empyrean Guardian, legendary auto-battler sprite. |
-| 58 | Freyja | Healer | Legendary | 5 | Playable | Sacred Mend | TODO: final lore description. Current ability note: Heals the lowest-health ally. | TODO: Norse Empyrean Healer, legendary auto-battler sprite. |
+| 58 | Freyja | Assassin | Legendary | 5 | Playable | Falcon Dive | TODO: final lore description. Current ability note: Deals a heavy critical strike. | TODO: Norse Empyrean Assassin, legendary auto-battler sprite. |
 | 59 | Freyr | Ranger | Legendary | 5 | Playable | Twin Shot | TODO: final lore description. Current ability note: Fires two quick strikes at the target. | TODO: Norse Empyrean Ranger, legendary auto-battler sprite. |
-| 60 | Frigg | Healer | Legendary | 5 | Playable | Sacred Mend | TODO: final lore description. Current ability note: Heals the lowest-health ally. | TODO: Norse Empyrean Healer, legendary auto-battler sprite. |
+| 60 | Frigg | Healer | Legendary | 5 | Playable | Spindle Mend | TODO: final lore description. Current ability note: Heals allies missing at least 10% HP, otherwise attacks. | TODO: Norse Empyrean Healer, legendary auto-battler sprite. |
 | 62 | Heimdall | Guardian | Legendary | 5 | Playable | Oath Ward | TODO: final lore description. Current ability note: Gains a shield when energy is full. | TODO: Norse Empyrean Guardian, legendary auto-battler sprite. |
 | 65 | Hel | Mage | Legendary | 5 | Playable | Mythic Burst | TODO: final lore description. Current ability note: Damages enemies near the target. | TODO: Norse Empyrean Mage, legendary auto-battler sprite. |
 | 68 | Idunn | Healer | Epic | 4 | Playable | Sacred Mend | TODO: final lore description. Current ability note: Heals the lowest-health ally. | TODO: Norse Empyrean Healer, epic auto-battler sprite. |
 | 64 | Loki | Assassin | Legendary | 5 | Playable | Fated Strike | TODO: final lore description. Current ability note: Deals a heavy critical strike. | TODO: Norse Empyrean Assassin, legendary auto-battler sprite. |
-| 66 | Njord | Healer | Epic | 4 | Playable | Sacred Mend | TODO: final lore description. Current ability note: Heals the lowest-health ally. | TODO: Norse Empyrean Healer, epic auto-battler sprite. |
+| 66 | Njord | Bruiser | Epic | 4 | Playable | Sea-Breaker | TODO: final lore description. Current ability note: Hits the target and adjacent enemies. | TODO: Norse Empyrean Bruiser, epic auto-battler sprite. |
 | 56 | Odin | Mage | Mythic | 6 | Playable | Mythic Burst | TODO: final lore description. Current ability note: Damages enemies near the target. | TODO: Norse Empyrean Mage, mythic auto-battler sprite. |
-| 70 | Sif | Guardian | Epic | 4 | Playable | Oath Ward | TODO: final lore description. Current ability note: Gains a shield when energy is full. | TODO: Norse Empyrean Guardian, epic auto-battler sprite. |
+| 70 | Sif | Bruiser | Epic | 4 | Playable | Golden-Hair Breaker | TODO: final lore description. Current ability note: Hits the target and adjacent enemies. | TODO: Norse Empyrean Bruiser, epic auto-battler sprite. |
 | 67 | Skadi | Ranger | Epic | 4 | Playable | Twin Shot | TODO: final lore description. Current ability note: Fires two quick strikes at the target. | TODO: Norse Empyrean Ranger, epic auto-battler sprite. |
 | 57 | Thor | Bruiser | Mythic | 6 | Playable | Titan Breaker | TODO: final lore description. Current ability note: Hits the target and adjacent enemies. | TODO: Norse Empyrean Bruiser, mythic auto-battler sprite. |
 | 61 | Tyr | Guardian | Legendary | 5 | Playable | Oath Ward | TODO: final lore description. Current ability note: Gains a shield when energy is full. | TODO: Norse Empyrean Guardian, legendary auto-battler sprite. |
@@ -388,4 +390,3 @@ The player-facing shop now focuses on all major Empyrean gods and Arthurian powe
 | 95 | Things born from Ginnungagap | Mage | Epic | 4 | Enemy Only | Mythic Burst | TODO: final lore description. Current ability note: Damages enemies near the target. | TODO: Norse Wyrdbound Mage, epic auto-battler sprite. |
 | 94 | Troll lines | Guardian | Rare | 3 | Enemy Only | Oath Ward | TODO: final lore description. Current ability note: Gains a shield when energy is full. | TODO: Norse Wyrdbound Guardian, rare auto-battler sprite. |
 | 84 | Ymir | Bruiser | Mythic | 6 | Boss Only | Titan Breaker | TODO: final lore description. Current ability note: Hits the target and adjacent enemies. | TODO: Norse Wyrdbound Bruiser, mythic auto-battler sprite. |
-

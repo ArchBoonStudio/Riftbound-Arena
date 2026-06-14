@@ -62,7 +62,7 @@ Choose one of three random Common champions to start a new run, buy more mythic 
 
 The game uses a mythic champion pool built around pantheons, source types, classes, and rarities. The normal shop pool has been reduced so gods and major Arthurian powers are the main collectible champions.
 
-Champion fields include name, pantheon, source type, class, rarity, cost, HP, damage, attack speed, range, armor, energy maximum, ability, and tags.
+Champion fields include name, pantheon, source type, class, rarity, cost, HP, damage, attack speed, range, armor, block chance, energy maximum, ability, and tags.
 
 The shop only pulls `Playable` units. Major Empyrean gods and Arthurian powers remain playable, while most older heroic, sacred, spirit, fae, and bloodline filler units are now `Locked` for future unlocks or production planning. Wyrdbound monsters and horrors are mostly `Enemy Only` or `Boss Only`.
 
@@ -201,10 +201,10 @@ Pantheon synergies:
 
 Class synergies:
 
-- Guardian 2/4/6: armor, team starting shield, then bonus Guardian max HP.
+- Guardian 2/4/6: armor and modest Guardian block chance, team starting shield, then bonus Guardian max HP.
 - Ranger 2/4/6: attack speed, more attack speed, then chance for an extra shot.
 - Mage 2/4/6: ability damage, more ability damage, then bonus energy generation.
-- Healer 2/4/6: healing power, overheal shielding, then periodic healing for the lowest-health ally.
+- Healer 2/4/6: healing power, overheal shielding, then periodic healing for the lowest-health ally. Healer abilities heal allies only when someone is missing at least 10% HP; otherwise they attack.
 - Assassin 2/4/6: critical chance, critical damage, then energy on kill.
 - Bruiser 2/4/6: max HP, more max HP, then damage from missing HP.
 

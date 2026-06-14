@@ -69,6 +69,9 @@ const ROUND_TIME_LIMIT_MS = 60000;
 const OVERTIME_DURATION_MS = 10000;
 const COMBAT_TICK_MS = 420;
 const OVERTIME_TICK_MS = Math.max(90, Math.round(COMBAT_TICK_MS / 4));
+const GUARDIAN_BASE_BLOCK_CHANCE = 0.05;
+const GUARDIAN_BLOCK_DAMAGE_MULT = 0.5;
+const HEALER_MIN_MISSING_HP_PCT = 0.1;
 
 const LEGACY_ENEMY_LIBRARY = [
   { name: 'Training Goblin', icon: '👺', hp: 72, damage: 11, speed: 1220, range: 1, armor: 0 },
@@ -140,7 +143,7 @@ const SHOP_RARITY_ODDS = [
 ];
 
 const CLASS_BASE = {
-  Guardian: { hp: 190, damage: 18, attackSpeed: 1120, range: 1, armor: 9, ability: 'shield', abilityName: 'Oath Ward', abilityDescription: 'Gains a shield when energy is full.' },
+  Guardian: { hp: 190, damage: 18, attackSpeed: 1120, range: 1, armor: 9, blockChance: GUARDIAN_BASE_BLOCK_CHANCE, ability: 'shield', abilityName: 'Oath Ward', abilityDescription: 'Gains a shield when energy is full.' },
   Ranger: { hp: 100, damage: 27, attackSpeed: 860, range: 3, armor: 2, ability: 'rapid', abilityName: 'Twin Shot', abilityDescription: 'Fires two quick strikes at the target.' },
   Mage: { hp: 92, damage: 32, attackSpeed: 1200, range: 3, armor: 1, ability: 'aoe', abilityName: 'Mythic Burst', abilityDescription: 'Damages enemies near the target.' },
   Healer: { hp: 118, damage: 15, attackSpeed: 1120, range: 2, armor: 3, ability: 'heal', abilityName: 'Sacred Mend', abilityDescription: 'Heals the lowest-health ally.' },
@@ -204,6 +207,7 @@ function makeChampion(config) {
     speed: attackSpeed,
     range: config.range || base.range,
     armor: config.armor ?? Math.round(base.armor * rarityStats.stat),
+    blockChance: config.blockChance ?? base.blockChance ?? 0,
     energyMax: config.energyMax || 100,
     ability: config.ability || base.ability,
     abilityName: config.abilityName || base.abilityName,
@@ -240,7 +244,7 @@ const CHAMPION_POOL = [
     { name: 'Poseidon', class: 'Bruiser', rarity: 'Mythic', abilityName: 'Seaquake', abilityDescription: 'Crushes nearby enemies with a tidal blow.' },
     { name: 'Hades', class: 'Mage', rarity: 'Mythic', abilityName: 'Underworld Bloom', abilityDescription: 'Unleashes shadow damage near the target.' },
     { name: 'Demeter', class: 'Healer', rarity: 'Legendary', abilityName: 'Harvest Grace' },
-    { name: 'Persephone', class: 'Mage', rarity: 'Epic', abilityName: 'Pomegranate Hex' },
+    { name: 'Persephone', class: 'Assassin', rarity: 'Epic', abilityName: 'Pomegranate Hex' },
     { name: 'Athena', class: 'Guardian', rarity: 'Legendary', abilityName: 'Aegis Formation' },
     { name: 'Ares', class: 'Bruiser', rarity: 'Legendary', abilityName: 'War God Cleave' },
     { name: 'Apollo', class: 'Ranger', rarity: 'Legendary', abilityName: 'Solar Arrows' },
@@ -248,12 +252,12 @@ const CHAMPION_POOL = [
     { name: 'Hermes', class: 'Assassin', rarity: 'Epic', abilityName: 'Winged Ambush' },
     { name: 'Aphrodite', class: 'Healer', rarity: 'Epic', abilityName: 'Golden Charm' },
     { name: 'Hephaestus', class: 'Guardian', rarity: 'Epic', abilityName: 'Forge Shield' },
-    { name: 'Dionysus', class: 'Mage', rarity: 'Epic', abilityName: 'Raving Revel' },
+    { name: 'Dionysus', class: 'Bruiser', rarity: 'Epic', abilityName: 'Raving Revel' },
     { name: 'Hecate', class: 'Mage', rarity: 'Legendary', abilityName: 'Crossroads Hex' },
     { name: 'Nike', class: 'Assassin', rarity: 'Epic', abilityName: 'Victory Dive' },
-    { name: 'Helios', class: 'Mage', rarity: 'Legendary', abilityName: 'Sun Chariot' },
+    { name: 'Helios', class: 'Ranger', rarity: 'Legendary', abilityName: 'Sun Chariot' },
     { name: 'Selene', class: 'Healer', rarity: 'Epic', abilityName: 'Moonlit Mend' },
-    { name: 'Hypnos', class: 'Mage', rarity: 'Epic', abilityName: 'Dream Fog' },
+    { name: 'Hypnos', class: 'Healer', rarity: 'Epic', abilityName: 'Dream Fog' },
     { name: 'Thanatos', class: 'Assassin', rarity: 'Legendary', abilityName: "Death's Edge" }
   ] }),
   ...rosterGroup({ pantheon: 'Hellenic', sourceType: 'Worshiper', defaultRarity: 'Common', names: [
@@ -295,12 +299,12 @@ const CHAMPION_POOL = [
 
   ...rosterGroup({ pantheon: 'Norse', sourceType: 'Empyrean', defaultRarity: 'Legendary', names: [
     { name: 'Odin', class: 'Mage', rarity: 'Mythic' }, { name: 'Thor', class: 'Bruiser', rarity: 'Mythic' },
-    { name: 'Freyja', class: 'Healer', rarity: 'Legendary' }, { name: 'Freyr', class: 'Ranger' }, { name: 'Frigg', class: 'Healer' },
+    { name: 'Freyja', class: 'Assassin', rarity: 'Legendary', abilityName: 'Falcon Dive' }, { name: 'Freyr', class: 'Ranger' }, { name: 'Frigg', class: 'Healer', abilityName: 'Spindle Mend' },
     { name: 'Tyr', class: 'Guardian' }, { name: 'Heimdall', class: 'Guardian' }, { name: 'Baldr', class: 'Healer' },
     { name: 'Loki', class: 'Assassin', rarity: 'Legendary' }, { name: 'Hel', class: 'Mage', rarity: 'Legendary' },
-    { name: 'Njord', class: 'Healer', rarity: 'Epic' }, { name: 'Skadi', class: 'Ranger', rarity: 'Epic' },
+    { name: 'Njord', class: 'Bruiser', rarity: 'Epic', abilityName: 'Sea-Breaker' }, { name: 'Skadi', class: 'Ranger', rarity: 'Epic' },
     { name: 'Idunn', class: 'Healer', rarity: 'Epic' }, { name: 'Bragi', class: 'Mage', rarity: 'Epic' },
-    { name: 'Sif', class: 'Guardian', rarity: 'Epic' }, { name: 'Vidar', class: 'Bruiser' }, { name: 'Vali', class: 'Assassin' },
+    { name: 'Sif', class: 'Bruiser', rarity: 'Epic', abilityName: 'Golden-Hair Breaker' }, { name: 'Vidar', class: 'Bruiser' }, { name: 'Vali', class: 'Assassin' },
     { name: 'Ullr', class: 'Ranger' }, { name: 'Forseti', class: 'Guardian' }
   ] }),
   ...rosterGroup({ pantheon: 'Norse', sourceType: 'Heroic', defaultRarity: 'Common', locked: true, names: [
@@ -324,10 +328,10 @@ const CHAMPION_POOL = [
     { name: 'Isis', class: 'Healer', rarity: 'Legendary' }, { name: 'Horus', class: 'Ranger', rarity: 'Legendary' },
     { name: 'Set', class: 'Bruiser', rarity: 'Legendary' }, { name: 'Anubis', class: 'Assassin', rarity: 'Legendary' },
     { name: 'Thoth', class: 'Mage' }, { name: "Ma'at", class: 'Guardian' }, { name: 'Bastet', class: 'Assassin', rarity: 'Epic' },
-    { name: 'Sekhmet', class: 'Bruiser' }, { name: 'Hathor', class: 'Healer', rarity: 'Epic' }, { name: 'Sobek', class: 'Bruiser' },
-    { name: 'Nephthys', class: 'Mage' }, { name: 'Ptah', class: 'Guardian' }, { name: 'Khnum', class: 'Healer' },
-    { name: 'Neith', class: 'Ranger' }, { name: 'Nut', class: 'Mage' }, { name: 'Geb', class: 'Guardian' },
-    { name: 'Shu', class: 'Ranger' }, { name: 'Tefnut', class: 'Mage' }, { name: 'Wepwawet', class: 'Assassin', rarity: 'Epic' }
+    { name: 'Sekhmet', class: 'Bruiser' }, { name: 'Hathor', class: 'Ranger', rarity: 'Epic', abilityName: 'Sistrum Volley' }, { name: 'Sobek', class: 'Bruiser' },
+    { name: 'Nephthys', class: 'Mage' }, { name: 'Ptah', class: 'Guardian' }, { name: 'Khnum', class: 'Guardian', abilityName: 'Potter Ward' },
+    { name: 'Neith', class: 'Ranger' }, { name: 'Nut', class: 'Healer', abilityName: 'Starfield Mend' }, { name: 'Geb', class: 'Bruiser', abilityName: 'Earthbreaker' },
+    { name: 'Shu', class: 'Ranger' }, { name: 'Tefnut', class: 'Bruiser', abilityName: 'Rainlash Breaker' }, { name: 'Wepwawet', class: 'Assassin', rarity: 'Epic' }
   ] }),
   ...rosterGroup({ pantheon: 'Egyptian', sourceType: 'Sacred', defaultRarity: 'Common', locked: true, names: [
     { name: 'Pharaoh bloodlines', class: 'Guardian', rarity: 'Rare' }, { name: "Ma'at-bound judges", class: 'Guardian' },
@@ -346,11 +350,11 @@ const CHAMPION_POOL = [
   ...rosterGroup({ pantheon: 'Celtic', sourceType: 'Empyrean', defaultRarity: 'Legendary', names: [
     { name: 'The Dagda', class: 'Bruiser', rarity: 'Mythic' }, { name: 'The Morrigan', class: 'Mage', rarity: 'Mythic' },
     { name: 'Brigid', class: 'Healer' }, { name: 'Lugh', class: 'Ranger' }, { name: 'Nuada', class: 'Guardian' },
-    { name: 'Manannan mac Lir', class: 'Mage' }, { name: 'Danu', class: 'Healer' }, { name: 'Arawn', class: 'Mage' },
-    { name: 'Rhiannon', class: 'Healer', rarity: 'Epic' }, { name: 'Cernunnos', class: 'Bruiser' }, { name: 'Ogma', class: 'Guardian' },
+    { name: 'Manannan mac Lir', class: 'Ranger', abilityName: 'Mist-Spear Volley' }, { name: 'Danu', class: 'Mage', abilityName: 'Well of Stars' }, { name: 'Arawn', class: 'Assassin', abilityName: 'Otherworld Ambush' },
+    { name: 'Rhiannon', class: 'Healer', rarity: 'Epic' }, { name: 'Cernunnos', class: 'Bruiser' }, { name: 'Ogma', class: 'Mage', abilityName: 'Ogham Burst' },
     { name: 'Dian Cecht', class: 'Healer' }, { name: 'Goibniu', class: 'Guardian' }, { name: 'Macha', class: 'Assassin' },
-    { name: 'Badb', class: 'Mage' }, { name: 'Eriu', class: 'Guardian' }, { name: 'Flidais', class: 'Ranger' },
-    { name: 'Nantosuelta', class: 'Healer' }, { name: 'Taranis', class: 'Mage' }, { name: 'Epona', class: 'Ranger' }
+    { name: 'Badb', class: 'Mage' }, { name: 'Eriu', class: 'Healer', abilityName: 'Sovereign Grace' }, { name: 'Flidais', class: 'Ranger' },
+    { name: 'Nantosuelta', class: 'Guardian', abilityName: 'Household Ward' }, { name: 'Taranis', class: 'Bruiser', abilityName: 'Thunder Hammer' }, { name: 'Epona', class: 'Ranger' }
   ] }),
   ...rosterGroup({ pantheon: 'Celtic', sourceType: 'Fae', defaultRarity: 'Common', locked: true, names: [
     { name: 'Cu Chulainn', class: 'Bruiser', sourceType: 'Heroic', rarity: 'Epic' }, { name: 'Fionn mac Cumhaill', class: 'Ranger', sourceType: 'Heroic', rarity: 'Rare' },
@@ -369,11 +373,11 @@ const CHAMPION_POOL = [
   ...rosterGroup({ pantheon: 'Arthurian', sourceType: 'Empyrean', defaultRarity: 'Legendary', names: [
     { name: 'Arthur Pendragon', class: 'Guardian', rarity: 'Mythic' }, { name: 'Merlin', class: 'Mage', rarity: 'Mythic' },
     { name: 'Morgan le Fay', class: 'Mage', rarity: 'Legendary' }, { name: 'Nimue / Viviane', class: 'Healer' },
-    { name: 'The Lady of the Lake', class: 'Healer' }, { name: 'The Fisher King', class: 'Guardian' },
-    { name: 'Galahad', class: 'Guardian' }, { name: 'Lancelot', class: 'Bruiser' }, { name: 'Gawain', class: 'Bruiser' },
-    { name: 'Percival', class: 'Ranger' }, { name: 'Bedivere', class: 'Guardian' }, { name: 'Tristan', class: 'Assassin' },
-    { name: 'Guinevere', class: 'Healer' }, { name: 'The Green Knight', class: 'Bruiser', rarity: 'Epic' },
-    { name: 'The Grail Maidens', class: 'Healer' }, { name: 'The Pendragon Line', class: 'Guardian' }, { name: 'Avalon Queens', class: 'Mage' }
+    { name: 'The Lady of the Lake', class: 'Mage', abilityName: 'Lakefire Rite' }, { name: 'The Fisher King', class: 'Healer', abilityName: 'Wounded Grail' },
+    { name: 'Galahad', class: 'Healer', abilityName: 'Pure Grail' }, { name: 'Lancelot', class: 'Bruiser' }, { name: 'Gawain', class: 'Bruiser' },
+    { name: 'Percival', class: 'Ranger' }, { name: 'Bedivere', class: 'Assassin', abilityName: 'Final Strike' }, { name: 'Tristan', class: 'Assassin' },
+    { name: 'Guinevere', class: 'Ranger', abilityName: 'Royal Volley' }, { name: 'The Green Knight', class: 'Bruiser', rarity: 'Epic' },
+    { name: 'The Grail Maidens', class: 'Mage', abilityName: 'Grail Radiance' }, { name: 'The Pendragon Line', class: 'Bruiser', abilityName: 'Dragon Oath' }, { name: 'Avalon Queens', class: 'Mage' }
   ] }),
   ...rosterGroup({ pantheon: 'Arthurian', sourceType: 'Heroic', defaultRarity: 'Common', locked: true, names: [
     { name: 'Pendragon descendants', class: 'Guardian', rarity: 'Rare' }, { name: 'Grail guardians', class: 'Guardian', sourceType: 'Sacred' },
@@ -493,9 +497,9 @@ const SYNERGIES = [
   { key: 'Arthurian', category: 'Pantheon', threshold: 2, text: 'Arthurian units gain +10 armor.' },
   { key: 'Arthurian', category: 'Pantheon', threshold: 4, text: 'Arthurian units gain a battle-start oath shield.' },
   { key: 'Arthurian', category: 'Pantheon', threshold: 6, text: 'Arthurian units deal bonus damage while shielded.' },
-  { key: 'Guardian', category: 'Class', threshold: 2, text: 'Guardians gain +15 armor.' },
-  { key: 'Guardian', category: 'Class', threshold: 4, text: 'All allies gain a small battle-start shield.' },
-  { key: 'Guardian', category: 'Class', threshold: 6, text: 'Guardians gain bonus max HP.' },
+  { key: 'Guardian', category: 'Class', threshold: 2, text: 'Guardians gain +10 armor and small block chance.' },
+  { key: 'Guardian', category: 'Class', threshold: 4, text: 'All allies gain a small battle-start shield, and Guardians gain more block chance.' },
+  { key: 'Guardian', category: 'Class', threshold: 6, text: 'Guardians gain bonus max HP and peak block chance.' },
   { key: 'Ranger', category: 'Class', threshold: 2, text: 'Rangers gain +10% attack speed.' },
   { key: 'Ranger', category: 'Class', threshold: 4, text: 'Rangers gain +20% attack speed.' },
   { key: 'Ranger', category: 'Class', threshold: 6, text: 'Rangers have a chance to fire an extra shot.' },
@@ -651,6 +655,7 @@ function makeUnit(template, side = 'player') {
     baseDamage: template.damage,
     baseSpeed: template.attackSpeed || template.speed,
     baseArmor: template.armor || 0,
+    baseBlockChance: template.blockChance || 0,
     range: template.range || 1,
     ability: template.ability || 'strike',
     abilityName: template.abilityName || 'Strike',
@@ -664,6 +669,7 @@ function makeUnit(template, side = 'player') {
     damage: 1,
     speed: 1000,
     armor: 0,
+    blockChance: 0,
     mana: 0,
     energyMax: template.energyMax || 100,
     alive: true,
@@ -699,6 +705,7 @@ function applyStarStats(unit, healToFull = false) {
   unit.damage = Math.round(unit.baseDamage * scale.damage);
   unit.speed = Math.max(480, Math.round(unit.baseSpeed * scale.speed));
   unit.armor = Math.round(unit.baseArmor * scale.armor);
+  unit.blockChance = unit.baseBlockChance || 0;
   if (healToFull) unit.hp = unit.maxHp;
   else unit.hp = Math.min(unit.hp, unit.maxHp);
 }
@@ -1061,6 +1068,7 @@ function renderShop() {
         <span class="pill">RNG ${item.range}</span>
         <span class="pill">SPD ${speedLabel(item.attackSpeed || item.speed)}</span>
         <span class="pill">ARM ${item.armor || 0}</span>
+        <span class="pill">BLK ${blockChanceLabel(item.blockChance)}</span>
         <span class="pill">EN ${item.energyMax}</span>
         <span class="pill">Owned ${owned}/3</span>
       </div>
@@ -1196,7 +1204,7 @@ function renderCodex() {
         <div class="codex-detail rarity-${selected.rarity.toLowerCase()}">
           <strong>${selected.name}</strong>
           <span>${selected.pantheon} / ${selected.sourceType} / ${selected.class}</span>
-          <span>${selected.rarity} / ${selected.cost}g / HP ${selected.hp} / DMG ${selected.damage}</span>
+          <span>${selected.rarity} / ${selected.cost}g / HP ${selected.hp} / DMG ${selected.damage} / BLK ${blockChanceLabel(selected.blockChance)}</span>
           <p><b>${selected.abilityName}:</b> ${selected.abilityDescription}</p>
         </div>
       ` : '<div class="empty-note">No champions found.</div>'}
@@ -1222,7 +1230,7 @@ function renderUnitToken(unit, draggable = false) {
   const selected = unit.id === state.selectedUnitId;
   token.className = `unit-token rarity-${String(unit.rarity || 'Common').toLowerCase()} ${unit.side === 'enemy' ? 'enemy' : ''} ${unit.alive === false ? 'dead' : ''} ${selected ? 'selected' : ''}`;
   token.dataset.unitId = unit.id;
-  token.title = `${unit.name} ${starLabel(unit.star)}\n${unit.pantheon} • ${unit.sourceType} • ${unit.unitClass} • ${unit.rarity}\nHP ${Math.max(0, Math.round(unit.hp))}/${unit.maxHp} | Energy ${Math.round(unit.mana || 0)}/${unit.energyMax} | DMG ${unit.damage} | RNG ${unit.range} | SPD ${speedLabel(unit.speed)} | ARM ${unit.armor}\n${unit.abilityName}: ${unit.abilityText}${unit.side === 'player' && state.mode === 'planning' ? '\nDrag to deploy. Double-click to sell.' : ''}`;
+  token.title = `${unit.name} ${starLabel(unit.star)}\n${unit.pantheon} • ${unit.sourceType} • ${unit.unitClass} • ${unit.rarity}\nHP ${Math.max(0, Math.round(unit.hp))}/${unit.maxHp} | Energy ${Math.round(unit.mana || 0)}/${unit.energyMax} | DMG ${unit.damage} | RNG ${unit.range} | SPD ${speedLabel(unit.speed)} | ARM ${unit.armor} | BLK ${blockChanceLabel(unit.blockChance)}\n${unit.abilityName}: ${unit.abilityText}${unit.side === 'player' && state.mode === 'planning' ? '\nDrag to deploy. Double-click to sell.' : ''}`;
 
   if (draggable && state.mode === 'planning' && unit.side === 'player') {
     token.draggable = true;
@@ -1841,6 +1849,8 @@ function cloneForCombat(unit) {
     healMult: 1,
     critChance: unit.unitClass === 'Assassin' ? 0.1 : 0,
     critDamageMult: 1.8,
+    blockChance: unit.blockChance || 0,
+    blockDamageMult: GUARDIAN_BLOCK_DAMAGE_MULT,
     burnOnHit: false,
     dodgeChance: 0,
     manaGainMult: 1,
@@ -1984,7 +1994,12 @@ function applySynergyBonuses(units) {
 
   const guardianTier = tier('Guardian');
   player.filter(u => u.unitClass === 'Guardian').forEach(u => {
-    if (guardianTier >= 2) u.armor += 15;
+    if (guardianTier >= 2) {
+      u.armor += 10;
+      u.blockChance += 0.04;
+    }
+    if (guardianTier >= 4) u.blockChance += 0.03;
+    if (guardianTier >= 6) u.blockChance += 0.03;
     if (guardianTier >= 6) addMaxHp(u, 0.15);
   });
   if (guardianTier >= 4) player.forEach(u => addShield(u, 0.06));
@@ -2306,6 +2321,13 @@ function gainEnergy(unit, amount, target = null) {
   }
 }
 
+function chooseHealTarget(caster) {
+  const healThreshold = 1 - HEALER_MIN_MISSING_HP_PCT;
+  return state.combatUnits
+    .filter(u => u.side === caster.side && u.alive && (u.hp / u.maxHp) <= healThreshold)
+    .sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp))[0] || null;
+}
+
 function castAbility(caster, target) {
   if (!caster.alive || !target?.alive) return;
   log(`${caster.name} uses ${caster.abilityName}.`, 'special');
@@ -2330,11 +2352,13 @@ function castAbility(caster, target) {
       break;
     }
     case 'heal': {
-      const allies = state.combatUnits
-        .filter(u => u.side === caster.side && u.alive)
-        .sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp));
-      const healTarget = allies[0];
-      if (healTarget) healUnit(healTarget, (52 + caster.star * 12) * caster.healMult, caster.name);
+      const healTarget = chooseHealTarget(caster);
+      if (healTarget) {
+        healUnit(healTarget, (52 + caster.star * 12) * caster.healMult, caster.name);
+      } else {
+        log(`${caster.name} finds no urgent wounds and turns the blessing into an attack.`, 'damage');
+        applyDamage(target, caster.damage * 1.15 * caster.abilityDamageMult, { attacker: caster, canDodge: true, attackType: 'healer strike' });
+      }
       break;
     }
     case 'crit':
@@ -2373,6 +2397,15 @@ function applyDamage(target, amount, options = {}) {
   if (!options.trueDamage) damage = Math.max(1, raw - target.armor);
   if (target.damageReduction > 0 && !options.trueDamage) damage = Math.max(1, Math.round(damage * (1 - target.damageReduction)));
 
+  let guardBlocked = 0;
+  if (!options.trueDamage && target.blockChance > 0 && Math.random() < target.blockChance) {
+    const beforeBlock = damage;
+    damage = Math.max(1, Math.round(damage * (target.blockDamageMult || GUARDIAN_BLOCK_DAMAGE_MULT)));
+    guardBlocked = Math.max(0, beforeBlock - damage);
+    popDamage(target, 'Block');
+    if (window.playShieldPopup) window.playShieldPopup(target.id, 'Block');
+  }
+
   let remaining = damage;
   let blocked = 0;
   if (target.shield > 0) {
@@ -2389,6 +2422,7 @@ function applyDamage(target, amount, options = {}) {
   if (attacker && !options.silent) {
     const blockedText = blocked > 0 ? ` (${blocked} blocked)` : '';
     log(`${attacker.name} hits ${target.name} for ${hpDamage}${blockedText}.`, blocked > 0 && hpDamage === 0 ? 'shield' : 'damage');
+    if (guardBlocked > 0) log(`${target.name} blocks ${guardBlocked} damage with a guardian stance.`, 'shield');
     if (blocked > 0 && hpDamage > 0) log(`${target.name} blocks ${blocked} damage with shield.`, 'shield');
   } else if (options.isDot && !options.silent) {
     const dotLabel = options.dotType === 'corruption' ? 'corrupts' : 'burns';
@@ -2641,6 +2675,10 @@ function starLabel(star) {
 
 function speedLabel(ms) {
   return `${(1000 / ms).toFixed(2)}/s`;
+}
+
+function blockChanceLabel(value = 0) {
+  return `${Math.round(Math.max(0, value) * 100)}%`;
 }
 
 function isBossRound(round) {

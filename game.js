@@ -127,7 +127,10 @@ const SHOP_RARITY_ODDS = [
   { round: 8, odds: { Common: 12, Uncommon: 24, Rare: 34, Epic: 24, Legendary: 6 } },
   { round: 9, odds: { Common: 8, Uncommon: 18, Rare: 34, Epic: 29, Legendary: 10, Mythic: 1 } },
   { round: 10, odds: { Common: 5, Uncommon: 14, Rare: 31, Epic: 32, Legendary: 15, Mythic: 3 } },
-  { round: 11, odds: { Common: 3, Uncommon: 10, Rare: 27, Epic: 34, Legendary: 20, Mythic: 6 } }
+  { round: 11, odds: { Common: 3, Uncommon: 10, Rare: 27, Epic: 34, Legendary: 20, Mythic: 6 } },
+  { round: 14, odds: { Common: 2, Uncommon: 8, Rare: 24, Epic: 35, Legendary: 23, Mythic: 8 } },
+  { round: 17, odds: { Common: 1, Uncommon: 6, Rare: 20, Epic: 35, Legendary: 27, Mythic: 11 } },
+  { round: 20, odds: { Common: 1, Uncommon: 4, Rare: 16, Epic: 34, Legendary: 30, Mythic: 15 } }
 ];
 
 const CLASS_BASE = {
@@ -408,7 +411,14 @@ const ENEMY_LIBRARY = [
   enemyFromChampion('Typhon', { hp: 260, damage: 34, armor: 10, range: 1 }),
   enemyFromChampion('Mordred', { hp: 150, damage: 38, armor: 4, range: 1, class: 'Assassin', unitClass: 'Assassin' }),
   enemyFromChampion('Apep', { hp: 360, damage: 42, armor: 10, range: 3, class: 'Mage', unitClass: 'Mage' }),
-  enemyFromChampion('Chaos', { hp: 1280, damage: 72, armor: 18, range: 3, class: 'Boss', unitClass: 'Boss', ability: 'aoe', abilityName: 'Primeval Unmaking' })
+  enemyFromChampion('Chaos', { hp: 980, damage: 58, armor: 16, range: 3, class: 'Boss', unitClass: 'Boss', ability: 'aoe', abilityName: 'Primeval Unmaking' }),
+  enemyFromChampion('Ymir', { hp: 520, damage: 38, armor: 13, range: 1, class: 'Boss', unitClass: 'Boss', ability: 'cleave', abilityName: 'World-Frost Breaker' }),
+  enemyFromChampion('Balor', { hp: 620, damage: 48, armor: 10, range: 3, class: 'Boss', unitClass: 'Boss', ability: 'aoe', abilityName: 'Baleful Eye' }),
+  enemyFromChampion('Apep', { name: 'Apep, Sunless Serpent', hp: 760, damage: 56, armor: 14, range: 3, class: 'Boss', unitClass: 'Boss', ability: 'aoe', abilityName: 'Solar Devouring' }),
+  enemyFromChampion('The Dragon Beneath Britain', { hp: 1120, damage: 66, armor: 20, range: 1, class: 'Boss', unitClass: 'Boss', ability: 'cleave', abilityName: 'Britain-Shaking Coil' }),
+  enemyFromChampion('Typhon', { name: 'Typhon, World-Breaker', hp: 900, damage: 62, armor: 18, range: 1, class: 'Boss', unitClass: 'Boss', ability: 'cleave', abilityName: 'Storm of Monsters' }),
+  enemyFromChampion('The Wounded Kingdom', { hp: 860, damage: 52, armor: 15, range: 3, class: 'Boss', unitClass: 'Boss', ability: 'aoe', abilityName: 'Unhealed Land' }),
+  enemyFromChampion('The Kingdom That Never Healed', { hp: 1550, damage: 76, armor: 24, range: 3, class: 'Boss', unitClass: 'Boss', ability: 'aoe', abilityName: 'Crown of Every Ruin' })
 ];
 
 const WAVE_NAMES = {
@@ -416,13 +426,23 @@ const WAVE_NAMES = {
   2: 'Draugr Muster',
   3: 'Redcap Ambush',
   4: 'Tomb-Cursed March',
-  5: 'Fomorian Shore Raid',
+  5: 'Mini Boss: Ymir Stirs',
   6: 'Fire Giant Push',
   7: 'False Merlin Coven',
   8: 'Typhon Spawnline',
   9: "Mordred's Betrayers",
-  10: 'Apep at the Sunless Gate',
-  11: 'Secret Boss: Chaos'
+  10: 'Mini Boss: Balor at the Black Tower',
+  11: 'Sunless Deadfall',
+  12: 'Giants at the Rift',
+  13: 'False Prophets',
+  14: 'Serpent Moon',
+  15: 'Mini Boss: Apep Uncoils',
+  16: 'Betrayer Warband',
+  17: 'Titan Road',
+  18: 'Dragon-Sworn Ruins',
+  19: 'The Wounded Kingdom Rises',
+  20: 'Boss: The Dragon Beneath Britain',
+  21: 'Secret Mega Boss: The Kingdom That Never Healed'
 };
 
 const ENEMY_LAYOUTS = {
@@ -430,13 +450,23 @@ const ENEMY_LAYOUTS = {
   2: [0, 1, 0],
   3: [2, 0, 2, 1],
   4: [3, 2, 0, 1],
-  5: [1, 4, 2, 3, 0],
+  5: [11, 1, 0],
   6: [5, 5, 2, 0, 1],
   7: [6, 3, 6, 2, 4],
   8: [7, 1, 7, 2, 5, 3],
   9: [8, 8, 6, 2, 5, 4],
-  10: [9, 7, 8, 6, 4, 5],
-  11: [10, 9, 7, 8, 6]
+  10: [12, 8, 6, 2],
+  11: [9, 3, 0, 1, 2, 6],
+  12: [5, 5, 4, 4, 1, 3],
+  13: [6, 6, 8, 2, 3, 0],
+  14: [9, 7, 2, 5, 6, 8],
+  15: [13, 9, 3, 0],
+  16: [8, 8, 7, 6, 5, 2, 1],
+  17: [7, 7, 5, 5, 4, 4, 3],
+  18: [15, 5, 8, 6, 2, 3],
+  19: [16, 8, 7, 6, 4, 3, 2],
+  20: [14, 15, 13, 12],
+  21: [17, 10, 11, 12, 13, 14, 15, 16]
 };
 
 const ENEMY_SLOTS = [[0,0],[7,0],[1,0],[6,0],[2,1],[5,1],[3,1],[4,1]];
@@ -506,8 +536,8 @@ const RELICS = [
 
 const state = {
   round: 1,
-  maxRound: 10,
-  secretRound: 11,
+  maxRound: 20,
+  secretRound: 21,
   runComplete: false,
   battleTick: 0,
   logLimit: 220,
@@ -578,7 +608,7 @@ function init() {
   logEl.innerHTML = '';
   setLogFilter('all');
   showFeedback('');
-  log('Welcome to Riftbound Arena v0.8. Draft mythic champions, place them on the Phaser battlefield, and face Chaos in secret round 11.', 'special');
+  log('Welcome to Riftbound Arena v0.9. Draft mythic champions, clear 20 rounds, and survive the secret round 21 mega boss.', 'special');
   log('Tip: 3 copies of the same 1★ unit combine into a 2★ unit. 3 copies of a 2★ unit combine into a 3★ unit.', 'special');
   log('Preview each enemy wave, build pantheon/source synergies, and save your run during planning.', 'special');
   render();
@@ -886,14 +916,14 @@ function restoreUnit(snapshot) {
 }
 
 function render() {
-  $('roundText').textContent = state.round === state.secretRound ? 'Secret 11' : `${state.round} / ${state.maxRound}`;
+  $('roundText').textContent = state.round === state.secretRound ? 'Secret 21' : `${state.round} / ${state.maxRound}`;
   $('goldText').textContent = state.gold;
   if (shopGoldTextEl) shopGoldTextEl.textContent = `Gold: ${state.gold}`;
   $('playerHpText').textContent = state.playerHp;
   const activeCount = getActiveUnitCount();
   const activeTextEl = $('activeUnitText');
   if (activeTextEl) activeTextEl.textContent = `Active Units: ${activeCount} / ${state.activeUnitCap}`;
-  $('statusText').textContent = state.runComplete ? 'Cleared' : (state.mode === 'planning' ? (state.round === state.secretRound ? 'Secret Boss' : 'Planning') : 'Battling');
+  $('statusText').textContent = state.runComplete ? 'Cleared' : (state.mode === 'planning' ? (state.round === state.secretRound ? 'Secret Mega Boss' : isBossRound(state.round) ? 'Boss Round' : 'Planning') : 'Battling');
   $('startBattleBtn').disabled = state.runComplete || state.mode !== 'planning' || Object.keys(state.board).length === 0;
   $('rerollBtn').disabled = state.mode !== 'planning' || state.shopLocked;
   $('rerollBtn').textContent = state.shopLocked ? 'Reroll Locked' : 'Reroll 2g';
@@ -1041,7 +1071,9 @@ function renderEnemyPreview() {
   });
   if (enemyPreviewTitleEl) {
     enemyPreviewTitleEl.textContent = state.round === state.secretRound
-      ? 'Secret Round 11'
+      ? 'Secret Round 21'
+      : isBossRound(state.round)
+        ? `Boss Round ${state.round}`
       : `Round ${state.round}: ${WAVE_NAMES[state.round]}`;
   }
   enemyPreviewEl.innerHTML = Object.entries(counts).map(([name, count]) => {
@@ -1577,22 +1609,24 @@ function startBattle() {
   const enemyUnits = spawnEnemies(state.round);
   state.combatUnits = [...playerUnits, ...enemyUnits];
   beginRoundLog(state.round, playerUnits, enemyUnits);
-  if (state.round === state.secretRound && window.playBossIntroEffect) window.playBossIntroEffect();
+  if (isBossRound(state.round) && window.playBossIntroEffect) window.playBossIntroEffect();
   applySynergyBonuses(state.combatUnits);
   render();
   state.timers.push(setInterval(combatTick, 420));
 }
 
 function beginRoundLog(round, playerUnits, enemyUnits) {
-  const roundLabel = round === state.secretRound ? 'SECRET ROUND 11' : `ROUND ${round} / ${state.maxRound}`;
+  const roundLabel = round === state.secretRound ? 'SECRET ROUND 21' : isBossRound(round) ? `BOSS ROUND ${round}` : `ROUND ${round} / ${state.maxRound}`;
   const enemySummary = enemyUnits.map(u => u.name).join(', ');
   const squadSummary = playerUnits.map(u => `${u.name} ${starLabel(u.star)}`).join(', ');
   log(`━━━━━━━━ ${roundLabel}: ${WAVE_NAMES[round]} ━━━━━━━━`, 'round');
   log(`Your squad (${playerUnits.length}/${state.activeUnitCap} active): ${squadSummary || 'No units deployed'}.`, 'special');
   log(`Enemies sighted: ${enemySummary}.`, 'bad');
   if (round === state.secretRound) {
-    log('The first darkness opens. Secret Round 11 begins: defeat Chaos to complete the run.', 'boss');
-    log('Boss rule: Chaos bends every pantheon against you. Clear this fight to win the prototype.', 'boss');
+    log('The final rift opens. Secret Round 21 begins: the mega boss carries every surviving boss power into one war council.', 'boss');
+    log('Boss rule: defeat The Kingdom That Never Healed and the gathered bosses to complete the run.', 'boss');
+  } else if (isBossRound(round)) {
+    log('Boss round: defeat the milestone enemy to claim a Sacred Arsenal item.', 'boss');
   }
 }
 
@@ -1638,20 +1672,23 @@ function cloneForCombat(unit) {
 }
 
 function spawnEnemies(round) {
-  const picks = ENEMY_LAYOUTS[round] || ENEMY_LAYOUTS[10];
+  const picks = ENEMY_LAYOUTS[round] || ENEMY_LAYOUTS[state.maxRound];
   return picks.map((idx, i) => {
     const base = ENEMY_LIBRARY[idx];
-    const isSecretBoss = round === state.secretRound && idx === 10;
-    const scale = isSecretBoss ? 1 : 1 + (Math.min(round, state.maxRound) - 1) * 0.18;
+    const isMegaBossRound = round === state.secretRound;
+    const isBossUnit = base.unitClass === 'Boss' || base.class === 'Boss';
+    const normalScale = 1 + (Math.min(round, state.maxRound) - 1) * 0.18;
+    const bossScale = isMegaBossRound ? 1 : 1 + (Math.min(round, state.maxRound) - 1) * 0.08;
+    const scale = isBossUnit ? bossScale : normalScale;
     const unit = makeUnit({
       ...base,
       hp: Math.round(base.hp * scale),
       damage: Math.round(base.damage * scale),
-      class: isSecretBoss ? 'Boss' : base.class,
-      unitClass: isSecretBoss ? 'Boss' : base.unitClass
+      class: isBossUnit ? 'Boss' : base.class,
+      unitClass: isBossUnit ? 'Boss' : base.unitClass
     }, 'enemy');
-    unit.x = isSecretBoss ? 3 : ENEMY_SLOTS[i][0];
-    unit.y = isSecretBoss ? 0 : ENEMY_SLOTS[i][1];
+    unit.x = ENEMY_SLOTS[i]?.[0] ?? 3;
+    unit.y = ENEMY_SLOTS[i]?.[1] ?? 0;
     return unit;
   });
 }
@@ -2242,8 +2279,8 @@ function endBattle(playerWon) {
     if (state.round === state.secretRound) {
       state.runComplete = true;
       state.combatUnits = [];
-      log('Secret boss defeated! Riftbound Arena v0.8 is cleared.', 'victory');
-      showModal('Secret Boss Defeated', 'You beat secret round 11 and completed the v0.8 prototype run. The arena is yours.');
+      log('Secret mega boss defeated! Riftbound Arena v0.9 is cleared.', 'victory');
+      showModal('Secret Mega Boss Defeated', 'You beat secret round 21 and completed the v0.9 prototype run. The arena is yours.');
       render();
       return;
     }
@@ -2251,12 +2288,17 @@ function endBattle(playerWon) {
     if (state.round === state.maxRound) {
       state.round = state.secretRound;
       rollShop(true);
-      log('Secret round unlocked: Chaos waits beyond round 10.', 'boss');
-      showRewardChoices('Secret Boss Unlocked', `You cleared all 10 normal rounds and earned ${goldAward.total} gold${interestSummary(goldAward.interest)}. Choose a Sacred Arsenal item before ${WAVE_NAMES[state.secretRound]}.`, { includeRelics: true });
+      log('Secret round unlocked: The Kingdom That Never Healed waits beyond round 20.', 'boss');
+      showRewardChoices('Secret Mega Boss Unlocked', `You cleared all 20 rounds and earned ${goldAward.total} gold${interestSummary(goldAward.interest)}. Choose a Sacred Arsenal item before ${WAVE_NAMES[state.secretRound]}.`, { includeRelics: true });
     } else {
+      const clearedBossRound = isMiniBossRound(state.round);
       state.round += 1;
       rollShop(true);
-      showRewardChoices('Victory', `You won the round and earned ${goldAward.total} gold${interestSummary(goldAward.interest)}. Prepare for round ${state.round}: ${WAVE_NAMES[state.round]}.`);
+      if (clearedBossRound) {
+        showRewardChoices('Boss Spoils', `You defeated a milestone boss and earned ${goldAward.total} gold${interestSummary(goldAward.interest)}. Choose a Sacred Arsenal item before round ${state.round}: ${WAVE_NAMES[state.round]}.`, { includeRelics: true });
+      } else {
+        showRewardChoices('Victory', `You won the round and earned ${goldAward.total} gold${interestSummary(goldAward.interest)}. Prepare for round ${state.round}: ${WAVE_NAMES[state.round]}.`);
+      }
     }
   } else {
     const bossAlive = livingEnemies.some(u => u.unitClass === 'Boss');
@@ -2329,6 +2371,14 @@ function starLabel(star) {
 
 function speedLabel(ms) {
   return `${(1000 / ms).toFixed(2)}/s`;
+}
+
+function isBossRound(round) {
+  return round === state.secretRound || (round > 0 && round <= state.maxRound && round % 5 === 0);
+}
+
+function isMiniBossRound(round) {
+  return round > 0 && round < state.maxRound && round % 5 === 0;
 }
 
 function posKey(x, y) { return `${x},${y}`; }
@@ -2411,7 +2461,7 @@ function showStarterChoices() {
 function saveRun() {
   if (typeof localStorage === 'undefined') return warnPlayer('Save is unavailable in this browser context.');
   const payload = {
-    version: '0.8',
+    version: '0.9',
     round: state.round,
     gold: state.gold,
     playerHp: state.playerHp,

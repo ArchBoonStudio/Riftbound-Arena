@@ -1,4 +1,4 @@
-# Riftbound Arena - Auto Battle Prototype v0.8 Phaser Migration
+# Riftbound Arena - Auto Battle Prototype v0.9 Phaser Migration
 
 A lightweight browser auto battler built with plain HTML, CSS, JavaScript, and a local Phaser browser file for the battlefield visuals.
 
@@ -37,7 +37,7 @@ The existing `game.js` remains the gameplay source of truth. Phaser reads from t
 
 ## Core Loop
 
-Choose one of three random Common champions to start a new run, buy more mythic champions, place them from the bench onto the lower deployment rows, inspect the next enemy wave, start the battle, claim a post-round reward, and build toward the secret round 11 boss fight against Chaos.
+Choose one of three random Common champions to start a new run, buy more mythic champions, place them from the bench onto the lower deployment rows, inspect the next enemy wave, start the battle, claim boss-round items, and build toward the secret round 21 mega boss fight.
 
 ## Controls
 
@@ -121,11 +121,11 @@ The **Sell Unit** zone accepts player units during planning. Selling grants gold
 
 ## Enemy Preview
 
-The **Next Wave** panel shows the current round's enemy lineup before combat starts. Round 11 previews Chaos and the supporting mythic enemy wave.
+The **Next Wave** panel shows the current round's enemy lineup before combat starts. Boss rounds are called out at rounds 5, 10, 15, 20, and secret round 21.
 
 ## Relics and Rewards
 
-After normal victories, the game offers post-round reward choices. Choices can include:
+After normal victories, the game awards gold. Boss victories at rounds 5, 10, 15, and 20 offer Sacred Arsenal item choices. Choices can include:
 
 - Bonus gold
 - Run HP healing
@@ -227,10 +227,12 @@ The combat log is scrollable and capped for performance. It marks events with ro
 
 ## Round Structure
 
-- Rounds 1-10 are normal mythic enemy waves.
-- Clearing round 10 unlocks secret round 11.
-- Secret round 11 is the Chaos boss battle.
-- Beating Chaos wins the prototype run.
+- Rounds 1-20 are the main campaign.
+- Rounds 5, 10, and 15 are mini-boss item rounds.
+- Round 20 is the main boss round and also grants an item choice.
+- Clearing round 20 unlocks secret round 21.
+- Secret round 21 is the mega-boss council led by The Kingdom That Never Healed.
+- Beating secret round 21 wins the prototype run.
 
 ## Smoke Testing Checklist
 
@@ -267,8 +269,10 @@ The combat log is scrollable and capped for performance. It marks events with ro
 - HP and energy bars update on the Phaser board.
 - Dead units show a defeated state.
 - Combat log still works.
-- Rounds progress from 1 to 10.
-- Secret round 11 unlocks after round 10.
+- Rounds progress from 1 through 20.
+- Mini-boss rounds 5, 10, and 15 grant item choices.
+- Round 20 boss unlocks secret round 21.
+- Secret round 21 contains the mega boss and the rest of the boss lineup.
 - Game can be won after the secret boss.
 
 ## Next Version Ideas

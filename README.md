@@ -229,6 +229,10 @@ Common Worshipers are early bridge units. They help activate pantheon bonuses be
 
 The combat log is scrollable and capped for performance. It marks events with round and tick information. Damage, healing, shields, dodge, burn, corruption, revive, death, victory, defeat, boss events, and warnings are styled separately.
 
+## Combat Movement
+
+During battle, units path across the 8 x 6 battlefield toward a reachable attack position for their target. Living units block movement, so attackers route around occupied cells when another path is available instead of only stepping directly toward the target.
+
 ## Round Structure
 
 - Rounds 1-20 are the main campaign.

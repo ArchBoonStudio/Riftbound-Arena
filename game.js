@@ -2076,17 +2076,53 @@ function distance(a, b) {
 }
 
 function stepToward(unit, target) {
-  const options = [];
-  const dx = Math.sign(target.x - unit.x);
-  const dy = Math.sign(target.y - unit.y);
-  if (dx !== 0) options.push({ x: unit.x + dx, y: unit.y });
-  if (dy !== 0) options.push({ x: unit.x, y: unit.y + dy });
-  [[1,0],[-1,0],[0,1],[0,-1]].forEach(([ox, oy]) => options.push({ x: unit.x + ox, y: unit.y + oy }));
-  const valid = options.find(p => p.x >= 0 && p.x < 8 && p.y >= 0 && p.y < 6 && !occupied(p.x, p.y));
-  if (valid) {
-    unit.x = valid.x;
-    unit.y = valid.y;
+  const next = nextPathStep(unit, target) || fallbackStepToward(unit, target);
+  if (!next) return false;
+  unit.x = next.x;
+  unit.y = next.y;
+  return true;
+}
+
+function nextPathStep(unit, target) {
+  const startKey = posKey(unit.x, unit.y);
+  const visited = new Set([startKey]);
+  const queue = [{ x: unit.x, y: unit.y, path: [] }];
+
+  while (queue.length) {
+    const current = queue.shift();
+    if (current.path.length && distance(current, target) <= unit.range) {
+      return current.path[0];
+    }
+
+    pathNeighbors(current.x, current.y, target).forEach(next => {
+      const key = posKey(next.x, next.y);
+      if (visited.has(key)) return;
+      if (occupied(next.x, next.y)) return;
+      visited.add(key);
+      queue.push({
+        x: next.x,
+        y: next.y,
+        path: [...current.path, next]
+      });
+    });
   }
+
+  return null;
+}
+
+function fallbackStepToward(unit, target) {
+  return pathNeighbors(unit.x, unit.y, target)
+    .filter(p => !occupied(p.x, p.y))
+    .sort((a, b) => distance(a, target) - distance(b, target))
+    [0] || null;
+}
+
+function pathNeighbors(x, y, target = null) {
+  const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+  return dirs
+    .map(([ox, oy]) => ({ x: x + ox, y: y + oy }))
+    .filter(p => p.x >= 0 && p.x < 8 && p.y >= 0 && p.y < 6)
+    .sort((a, b) => target ? distance(a, target) - distance(b, target) : 0);
 }
 
 function occupied(x, y) {

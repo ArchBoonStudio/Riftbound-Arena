@@ -119,6 +119,8 @@ The shop panel includes a local gold display, a shop lock button, and the reroll
 
 The **Sell Unit** zone accepts player units during planning. Selling grants gold equal to unit cost times star investment: 1-star units sell for base cost, 2-star units sell for 3x cost, and 3-star units sell for 9x cost. Selling upgraded units asks for confirmation.
 
+Round gold starts at 4 gold. It gains +1 when each higher rarity tier becomes available in the shop: Rare, Epic, Legendary, and Mythic. Interest is then added on top of the round reward based on current gold, up to +5.
+
 ## Enemy Preview
 
 The **Next Wave** panel shows the current round's enemy lineup before combat starts. Boss rounds are called out at rounds 5, 10, 15, 20, and secret round 21. Trickster rounds preview the saved player formation they will mirror when a prior board snapshot is available.
@@ -233,6 +235,10 @@ The combat log is scrollable and capped for performance. It marks events with ro
 
 During battle, units path across the 8 x 6 battlefield toward a reachable attack position for their target. Living units block movement, so attackers route around occupied cells when another path is available instead of only stepping directly toward the target.
 
+## Combat Timer
+
+Each battle has a 60-second round timer. If both teams still have living units when the timer expires, overtime begins for 10 seconds. During overtime, combat runs at x4 speed and escalating rift damage hits every living unit once per second. If both sides still survive after overtime, the side with more living units wins. If living unit count is tied, remaining HP breaks the tie.
+
 ## Round Structure
 
 - Rounds 1-20 are the main campaign.
@@ -275,6 +281,9 @@ During battle, units path across the 8 x 6 battlefield toward a reachable attack
 - Champion codex filters and details render.
 - Save and load work through localStorage.
 - Battles still run.
+- Battle timer counts down from 60 seconds.
+- Overtime starts if both sides survive the timer.
+- Overtime runs faster, applies escalating damage, and resolves by living unit count.
 - Player and enemy units render on the Phaser board.
 - HP and energy bars update on the Phaser board.
 - Dead units show a defeated state.

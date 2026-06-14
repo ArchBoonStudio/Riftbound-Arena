@@ -59,7 +59,7 @@ h2 { font-size: 20px; letter-spacing: -0.02em; }
 h3 { font-size: 18px; letter-spacing: -0.02em; }
 .eyebrow { color: var(--blue); text-transform: uppercase; letter-spacing: 0.18em; font-size: 11px; font-weight: 900; margin-bottom: 6px; }
 
-.resource-row { display: grid; grid-template-columns: repeat(5, minmax(118px, 1fr)); gap: 12px; }
+.resource-row { display: grid; grid-template-columns: repeat(6, minmax(112px, 1fr)); gap: 12px; }
 .resource-card {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid var(--line);
@@ -69,6 +69,19 @@ h3 { font-size: 18px; letter-spacing: -0.02em; }
 }
 .resource-card span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 2px; }
 .resource-card strong { font-size: 20px; }
+.timer-card {
+  border-color: rgba(142, 202, 230, 0.45);
+}
+.timer-card strong {
+  color: var(--blue);
+}
+.timer-card.overtime {
+  border-color: rgba(255, 204, 102, 0.82);
+  box-shadow: 0 0 24px rgba(255, 110, 64, 0.22);
+}
+.timer-card.overtime strong {
+  color: var(--gold);
+}
 
 .main-grid { display: grid; grid-template-columns: 1fr; gap: 20px; align-items: start; }
 .panel {

@@ -65,6 +65,10 @@ const PLAYER_UNIT_CAP = 10;
 const BENCH_CAP = 8;
 const BOARD_SNAPSHOT_LIMIT = 8;
 const TRICKSTER_ROUNDS = [4, 8, 13, 18];
+const ROUND_TIME_LIMIT_MS = 60000;
+const OVERTIME_DURATION_MS = 10000;
+const COMBAT_TICK_MS = 420;
+const OVERTIME_TICK_MS = Math.max(90, Math.round(COMBAT_TICK_MS / 4));
 
 const LEGACY_ENEMY_LIBRARY = [
   { name: 'Training Goblin', icon: '👺', hp: 72, damage: 11, speed: 1220, range: 1, armor: 0 },
@@ -542,6 +546,12 @@ const state = {
   secretRound: 21,
   runComplete: false,
   battleTick: 0,
+  battleStartedAt: 0,
+  battleElapsedMs: 0,
+  overtimeActive: false,
+  overtimeStartedAt: 0,
+  overtimeLastSecond: 0,
+  combatTickMs: COMBAT_TICK_MS,
   logLimit: 220,
   logFilter: 'all',
   activeUnitCap: PLAYER_UNIT_CAP,
@@ -582,6 +592,7 @@ const modalChoicesEl = $('modalChoices');
 const shopGoldTextEl = $('shopGoldText');
 const shopLockBtn = $('shopLockBtn');
 const shopLockStateEl = $('shopLockState');
+const timerTextEl = $('timerText');
 
 const IMPORTANT_LOG_TYPES = new Set(['round', 'special', 'warning', 'boss', 'revive', 'death', 'victory', 'defeat']);
 
@@ -593,6 +604,7 @@ function init() {
   state.shopLocked = false;
   state.runComplete = false;
   state.battleTick = 0;
+  resetBattleClock();
   state.logFilter = 'all';
   state.shop = [];
   state.bench = [];
@@ -966,6 +978,7 @@ function restoreUnit(snapshot) {
 
 function render() {
   $('roundText').textContent = state.round === state.secretRound ? 'Secret 21' : `${state.round} / ${state.maxRound}`;
+  updateTimerDisplay();
   $('goldText').textContent = state.gold;
   if (shopGoldTextEl) shopGoldTextEl.textContent = `Gold: ${state.gold}`;
   $('playerHpText').textContent = state.playerHp;
@@ -1664,6 +1677,9 @@ function startBattle() {
   state.mode = 'battle';
   state.battleTick = 0;
   clearTimers();
+  resetBattleClock();
+  state.battleStartedAt = Date.now();
+  state.combatTickMs = COMBAT_TICK_MS;
   state.battleFlags = { egyptianDeathResistUsed: false, wyrdboundEchoUsed: false };
   captureBoardSnapshot(state.round);
 
@@ -1674,7 +1690,118 @@ function startBattle() {
   if (isBossRound(state.round) && window.playBossIntroEffect) window.playBossIntroEffect();
   applySynergyBonuses(state.combatUnits);
   render();
-  state.timers.push(setInterval(combatTick, 420));
+  startCombatTicker(COMBAT_TICK_MS);
+}
+
+function resetBattleClock() {
+  state.battleStartedAt = 0;
+  state.battleElapsedMs = 0;
+  state.overtimeActive = false;
+  state.overtimeStartedAt = 0;
+  state.overtimeLastSecond = 0;
+  state.combatTickMs = COMBAT_TICK_MS;
+}
+
+function startCombatTicker(intervalMs) {
+  clearTimers();
+  state.combatTickMs = intervalMs;
+  state.timers.push(setInterval(combatTick, intervalMs));
+}
+
+function updateTimerDisplay() {
+  if (!timerTextEl) return;
+  const statusTextEl = $('statusText');
+  if (statusTextEl && state.mode === 'battle') statusTextEl.textContent = state.overtimeActive ? 'Overtime' : 'Battling';
+  const card = timerTextEl.closest('.timer-card');
+  card?.classList.toggle('overtime', state.mode === 'battle' && state.overtimeActive);
+  if (state.runComplete) {
+    timerTextEl.textContent = 'Done';
+    return;
+  }
+  if (state.mode !== 'battle') {
+    timerTextEl.textContent = `${Math.ceil(ROUND_TIME_LIMIT_MS / 1000)}s`;
+    return;
+  }
+  if (state.overtimeActive) {
+    const overtimeElapsed = Math.max(0, Date.now() - state.overtimeStartedAt);
+    const remaining = Math.max(0, Math.ceil((OVERTIME_DURATION_MS - overtimeElapsed) / 1000));
+    timerTextEl.textContent = `OT ${remaining}s`;
+    return;
+  }
+  const remaining = Math.max(0, Math.ceil((ROUND_TIME_LIMIT_MS - state.battleElapsedMs) / 1000));
+  timerTextEl.textContent = `${remaining}s`;
+}
+
+function updateBattleClock() {
+  if (state.mode !== 'battle' || !state.battleStartedAt) return true;
+  const now = Date.now();
+  state.battleElapsedMs = now - state.battleStartedAt;
+  if (!state.overtimeActive && state.battleElapsedMs >= ROUND_TIME_LIMIT_MS) {
+    startOvertime(now);
+  }
+  if (state.overtimeActive) {
+    applyOvertimeDamage(now);
+    if (now - state.overtimeStartedAt >= OVERTIME_DURATION_MS) {
+      resolveOvertimeTiebreaker();
+      return false;
+    }
+  }
+  updateTimerDisplay();
+  return true;
+}
+
+function startOvertime(now = Date.now()) {
+  state.overtimeActive = true;
+  state.overtimeStartedAt = now;
+  state.overtimeLastSecond = 0;
+  log('Overtime begins: battle speed surges to x4 and rift damage increases every second.', 'warning');
+  showFeedback('Overtime! x4 speed and escalating rift damage.');
+  startCombatTicker(OVERTIME_TICK_MS);
+  if (window.playAbilityEffect) {
+    const livingBoss = state.combatUnits.find(u => u.side === 'enemy' && u.alive && u.unitClass === 'Boss');
+    if (livingBoss) window.playAbilityEffect(livingBoss.id, 'Overtime Rift');
+  }
+}
+
+function applyOvertimeDamage(now = Date.now()) {
+  const elapsedSecond = Math.floor((now - state.overtimeStartedAt) / 1000);
+  if (elapsedSecond <= state.overtimeLastSecond) return;
+  for (let second = state.overtimeLastSecond + 1; second <= elapsedSecond; second += 1) {
+    const damage = 5 * second;
+    state.combatUnits
+      .filter(unit => unit.alive)
+      .forEach(unit => applyDamage(unit, damage, {
+        source: 'Overtime rift',
+        sourceName: 'Overtime rift',
+        trueDamage: true,
+        ignoreDodge: true,
+        isDot: true,
+        silent: true
+      }));
+    log(`Overtime rift deals ${damage} true damage to every living unit.`, 'burn');
+  }
+  state.overtimeLastSecond = elapsedSecond;
+}
+
+function resolveOvertimeTiebreaker() {
+  const livingPlayers = state.combatUnits.filter(u => u.side === 'player' && u.alive);
+  const livingEnemies = state.combatUnits.filter(u => u.side === 'enemy' && u.alive);
+  if (!livingPlayers.length || !livingEnemies.length) {
+    endBattle(livingPlayers.length > 0);
+    return;
+  }
+  if (livingPlayers.length !== livingEnemies.length) {
+    const playerWon = livingPlayers.length > livingEnemies.length;
+    log(`Overtime ends. ${playerWon ? 'Your squad' : 'The enemy'} wins by living unit count: ${livingPlayers.length} to ${livingEnemies.length}.`, playerWon ? 'victory' : 'defeat');
+    endBattle(playerWon);
+    return;
+  }
+
+  const playerHpTotal = livingPlayers.reduce((sum, unit) => sum + Math.max(0, unit.hp), 0);
+  const enemyHpTotal = livingEnemies.reduce((sum, unit) => sum + Math.max(0, unit.hp), 0);
+  const playerWon = playerHpTotal >= enemyHpTotal;
+  log(`Overtime living count is tied ${livingPlayers.length}-${livingEnemies.length}. ${playerWon ? 'Your squad' : 'The enemy'} wins by remaining HP.`, playerWon ? 'victory' : 'defeat');
+  endBattle(playerWon);
 }
 
 function beginRoundLog(round, playerUnits, enemyUnits) {
@@ -1992,15 +2119,21 @@ function applyRelicBonuses(player) {
 
 function combatTick() {
   state.battleTick += 1;
-  const livingPlayers = state.combatUnits.filter(u => u.side === 'player' && u.alive);
-  const livingEnemies = state.combatUnits.filter(u => u.side === 'enemy' && u.alive);
+  if (!updateBattleClock()) return;
+
+  let livingPlayers = state.combatUnits.filter(u => u.side === 'player' && u.alive);
+  let livingEnemies = state.combatUnits.filter(u => u.side === 'enemy' && u.alive);
   if (!livingPlayers.length || !livingEnemies.length) return endBattle(livingPlayers.length > 0);
 
   state.combatUnits.filter(u => u.alive).forEach(unit => processStatuses(unit));
   processTeamSynergyTicks();
 
+  livingPlayers = state.combatUnits.filter(u => u.side === 'player' && u.alive);
+  livingEnemies = state.combatUnits.filter(u => u.side === 'enemy' && u.alive);
+  if (!livingPlayers.length || !livingEnemies.length) return endBattle(livingPlayers.length > 0);
+
   state.combatUnits.filter(u => u.alive).forEach(unit => {
-    unit.attackTimer -= 420;
+    unit.attackTimer -= COMBAT_TICK_MS;
     if (unit.attackTimer <= 0) {
       const target = chooseTarget(unit);
       if (!target) return;
@@ -2257,7 +2390,7 @@ function applyDamage(target, amount, options = {}) {
     const blockedText = blocked > 0 ? ` (${blocked} blocked)` : '';
     log(`${attacker.name} hits ${target.name} for ${hpDamage}${blockedText}.`, blocked > 0 && hpDamage === 0 ? 'shield' : 'damage');
     if (blocked > 0 && hpDamage > 0) log(`${target.name} blocks ${blocked} damage with shield.`, 'shield');
-  } else if (options.isDot) {
+  } else if (options.isDot && !options.silent) {
     const dotLabel = options.dotType === 'corruption' ? 'corrupts' : 'burns';
     log(`${options.source || options.sourceName || 'Burn'} ${dotLabel} ${target.name} for ${hpDamage}.`, options.dotType === 'corruption' ? 'corruption' : 'burn');
   }
@@ -2403,6 +2536,8 @@ function awardGoldWithInterest(baseReward, label = 'Reward', tone = 'special') {
 function endBattle(playerWon) {
   clearTimers();
   state.mode = 'planning';
+  resetBattleClock();
+  showFeedback('');
   const livingEnemies = state.combatUnits.filter(u => u.side === 'enemy' && u.alive);
   if (playerWon) {
     const goldAward = awardGoldWithInterest(roundGoldRewardFor(state.round), 'Round gold', 'victory');
@@ -2637,6 +2772,7 @@ function loadRun() {
   state.shopLocked = Boolean(payload.shopLocked);
   state.runComplete = Boolean(payload.runComplete);
   state.battleTick = 0;
+  resetBattleClock();
   state.relics = Array.isArray(payload.relics) ? payload.relics.filter(id => RELICS.some(relic => relic.id === id)) : [];
   state.starterChosen = Boolean(payload.starterChosen);
   state.boardSnapshots = Array.isArray(payload.boardSnapshots)

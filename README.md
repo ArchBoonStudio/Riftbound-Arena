@@ -62,7 +62,7 @@ Choose one of three random Common champions to start a new run, buy more mythic 
 
 The game uses a mythic champion pool built around pantheons, source types, classes, and rarities. The normal shop pool has been reduced so gods and major Arthurian powers are the main collectible champions.
 
-Champion fields include name, pantheon, source type, class, rarity, cost, HP, damage, attack speed, range, armor, block chance, energy maximum, ability, and tags.
+Champion fields include name, pantheon, source type, class, rarity, cost, HP, damage, attack speed, range, armor, energy maximum, ability, and tags.
 
 The shop only pulls `Playable` units. Major Empyrean gods and Arthurian powers remain playable, while most older heroic, sacred, spirit, fae, and bloodline filler units are now `Locked` for future unlocks or production planning. Wyrdbound monsters and horrors are mostly `Enemy Only` or `Boss Only`.
 
@@ -175,7 +175,7 @@ Sprites are not required yet. The Phaser board uses dark fantasy placeholder tok
 
 ## Active Unit Cap
 
-You can deploy up to 10 active player units. Bench units do not count toward this cap. Attempting to deploy an 11th active unit is blocked with a warning.
+You can deploy up to 10 active player units. Bench units do not count toward this cap. Attempting to deploy an 11th active unit is stopped with a warning.
 
 ## Star Upgrades
 
@@ -201,7 +201,7 @@ Pantheon synergies:
 
 Class synergies:
 
-- Guardian 2/4/6: armor and modest Guardian block chance, team starting shield, then bonus Guardian max HP.
+- Guardian 2/4/6: armor, team starting shield, then bonus Guardian max HP.
 - Ranger 2/4/6: attack speed, more attack speed, then chance for an extra shot.
 - Mage 2/4/6: ability damage, more ability damage, then bonus energy generation.
 - Healer 2/4/6: healing power, overheal shielding, then periodic healing for the lowest-health ally. Healer abilities heal allies only when someone is missing at least 10% HP; otherwise they attack.
@@ -233,7 +233,7 @@ The combat log is scrollable and capped for performance. It marks events with ro
 
 ## Combat Movement
 
-During battle, units path across the 8 x 6 battlefield toward a reachable attack position for their target. Living units block movement, so attackers route around occupied cells when another path is available instead of only stepping directly toward the target.
+During battle, units path across the 8 x 6 battlefield toward a reachable attack position for their target. Living units occupy movement lanes, so attackers route around occupied cells when another path is available instead of only stepping directly toward the target.
 
 ## Combat Timer
 

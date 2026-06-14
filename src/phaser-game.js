@@ -135,7 +135,6 @@
   function numberColor(value) {
     if (String(value).startsWith('+')) return '#7ff2b2';
     if (String(value).toLowerCase().includes('shield')) return '#9ec7ff';
-    if (String(value).toLowerCase().includes('block')) return '#9ec7ff';
     if (String(value).toLowerCase().includes('dodge')) return '#d8c2ff';
     return '#ffd1a1';
   }
@@ -450,8 +449,8 @@
           const sourceOnBoard = Boolean(boardKeyForUnit(this.latestState, this.draggingUnitId));
           const activeCount = Object.keys(this.latestState?.board || {}).length;
           const capFull = !occupied && !sourceOnBoard && activeCount >= (this.latestState?.activeUnitCap || 10);
-          const occupiedBlocked = occupied && !sourceOnBoard;
-          const valid = isPlayer && this.latestState?.mode === 'planning' && !capFull && !occupiedBlocked;
+          const occupiedRejected = occupied && !sourceOnBoard;
+          const valid = isPlayer && this.latestState?.mode === 'planning' && !capFull && !occupiedRejected;
           const color = valid ? (occupied ? 0xf2c96b : 0x7ff2b2) : 0xff6f7f;
           const alpha = isHover ? 0.24 : (valid ? 0.08 : 0.045);
           const lineAlpha = isHover ? 0.92 : (valid ? 0.32 : 0.18);
@@ -642,7 +641,7 @@
         `${unit.name} ${'*'.repeat(unit.star || 1)}`,
         `${unit.pantheon || 'Unknown'} / ${unit.sourceType || 'Unknown'} / ${unit.unitClass || unit.class || 'Unit'}`,
         `${unit.rarity || 'Common'} | HP ${Math.max(0, Math.round(unit.hp || 0))}/${Math.max(1, Math.round(unit.maxHp || 1))} | EN ${Math.round(unit.mana || 0)}/${unit.energyMax || 100}`,
-        `DMG ${unit.damage} | RNG ${unit.range} | ARM ${unit.armor || 0} | BLK ${Math.round(Math.max(0, unit.blockChance || 0) * 100)}%`,
+        `DMG ${unit.damage} | RNG ${unit.range} | ARM ${unit.armor || 0}`,
         `${unit.abilityName || 'Ability'}: ${unit.abilityText || unit.abilityDescription || 'No ability text.'}`
       ];
       const longest = lines.reduce((max, line) => Math.max(max, line.length), 0);

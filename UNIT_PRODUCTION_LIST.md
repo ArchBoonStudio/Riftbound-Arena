@@ -14,7 +14,7 @@ Status guide: `Playable` appears in the shop, `Enemy Only` appears in waves, `Bo
 
 The player-facing shop now focuses on all major Empyrean gods and Arthurian powers, plus exactly two Common Worshiper units per pantheon. Heroic, Sacred, Spirit, Fae, and bloodline filler units are retained as Locked production entries, while Wyrdbound monsters and horrors are mostly Enemy Only or Boss Only.
 
-Current combat notes: Guardian units have a visible block chance that improves through Guardian class synergy, and Healer abilities heal allies only when a living ally is missing at least 10% HP. If no ally needs that much healing, the Healer uses the cast offensively. Several playable gods and Arthurian powers were reassigned to improve class distribution across pantheons.
+Current combat notes: Healer abilities heal allies only when a living ally is missing at least 10% HP. If no ally needs that much healing, the Healer uses the cast offensively. Several playable gods and Arthurian powers were reassigned to improve class distribution across pantheons.
 
 ### Status Counts
 

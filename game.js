@@ -69,8 +69,6 @@ const ROUND_TIME_LIMIT_MS = 60000;
 const OVERTIME_DURATION_MS = 10000;
 const COMBAT_TICK_MS = 420;
 const OVERTIME_TICK_MS = Math.max(90, Math.round(COMBAT_TICK_MS / 4));
-const GUARDIAN_BASE_BLOCK_CHANCE = 0.05;
-const GUARDIAN_BLOCK_DAMAGE_MULT = 0.5;
 const HEALER_MIN_MISSING_HP_PCT = 0.1;
 
 const LEGACY_ENEMY_LIBRARY = [
@@ -143,7 +141,7 @@ const SHOP_RARITY_ODDS = [
 ];
 
 const CLASS_BASE = {
-  Guardian: { hp: 190, damage: 18, attackSpeed: 1120, range: 1, armor: 9, blockChance: GUARDIAN_BASE_BLOCK_CHANCE, ability: 'shield', abilityName: 'Oath Ward', abilityDescription: 'Gains a shield when energy is full.' },
+  Guardian: { hp: 190, damage: 18, attackSpeed: 1120, range: 1, armor: 9, ability: 'shield', abilityName: 'Oath Ward', abilityDescription: 'Gains a shield when energy is full.' },
   Ranger: { hp: 100, damage: 27, attackSpeed: 860, range: 3, armor: 2, ability: 'rapid', abilityName: 'Twin Shot', abilityDescription: 'Fires two quick strikes at the target.' },
   Mage: { hp: 92, damage: 32, attackSpeed: 1200, range: 3, armor: 1, ability: 'aoe', abilityName: 'Mythic Burst', abilityDescription: 'Damages enemies near the target.' },
   Healer: { hp: 118, damage: 15, attackSpeed: 1120, range: 2, armor: 3, ability: 'heal', abilityName: 'Sacred Mend', abilityDescription: 'Heals the lowest-health ally.' },
@@ -207,7 +205,6 @@ function makeChampion(config) {
     speed: attackSpeed,
     range: config.range || base.range,
     armor: config.armor ?? Math.round(base.armor * rarityStats.stat),
-    blockChance: config.blockChance ?? base.blockChance ?? 0,
     energyMax: config.energyMax || 100,
     ability: config.ability || base.ability,
     abilityName: config.abilityName || base.abilityName,
@@ -497,9 +494,9 @@ const SYNERGIES = [
   { key: 'Arthurian', category: 'Pantheon', threshold: 2, text: 'Arthurian units gain +10 armor.' },
   { key: 'Arthurian', category: 'Pantheon', threshold: 4, text: 'Arthurian units gain a battle-start oath shield.' },
   { key: 'Arthurian', category: 'Pantheon', threshold: 6, text: 'Arthurian units deal bonus damage while shielded.' },
-  { key: 'Guardian', category: 'Class', threshold: 2, text: 'Guardians gain +10 armor and small block chance.' },
-  { key: 'Guardian', category: 'Class', threshold: 4, text: 'All allies gain a small battle-start shield, and Guardians gain more block chance.' },
-  { key: 'Guardian', category: 'Class', threshold: 6, text: 'Guardians gain bonus max HP and peak block chance.' },
+  { key: 'Guardian', category: 'Class', threshold: 2, text: 'Guardians gain +15 armor.' },
+  { key: 'Guardian', category: 'Class', threshold: 4, text: 'All allies gain a small battle-start shield.' },
+  { key: 'Guardian', category: 'Class', threshold: 6, text: 'Guardians gain bonus max HP.' },
   { key: 'Ranger', category: 'Class', threshold: 2, text: 'Rangers gain +10% attack speed.' },
   { key: 'Ranger', category: 'Class', threshold: 4, text: 'Rangers gain +20% attack speed.' },
   { key: 'Ranger', category: 'Class', threshold: 6, text: 'Rangers have a chance to fire an extra shot.' },
@@ -655,7 +652,6 @@ function makeUnit(template, side = 'player') {
     baseDamage: template.damage,
     baseSpeed: template.attackSpeed || template.speed,
     baseArmor: template.armor || 0,
-    baseBlockChance: template.blockChance || 0,
     range: template.range || 1,
     ability: template.ability || 'strike',
     abilityName: template.abilityName || 'Strike',
@@ -669,7 +665,6 @@ function makeUnit(template, side = 'player') {
     damage: 1,
     speed: 1000,
     armor: 0,
-    blockChance: 0,
     mana: 0,
     energyMax: template.energyMax || 100,
     alive: true,
@@ -705,7 +700,6 @@ function applyStarStats(unit, healToFull = false) {
   unit.damage = Math.round(unit.baseDamage * scale.damage);
   unit.speed = Math.max(480, Math.round(unit.baseSpeed * scale.speed));
   unit.armor = Math.round(unit.baseArmor * scale.armor);
-  unit.blockChance = unit.baseBlockChance || 0;
   if (healToFull) unit.hp = unit.maxHp;
   else unit.hp = Math.min(unit.hp, unit.maxHp);
 }
@@ -1068,7 +1062,6 @@ function renderShop() {
         <span class="pill">RNG ${item.range}</span>
         <span class="pill">SPD ${speedLabel(item.attackSpeed || item.speed)}</span>
         <span class="pill">ARM ${item.armor || 0}</span>
-        <span class="pill">BLK ${blockChanceLabel(item.blockChance)}</span>
         <span class="pill">EN ${item.energyMax}</span>
         <span class="pill">Owned ${owned}/3</span>
       </div>
@@ -1204,7 +1197,7 @@ function renderCodex() {
         <div class="codex-detail rarity-${selected.rarity.toLowerCase()}">
           <strong>${selected.name}</strong>
           <span>${selected.pantheon} / ${selected.sourceType} / ${selected.class}</span>
-          <span>${selected.rarity} / ${selected.cost}g / HP ${selected.hp} / DMG ${selected.damage} / BLK ${blockChanceLabel(selected.blockChance)}</span>
+          <span>${selected.rarity} / ${selected.cost}g / HP ${selected.hp} / DMG ${selected.damage}</span>
           <p><b>${selected.abilityName}:</b> ${selected.abilityDescription}</p>
         </div>
       ` : '<div class="empty-note">No champions found.</div>'}
@@ -1230,7 +1223,7 @@ function renderUnitToken(unit, draggable = false) {
   const selected = unit.id === state.selectedUnitId;
   token.className = `unit-token rarity-${String(unit.rarity || 'Common').toLowerCase()} ${unit.side === 'enemy' ? 'enemy' : ''} ${unit.alive === false ? 'dead' : ''} ${selected ? 'selected' : ''}`;
   token.dataset.unitId = unit.id;
-  token.title = `${unit.name} ${starLabel(unit.star)}\n${unit.pantheon} • ${unit.sourceType} • ${unit.unitClass} • ${unit.rarity}\nHP ${Math.max(0, Math.round(unit.hp))}/${unit.maxHp} | Energy ${Math.round(unit.mana || 0)}/${unit.energyMax} | DMG ${unit.damage} | RNG ${unit.range} | SPD ${speedLabel(unit.speed)} | ARM ${unit.armor} | BLK ${blockChanceLabel(unit.blockChance)}\n${unit.abilityName}: ${unit.abilityText}${unit.side === 'player' && state.mode === 'planning' ? '\nDrag to deploy. Double-click to sell.' : ''}`;
+  token.title = `${unit.name} ${starLabel(unit.star)}\n${unit.pantheon} • ${unit.sourceType} • ${unit.unitClass} • ${unit.rarity}\nHP ${Math.max(0, Math.round(unit.hp))}/${unit.maxHp} | Energy ${Math.round(unit.mana || 0)}/${unit.energyMax} | DMG ${unit.damage} | RNG ${unit.range} | SPD ${speedLabel(unit.speed)} | ARM ${unit.armor}\n${unit.abilityName}: ${unit.abilityText}${unit.side === 'player' && state.mode === 'planning' ? '\nDrag to deploy. Double-click to sell.' : ''}`;
 
   if (draggable && state.mode === 'planning' && unit.side === 'player') {
     token.draggable = true;
@@ -1849,8 +1842,6 @@ function cloneForCombat(unit) {
     healMult: 1,
     critChance: unit.unitClass === 'Assassin' ? 0.1 : 0,
     critDamageMult: 1.8,
-    blockChance: unit.blockChance || 0,
-    blockDamageMult: GUARDIAN_BLOCK_DAMAGE_MULT,
     burnOnHit: false,
     dodgeChance: 0,
     manaGainMult: 1,
@@ -1994,12 +1985,7 @@ function applySynergyBonuses(units) {
 
   const guardianTier = tier('Guardian');
   player.filter(u => u.unitClass === 'Guardian').forEach(u => {
-    if (guardianTier >= 2) {
-      u.armor += 10;
-      u.blockChance += 0.04;
-    }
-    if (guardianTier >= 4) u.blockChance += 0.03;
-    if (guardianTier >= 6) u.blockChance += 0.03;
+    if (guardianTier >= 2) u.armor += 15;
     if (guardianTier >= 6) addMaxHp(u, 0.15);
   });
   if (guardianTier >= 4) player.forEach(u => addShield(u, 0.06));
@@ -2397,33 +2383,23 @@ function applyDamage(target, amount, options = {}) {
   if (!options.trueDamage) damage = Math.max(1, raw - target.armor);
   if (target.damageReduction > 0 && !options.trueDamage) damage = Math.max(1, Math.round(damage * (1 - target.damageReduction)));
 
-  let guardBlocked = 0;
-  if (!options.trueDamage && target.blockChance > 0 && Math.random() < target.blockChance) {
-    const beforeBlock = damage;
-    damage = Math.max(1, Math.round(damage * (target.blockDamageMult || GUARDIAN_BLOCK_DAMAGE_MULT)));
-    guardBlocked = Math.max(0, beforeBlock - damage);
-    popDamage(target, 'Block');
-    if (window.playShieldPopup) window.playShieldPopup(target.id, 'Block');
-  }
-
   let remaining = damage;
-  let blocked = 0;
+  let absorbed = 0;
   if (target.shield > 0) {
-    blocked = Math.min(target.shield, remaining);
-    target.shield -= blocked;
-    remaining -= blocked;
+    absorbed = Math.min(target.shield, remaining);
+    target.shield -= absorbed;
+    remaining -= absorbed;
   }
 
   const hpDamage = Math.max(0, remaining);
   target.hp -= hpDamage;
-  const popText = options.isDot ? `🔥${hpDamage}` : (hpDamage > 0 ? hpDamage : 'Blocked');
+  const popText = options.isDot ? `🔥${hpDamage}` : (hpDamage > 0 ? hpDamage : 'Shielded');
   popDamage(target, popText);
 
   if (attacker && !options.silent) {
-    const blockedText = blocked > 0 ? ` (${blocked} blocked)` : '';
-    log(`${attacker.name} hits ${target.name} for ${hpDamage}${blockedText}.`, blocked > 0 && hpDamage === 0 ? 'shield' : 'damage');
-    if (guardBlocked > 0) log(`${target.name} blocks ${guardBlocked} damage with a guardian stance.`, 'shield');
-    if (blocked > 0 && hpDamage > 0) log(`${target.name} blocks ${blocked} damage with shield.`, 'shield');
+    const absorbedText = absorbed > 0 ? ` (${absorbed} absorbed)` : '';
+    log(`${attacker.name} hits ${target.name} for ${hpDamage}${absorbedText}.`, absorbed > 0 && hpDamage === 0 ? 'shield' : 'damage');
+    if (absorbed > 0 && hpDamage > 0) log(`${target.name}'s shield absorbs ${absorbed} damage.`, 'shield');
   } else if (options.isDot && !options.silent) {
     const dotLabel = options.dotType === 'corruption' ? 'corrupts' : 'burns';
     log(`${options.source || options.sourceName || 'Burn'} ${dotLabel} ${target.name} for ${hpDamage}.`, options.dotType === 'corruption' ? 'corruption' : 'burn');
@@ -2522,7 +2498,7 @@ function popDamage(target, amount) {
     const text = String(amount);
     if (text.startsWith('+')) {
       if (window.playHealPopup) window.playHealPopup(target.id, amount);
-    } else if (text === 'Blocked' || text === 'Resist' || text === 'Echo') {
+    } else if (text === 'Shielded' || text === 'Resist' || text === 'Echo') {
       if (window.playShieldPopup) window.playShieldPopup(target.id, amount);
     } else if (window.playDamagePopup) {
       window.playDamagePopup(target.id, amount);
@@ -2675,10 +2651,6 @@ function starLabel(star) {
 
 function speedLabel(ms) {
   return `${(1000 / ms).toFixed(2)}/s`;
-}
-
-function blockChanceLabel(value = 0) {
-  return `${Math.round(Math.max(0, value) * 100)}%`;
 }
 
 function isBossRound(round) {

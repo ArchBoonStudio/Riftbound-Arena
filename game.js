@@ -516,6 +516,7 @@ const state = {
   gold: 10,
   playerHp: 20,
   mode: 'planning',
+  shopLocked: false,
   shop: [],
   bench: [],
   board: {},
@@ -535,6 +536,7 @@ const $ = (id) => document.getElementById(id);
 const battlefieldEl = $('battlefield');
 const shopEl = $('shop');
 const benchEl = $('bench');
+const sellZoneEl = $('sellZone');
 const synergyEl = $('synergyPanel');
 const logEl = $('combatLog');
 const logFilterBtn = $('logFilterBtn');
@@ -544,6 +546,9 @@ const enemyPreviewTitleEl = $('enemyPreviewTitle');
 const relicPanelEl = $('relicPanel');
 const codexPanelEl = $('codexPanel');
 const modalChoicesEl = $('modalChoices');
+const shopGoldTextEl = $('shopGoldText');
+const shopLockBtn = $('shopLockBtn');
+const shopLockStateEl = $('shopLockState');
 
 const IMPORTANT_LOG_TYPES = new Set(['round', 'special', 'warning', 'boss', 'revive', 'death', 'victory', 'defeat']);
 
@@ -552,6 +557,7 @@ function init() {
   state.gold = 10;
   state.playerHp = 20;
   state.mode = 'planning';
+  state.shopLocked = false;
   state.runComplete = false;
   state.battleTick = 0;
   state.logFilter = 'all';
@@ -657,7 +663,15 @@ function starStatScale(star) {
   return { hp: 1, damage: 1, speed: 1, armor: 1 };
 }
 
-function rollShop(free = false) {
+function rollShop(free = false, options = {}) {
+  const force = Boolean(options.force);
+  const quiet = Boolean(options.quiet);
+  if (state.shopLocked && !force) {
+    if (!free) warnPlayer('Shop is locked. Unlock it before rerolling.');
+    else if (!quiet) log('Shop locked: current offers preserved.', 'special');
+    render();
+    return false;
+  }
   if (!free) {
     if (state.mode !== 'planning') return;
     if (state.gold < 2) return log('Not enough gold to reroll.', 'bad');
@@ -667,6 +681,15 @@ function rollShop(free = false) {
     const template = weightedUnitPick();
     return { ...template, star: 1, shopId: `shop-${Math.random().toString(16).slice(2)}` };
   });
+  render();
+  return true;
+}
+
+function toggleShopLock() {
+  if (state.mode !== 'planning') return warnPlayer('Shop lock can only be changed during planning.');
+  state.shopLocked = !state.shopLocked;
+  log(state.shopLocked ? 'Shop locked. Current offers will be preserved.' : 'Shop unlocked. Future rerolls and round refreshes can replace offers.', 'special');
+  showFeedback(state.shopLocked ? 'Shop locked.' : 'Shop unlocked.');
   render();
 }
 
@@ -788,15 +811,35 @@ function removeUnitsByIds(ids) {
   if (ids.includes(state.selectedUnitId)) state.selectedUnitId = null;
 }
 
-function sellUnit(unitId) {
-  if (state.mode !== 'planning') return;
+function sellValueFor(unit) {
+  const multiplier = unit.star >= 3 ? 9 : unit.star === 2 ? 3 : 1;
+  return Math.max(1, Math.floor((unit.cost || 1) * multiplier));
+}
+
+function sellUnit(unitId, options = {}) {
+  if (state.mode !== 'planning') {
+    warnPlayer('Units cannot be sold during combat.');
+    return false;
+  }
   const unit = findOwnedUnit(unitId);
-  if (!unit) return;
+  if (!unit || unit.side !== 'player') return false;
+  const refund = sellValueFor(unit);
+  if (unit.star > 1 && !options.skipConfirm && typeof window !== 'undefined' && window.confirm) {
+    const confirmed = window.confirm(`Sell ${unit.name} ${starLabel(unit.star)} for ${refund} gold?`);
+    if (!confirmed) {
+      showFeedback('Sale canceled.');
+      return false;
+    }
+  }
   removeUnitsByIds([unitId]);
-  const refund = Math.max(1, Math.floor(unit.cost * (unit.star === 1 ? 1 : unit.star + 1)));
   state.gold += refund;
   log(`Sold ${unit.name} for ${refund} gold.`, 'special');
+  showFeedback(`Sold ${unit.name} for ${refund} gold.`);
+  state.draggedUnitId = null;
+  state.selectedUnitId = null;
+  sellZoneEl?.classList.remove('drag-over', 'invalid-over');
   render();
+  return true;
 }
 
 function findOwnedUnit(unitId) {
@@ -816,6 +859,23 @@ function snapshotUnit(unit) {
   };
 }
 
+function snapshotShopItem(item) {
+  return {
+    type: item.type,
+    shopId: item.shopId
+  };
+}
+
+function restoreShopItem(snapshot) {
+  const template = getTemplateByType(snapshot?.type);
+  if (!template) return null;
+  return {
+    ...template,
+    star: 1,
+    shopId: snapshot.shopId || `shop-${Math.random().toString(16).slice(2)}`
+  };
+}
+
 function restoreUnit(snapshot) {
   const template = getTemplateByType(snapshot.type);
   if (!template) return null;
@@ -828,13 +888,22 @@ function restoreUnit(snapshot) {
 function render() {
   $('roundText').textContent = state.round === state.secretRound ? 'Secret 11' : `${state.round} / ${state.maxRound}`;
   $('goldText').textContent = state.gold;
+  if (shopGoldTextEl) shopGoldTextEl.textContent = `Gold: ${state.gold}`;
   $('playerHpText').textContent = state.playerHp;
   const activeCount = getActiveUnitCount();
   const activeTextEl = $('activeUnitText');
   if (activeTextEl) activeTextEl.textContent = `Active Units: ${activeCount} / ${state.activeUnitCap}`;
   $('statusText').textContent = state.runComplete ? 'Cleared' : (state.mode === 'planning' ? (state.round === state.secretRound ? 'Secret Boss' : 'Planning') : 'Battling');
   $('startBattleBtn').disabled = state.runComplete || state.mode !== 'planning' || Object.keys(state.board).length === 0;
-  $('rerollBtn').disabled = state.mode !== 'planning';
+  $('rerollBtn').disabled = state.mode !== 'planning' || state.shopLocked;
+  $('rerollBtn').textContent = state.shopLocked ? 'Reroll Locked' : 'Reroll 2g';
+  if (shopLockBtn) {
+    shopLockBtn.disabled = state.mode !== 'planning';
+    shopLockBtn.textContent = state.shopLocked ? 'Shop Locked' : 'Lock Shop';
+    shopLockBtn.setAttribute('aria-pressed', String(state.shopLocked));
+  }
+  if (shopLockStateEl) shopLockStateEl.textContent = state.shopLocked ? 'LOCKED' : 'UNLOCKED';
+  shopEl.closest?.('.shop-section')?.classList.toggle('shop-locked', state.shopLocked);
   renderBattlefield();
   renderShop();
   renderBench();
@@ -1236,6 +1305,10 @@ function handlePhaserBoardUnitBenchDrop(unitId, clientX, clientY) {
   return moved;
 }
 
+function handlePhaserUnitSellDrop(unitId, clientX, clientY) {
+  return handleUnitSellDrop(unitId, clientX, clientY);
+}
+
 function benchSlotAtPoint(clientX, clientY) {
   const slots = [...benchEl.querySelectorAll('.bench-slot')];
   return slots.find(slot => {
@@ -1257,6 +1330,40 @@ function clearBenchDropHighlights() {
   benchEl.querySelectorAll('.bench-slot').forEach(slot => slot.classList.remove('drag-over'));
 }
 
+function sellZoneAtPoint(clientX, clientY) {
+  if (!sellZoneEl) return false;
+  const rect = sellZoneEl.getBoundingClientRect();
+  return clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom;
+}
+
+function canSellDraggedUnit(unitId) {
+  const unit = findOwnedUnit(unitId);
+  return Boolean(state.mode === 'planning' && unit && unit.side === 'player');
+}
+
+function updateSellZoneHighlight(clientX, clientY) {
+  if (!sellZoneEl || !state.draggedUnitId) return;
+  const overZone = sellZoneAtPoint(clientX, clientY);
+  const valid = overZone && canSellDraggedUnit(state.draggedUnitId);
+  sellZoneEl.classList.toggle('drag-over', valid);
+  sellZoneEl.classList.toggle('invalid-over', overZone && !valid);
+}
+
+function clearSellZoneHighlight() {
+  sellZoneEl?.classList.remove('drag-over', 'invalid-over');
+}
+
+function handleUnitSellDrop(unitId, clientX = null, clientY = null) {
+  if (!unitId) return false;
+  if (clientX !== null && clientY !== null && !sellZoneAtPoint(clientX, clientY)) return false;
+  if (!canSellDraggedUnit(unitId)) {
+    if (state.mode !== 'planning') warnPlayer('Units cannot be sold during combat.');
+    clearSellZoneHighlight();
+    return false;
+  }
+  return sellUnit(unitId);
+}
+
 function moveBoardUnitToBenchAtPoint(unitId, clientX, clientY) {
   if (state.mode !== 'planning' || !isOnBoard(unitId)) return false;
   const element = document.elementFromPoint?.(clientX, clientY);
@@ -1269,11 +1376,33 @@ function moveBoardUnitToBenchAtPoint(unitId, clientX, clientY) {
   return true;
 }
 
+function attachSellZoneHandlers() {
+  if (!sellZoneEl) return;
+  sellZoneEl.addEventListener('dragover', (e) => {
+    if (!state.draggedUnitId) return;
+    e.preventDefault();
+    updateSellZoneHighlight(e.clientX, e.clientY);
+    e.dataTransfer.dropEffect = canSellDraggedUnit(state.draggedUnitId) ? 'move' : 'none';
+  });
+  sellZoneEl.addEventListener('dragleave', () => clearSellZoneHighlight());
+  sellZoneEl.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const unitId = state.draggedUnitId || e.dataTransfer.getData('text/plain');
+    if (!unitId || !canSellDraggedUnit(unitId)) {
+      warnPlayer('Only player units can be sold during planning.');
+      clearSellZoneHighlight();
+      return;
+    }
+    handleUnitSellDrop(unitId, e.clientX, e.clientY);
+  });
+}
+
 function clearDragState() {
   state.draggedUnitId = null;
   state.selectedUnitId = null;
   benchEl?.classList.remove('board-drop-active');
   clearBenchDropHighlights();
+  clearSellZoneHighlight();
   if (window.endPhaserBoardDrag) window.endPhaserBoardDrag();
   renderBench();
 }
@@ -1328,6 +1457,10 @@ function attachPhaserDropHandlers() {
   });
 
   document.addEventListener('pointerup', (e) => {
+    if (state.draggedUnitId && sellZoneAtPoint(e.clientX, e.clientY)) {
+      handleUnitSellDrop(state.draggedUnitId, e.clientX, e.clientY);
+      return;
+    }
     if (!state.draggedUnitId || !isOnBoard(state.draggedUnitId)) return;
     if (moveBoardUnitToBenchAtPoint(state.draggedUnitId, e.clientX, e.clientY)) {
       showFeedback('Unit returned to the bench.');
@@ -1337,6 +1470,7 @@ function attachPhaserDropHandlers() {
   });
 
   document.addEventListener('pointermove', (e) => {
+    if (state.draggedUnitId) updateSellZoneHighlight(e.clientX, e.clientY);
     if (!state.draggedUnitId || !isOnBoard(state.draggedUnitId)) return;
     highlightBenchDropSlot(e.clientX, e.clientY);
   });
@@ -2281,6 +2415,8 @@ function saveRun() {
     round: state.round,
     gold: state.gold,
     playerHp: state.playerHp,
+    shopLocked: state.shopLocked,
+    shop: state.shop.map(snapshotShopItem),
     runComplete: state.runComplete,
     relics: [...state.relics],
     starterChosen: state.starterChosen,
@@ -2308,6 +2444,7 @@ function loadRun() {
   state.gold = payload.gold ?? 10;
   state.playerHp = payload.playerHp ?? 20;
   state.mode = 'planning';
+  state.shopLocked = Boolean(payload.shopLocked);
   state.runComplete = Boolean(payload.runComplete);
   state.battleTick = 0;
   state.relics = Array.isArray(payload.relics) ? payload.relics.filter(id => RELICS.some(relic => relic.id === id)) : [];
@@ -2323,7 +2460,10 @@ function loadRun() {
   state.selectedUnitId = null;
   state.draggedUnitId = null;
   if (window.endPhaserBoardDrag) window.endPhaserBoardDrag();
-  rollShop(true);
+  state.shop = Array.isArray(payload.shop)
+    ? payload.shop.map(restoreShopItem).filter(Boolean)
+    : [];
+  if (!state.shop.length) rollShop(true, { force: true, quiet: true });
   log('Run loaded from local save.', 'special');
   showFeedback('Run loaded from local save.');
   render();
@@ -2385,6 +2525,7 @@ $('saveBtn').addEventListener('click', saveRun);
 $('loadBtn').addEventListener('click', loadRun);
 $('resetBtn').addEventListener('click', init);
 $('rerollBtn').addEventListener('click', () => rollShop(false));
+if (shopLockBtn) shopLockBtn.addEventListener('click', toggleShopLock);
 $('clearLogBtn').addEventListener('click', () => { logEl.innerHTML = ''; log('Combat log cleared.', 'special'); });
 if (logFilterBtn) logFilterBtn.addEventListener('click', toggleLogFilter);
 
@@ -2402,6 +2543,7 @@ if (window.initPhaserBoard) {
     onBoardUnitDropRejected: handlePhaserBoardUnitDropRejected,
     onBenchUnitDropRejected: handlePhaserBenchUnitDropRejected,
     onBoardUnitBenchDrop: handlePhaserBoardUnitBenchDrop,
+    onUnitSellDrop: handlePhaserUnitSellDrop,
     onBenchSlotClick: handlePhaserBenchSlotClick
   });
   window.RIFTBOUND_PHASER_READY = phaserReady;
@@ -2410,5 +2552,6 @@ if (window.initPhaserBoard) {
   }
 }
 attachPhaserDropHandlers();
+attachSellZoneHandlers();
 
 init();

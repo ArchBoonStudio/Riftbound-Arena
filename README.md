@@ -44,10 +44,13 @@ Choose one of three random Common champions to start a new run, buy more mythic 
 - Click **Buy** on shop cards to recruit champions.
 - Choose one of three Common starter champions when a new run begins.
 - Click **Reroll 2g** to refresh the shop during planning.
+- Click **Lock Shop** to freeze the current offers through battles and round changes.
+- The shop panel shows your current gold next to the lock and reroll controls.
 - Drag a bench unit onto a blue Phaser deployment cell to place it.
 - Drops on enemy rows, outside the board, or full-cap empty cells are rejected without losing the unit.
 - Drag deployed player units between blue Phaser deployment cells during planning to move or swap them.
 - Drag deployed player units from the Phaser battlefield onto a bench slot during planning to return them to the bench.
+- Drag player units onto **Sell Unit** during planning to sell them for gold.
 - Double-click your units during planning to sell them.
 - Click **Start Battle** to begin auto combat.
 - Click **Save** to store the current run in localStorage.
@@ -109,6 +112,12 @@ Current shop rarity pacing:
 ## Starting Draft
 
 New runs no longer start with two preset units. Instead, the opening modal offers three random Common champions. Pick one to add that champion to your bench and begin drafting from there.
+
+## Shop and Economy
+
+The shop panel includes a local gold display, a shop lock button, and the reroll button. Locking the shop preserves the current offers when battles start, battles end, and rounds advance. Reroll is disabled while the shop is locked; unlock the shop before rerolling or allowing future round refreshes to replace the offers.
+
+The **Sell Unit** zone accepts player units during planning. Selling grants gold equal to unit cost times star investment: 1-star units sell for base cost, 2-star units sell for 3x cost, and 3-star units sell for 9x cost. Selling upgraded units asks for confirmation.
 
 ## Enemy Preview
 
@@ -236,6 +245,11 @@ The combat log is scrollable and capped for performance. It marks events with ro
 - New runs offer three random Common starter champions.
 - Choosing a starter adds exactly one unit to the bench.
 - Units can be bought.
+- Shop gold display updates after buying, selling, rerolling, and rewards.
+- Shop lock freezes current offers through battle and round advancement.
+- Locked shop disables reroll until unlocked.
+- Player units can be dragged to the Sell Unit zone during planning.
+- Sold units are removed and grant gold using the 1x/3x/9x star formula.
 - Units can be placed by dragging from the bench to the Phaser board.
 - Bench still works.
 - 10 active unit cap still works.

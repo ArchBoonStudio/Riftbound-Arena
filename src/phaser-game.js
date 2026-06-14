@@ -820,9 +820,19 @@
       const cell = cellAtBoardPoint(view.root.x, view.root.y);
       const benchSlot = benchSlotAtBoardPoint(view.root.x, view.root.y);
       const preview = this.describeCell(cell);
+      const clientX = pointer?.event?.clientX;
+      const clientY = pointer?.event?.clientY;
 
       let accepted = false;
-      if (unit && benchSlot && this.latestState?.mode === 'planning') {
+      if (
+        unit &&
+        this.latestState?.mode === 'planning' &&
+        Number.isFinite(clientX) &&
+        Number.isFinite(clientY) &&
+        callbacks.onUnitSellDrop?.(unit.id, clientX, clientY) === true
+      ) {
+        accepted = true;
+      } else if (unit && benchSlot && this.latestState?.mode === 'planning') {
         accepted = view.area === 'bench'
           ? callbacks.onBenchUnitBenchDrop?.(unit.id, benchSlot.index) !== false
           : callbacks.onBoardUnitBenchSlotDrop?.(unit.id, benchSlot.index) !== false;

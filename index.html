@@ -60,6 +60,12 @@
         <div class="battlefield-wrapper phaser-board-wrapper">
           <div id="battlefield" class="phaser-battlefield" aria-label="Phaser auto battle battlefield"></div>
         </div>
+        <div class="planning-tools-row">
+          <div id="sellZone" class="sell-zone" aria-label="Sell Unit drop zone">
+            <strong>Sell Unit</strong>
+            <span>Drag a player unit here for gold</span>
+          </div>
+        </div>
         <div id="feedbackBanner" class="feedback-banner hidden" role="status" aria-live="polite"></div>
 
         <section class="flow-section bench-section">
@@ -79,7 +85,12 @@
                 <p class="eyebrow">Recruit</p>
                 <h2>Unit Shop</h2>
               </div>
-              <button id="rerollBtn" class="ghost-btn small">Reroll 2g</button>
+              <div class="shop-controls">
+                <div class="shop-gold" id="shopGoldText">Gold: 10</div>
+                <button id="shopLockBtn" class="ghost-btn small" type="button">Lock Shop</button>
+                <button id="rerollBtn" class="ghost-btn small" type="button">Reroll 2g</button>
+                <span id="shopLockState" class="shop-lock-state">UNLOCKED</span>
+              </div>
             </div>
             <div id="shop" class="shop-list"></div>
           </section>

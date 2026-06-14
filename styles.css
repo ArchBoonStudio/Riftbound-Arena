@@ -412,7 +412,15 @@ h3 { font-size: 18px; letter-spacing: -0.02em; }
   color: var(--muted);
   font-size: 13px;
 }
+.synergy-item.inactive { opacity: 0.72; }
+.synergy-item.near { border-color: rgba(242, 201, 107, 0.28); background: rgba(242, 201, 107, 0.045); }
 .synergy-item.active { color: var(--text); border-color: rgba(127, 242, 178, 0.4); background: rgba(127, 242, 178, 0.08); }
+.synergy-item.maxed {
+  color: var(--text);
+  border-color: rgba(242, 201, 107, 0.55);
+  background: linear-gradient(135deg, rgba(242, 201, 107, 0.14), rgba(127, 242, 178, 0.06));
+  box-shadow: inset 0 0 20px rgba(242, 201, 107, 0.08);
+}
 .synergy-item strong { color: inherit; }
 
 .combat-log-panel {
@@ -675,6 +683,17 @@ h3 { font-size: 18px; letter-spacing: -0.02em; }
   line-height: 1.25;
 }
 
+.synergy-text.next {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.synergy-item.active .synergy-text.next,
+.synergy-item.maxed .synergy-text.next {
+  color: rgba(235, 241, 255, 0.68);
+}
+
 .synergy-progress {
   height: 5px;
   border-radius: 999px;
@@ -705,6 +724,8 @@ h3 { font-size: 18px; letter-spacing: -0.02em; }
 }
 
 .synergy-item.active .synergy-count small { color: var(--green); }
+.synergy-item.near .synergy-count small { color: var(--gold); }
+.synergy-item.maxed .synergy-count small { color: var(--gold); }
 
 .codex-panel {
   display: grid;

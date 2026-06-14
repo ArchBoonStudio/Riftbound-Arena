@@ -168,34 +168,49 @@ Three copies of the same 1-star champion combine into a 2-star champion. Three c
 
 ## Synergies
 
-The synergy panel only shows synergies connected to champions you currently own on the bench or battlefield. Synergy progress and activation still count deployed player units only, so bench units reveal possible synergies but do not power them.
+Synergies count deployed player units only. Bench units, enemies, and dead enemy units do not activate player synergies. The panel reveals synergies from the current deployed board, highlights active bonuses, and shows the next reachable threshold.
+
+There are three synergy layers:
+
+- Pantheon synergies are the main faction identity.
+- Class synergies reward combat-role composition.
+- Source type synergies are secondary and intentionally weaker.
 
 Pantheon synergies:
 
-- 2 Hellenic: Hellenic units gain ability power.
-- 4 Hellenic: Hellenic units also charge abilities faster.
-- 2 Norse: Norse units gain attack damage.
-- 4 Norse: Norse units also gain armor and attack speed.
-- 2 Egyptian: Egyptian units gain healing and shield strength.
-- 4 Egyptian: First Egyptian death each battle resists death.
-- 2 Celtic: Celtic units gain dodge and haste.
-- 4 Celtic: Celtic units also gain wild-magic regeneration.
-- 2 Arthurian: Arthurian units gain armor and an oath shield.
-- 4 Arthurian: Arthurian units deal bonus damage while shielded.
+- Hellenic 2/4/6: ability power, faster energy tempo, then energy after casting.
+- Norse 2/4/6: attack damage, armor, then attack speed while wounded.
+- Egyptian 2/4/6: stronger healing and shielding, battle-start shields, then first Egyptian revive.
+- Celtic 2/4/6: dodge, periodic healing, then energy when dodging.
+- Arthurian 2/4/6: armor, oath shields, then bonus damage while shielded.
+
+Class synergies:
+
+- Guardian 2/4/6: armor, team starting shield, then bonus Guardian max HP.
+- Ranger 2/4/6: attack speed, more attack speed, then chance for an extra shot.
+- Mage 2/4/6: ability damage, more ability damage, then bonus energy generation.
+- Healer 2/4/6: healing power, overheal shielding, then periodic healing for the lowest-health ally.
+- Assassin 2/4/6: critical chance, critical damage, then energy on kill.
+- Bruiser 2/4/6: max HP, more max HP, then damage from missing HP.
 
 Source type synergies:
 
-- 2 Empyrean: Empyrean units gain ability power.
-- 4 Empyrean: All allies gain a starting shield.
-- 2 Heroic: Heroic units gain critical chance.
-- 4 Heroic: Heroic units gain bonus damage against bosses.
-- 2 Sacred: Sacred units gain healing power.
-- 2 Spirit: Spirit units gain energy generation.
-- 2 Fae: Fae units gain dodge chance.
-- 2 Worshiper: Worshipers gain a small max HP bonus.
-- 4 Worshiper: Worshipers grant all allies a small starting shield.
+- 2 Worshiper: Worshipers gain max HP.
+- 4 Worshiper: Worshipers also grant all allies a small starting shield.
+- 3 Empyrean: Empyrean units gain a small ability power bonus.
+- 6 Empyrean: Empyrean units gain a larger but still secondary ability power bonus.
 - 2 Wyrdbound: Wyrdbound units apply corruption damage over time.
 - 4 Wyrdbound: First Wyrdbound death each battle revives as a corrupted echo.
+- 2 Heroic: Heroic units gain critical chance.
+- 4 Heroic: Heroic units deal bonus damage against bosses.
+- 2 Sacred: Sacred units gain healing and shielding power.
+- 4 Sacred: Allies gain a small shield when healed.
+- 2 Spirit: Spirit units gain energy generation.
+- 4 Spirit: Spirit units grant allies small energy over time.
+- 2 Fae: Fae units gain dodge chance.
+- 4 Fae: Fae units gain energy when they dodge.
+
+Common Worshipers are early bridge units. They help activate pantheon bonuses before gods appear, but their source bonuses stay modest so divine champions remain the main chase units.
 
 ## Combat Log
 

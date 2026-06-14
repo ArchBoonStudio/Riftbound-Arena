@@ -442,33 +442,53 @@ const ENEMY_LAYOUTS = {
 const ENEMY_SLOTS = [[0,0],[7,0],[1,0],[6,0],[2,1],[5,1],[3,1],[4,1]];
 
 const SYNERGIES = [
-  { key: 'Hellenic', category: 'Pantheon', threshold: 2, text: 'Hellenic units gain +20% ability power.' },
-  { key: 'Hellenic', category: 'Pantheon', threshold: 4, text: 'Hellenic units also charge abilities 25% faster.' },
-  { key: 'Norse', category: 'Pantheon', threshold: 2, text: 'Norse units gain +18% attack damage.' },
-  { key: 'Norse', category: 'Pantheon', threshold: 4, text: 'Norse units also gain armor and attack speed.' },
-  { key: 'Egyptian', category: 'Pantheon', threshold: 2, text: 'Egyptian units gain +25% healing and shield strength.' },
-  { key: 'Egyptian', category: 'Pantheon', threshold: 4, text: 'The first Egyptian death each battle resists death at 25% HP.' },
-  { key: 'Celtic', category: 'Pantheon', threshold: 2, text: 'Celtic units gain dodge chance and haste.' },
-  { key: 'Celtic', category: 'Pantheon', threshold: 4, text: 'Celtic units gain wild-magic regeneration.' },
-  { key: 'Arthurian', category: 'Pantheon', threshold: 2, text: 'Arthurian units gain armor and an oath shield.' },
-  { key: 'Arthurian', category: 'Pantheon', threshold: 4, text: 'Arthurian units deal bonus damage while shielded.' },
-  { key: 'Empyrean', category: 'Source', threshold: 2, text: 'Empyrean units gain ability power.' },
-  { key: 'Empyrean', category: 'Source', threshold: 4, text: 'All allies gain a starting shield.' },
-  { key: 'Heroic', category: 'Source', threshold: 2, text: 'Heroic units gain critical chance.' },
-  { key: 'Heroic', category: 'Source', threshold: 4, text: 'Heroic units deal bonus damage against bosses.' },
-  { key: 'Sacred', category: 'Source', threshold: 2, text: 'Sacred units gain healing power.' },
-  { key: 'Spirit', category: 'Source', threshold: 2, text: 'Spirit units gain energy generation.' },
-  { key: 'Fae', category: 'Source', threshold: 2, text: 'Fae units gain dodge chance.' },
-  { key: 'Worshiper', category: 'Source', threshold: 2, text: 'Worshipers gain a small max HP bonus.' },
-  { key: 'Worshiper', category: 'Source', threshold: 4, text: 'Worshipers grant all allies a small starting shield.' },
+  { key: 'Hellenic', category: 'Pantheon', threshold: 2, text: 'Hellenic units gain +10% ability power.' },
+  { key: 'Hellenic', category: 'Pantheon', threshold: 4, text: 'Hellenic units gain +20% ability power and generate energy slightly faster.' },
+  { key: 'Hellenic', category: 'Pantheon', threshold: 6, text: 'Hellenic units gain a small burst of energy after casting.' },
+  { key: 'Norse', category: 'Pantheon', threshold: 2, text: 'Norse units gain +10% attack damage.' },
+  { key: 'Norse', category: 'Pantheon', threshold: 4, text: 'Norse units gain +15% attack damage and +10 armor.' },
+  { key: 'Norse', category: 'Pantheon', threshold: 6, text: 'Norse units attack faster while below 50% HP.' },
+  { key: 'Egyptian', category: 'Pantheon', threshold: 2, text: 'Egyptian healing and shielding effects are increased by 10%.' },
+  { key: 'Egyptian', category: 'Pantheon', threshold: 4, text: 'Egyptian units gain a small battle-start shield.' },
+  { key: 'Egyptian', category: 'Pantheon', threshold: 6, text: 'The first Egyptian unit to fall each battle revives once with partial HP.' },
+  { key: 'Celtic', category: 'Pantheon', threshold: 2, text: 'Celtic units gain +8% dodge chance.' },
+  { key: 'Celtic', category: 'Pantheon', threshold: 4, text: 'Celtic units gain dodge and small periodic healing.' },
+  { key: 'Celtic', category: 'Pantheon', threshold: 6, text: 'Celtic units gain energy when they dodge.' },
+  { key: 'Arthurian', category: 'Pantheon', threshold: 2, text: 'Arthurian units gain +10 armor.' },
+  { key: 'Arthurian', category: 'Pantheon', threshold: 4, text: 'Arthurian units gain a battle-start oath shield.' },
+  { key: 'Arthurian', category: 'Pantheon', threshold: 6, text: 'Arthurian units deal bonus damage while shielded.' },
+  { key: 'Guardian', category: 'Class', threshold: 2, text: 'Guardians gain +15 armor.' },
+  { key: 'Guardian', category: 'Class', threshold: 4, text: 'All allies gain a small battle-start shield.' },
+  { key: 'Guardian', category: 'Class', threshold: 6, text: 'Guardians gain bonus max HP.' },
+  { key: 'Ranger', category: 'Class', threshold: 2, text: 'Rangers gain +10% attack speed.' },
+  { key: 'Ranger', category: 'Class', threshold: 4, text: 'Rangers gain +20% attack speed.' },
+  { key: 'Ranger', category: 'Class', threshold: 6, text: 'Rangers have a chance to fire an extra shot.' },
+  { key: 'Mage', category: 'Class', threshold: 2, text: 'Mages gain +10% ability damage.' },
+  { key: 'Mage', category: 'Class', threshold: 4, text: 'Mages gain +20% ability damage.' },
+  { key: 'Mage', category: 'Class', threshold: 6, text: 'Mages generate energy faster.' },
+  { key: 'Healer', category: 'Class', threshold: 2, text: 'Healing is increased by 15%.' },
+  { key: 'Healer', category: 'Class', threshold: 4, text: 'Healing is increased by 25%, and overhealing grants a small shield.' },
+  { key: 'Healer', category: 'Class', threshold: 6, text: 'The lowest-health ally receives periodic small healing.' },
+  { key: 'Assassin', category: 'Class', threshold: 2, text: 'Assassins gain +10% crit chance.' },
+  { key: 'Assassin', category: 'Class', threshold: 4, text: 'Assassins gain +20% crit chance and bonus crit damage.' },
+  { key: 'Assassin', category: 'Class', threshold: 6, text: 'Assassins gain energy when they score a kill.' },
+  { key: 'Bruiser', category: 'Class', threshold: 2, text: 'Bruisers gain +10% max HP.' },
+  { key: 'Bruiser', category: 'Class', threshold: 4, text: 'Bruisers gain +20% max HP.' },
+  { key: 'Bruiser', category: 'Class', threshold: 6, text: 'Bruisers gain bonus damage based on missing HP.' },
+  { key: 'Worshiper', category: 'Source', threshold: 2, text: 'Worshipers gain +15% max HP.' },
+  { key: 'Worshiper', category: 'Source', threshold: 4, text: 'All allies gain a small battle-start shield.' },
+  { key: 'Empyrean', category: 'Source', threshold: 3, text: 'Empyrean units gain +5% ability power.' },
+  { key: 'Empyrean', category: 'Source', threshold: 6, text: 'Empyrean units gain +10% ability power.' },
   { key: 'Wyrdbound', category: 'Source', threshold: 2, text: 'Wyrdbound units apply corruption damage over time.' },
   { key: 'Wyrdbound', category: 'Source', threshold: 4, text: 'The first Wyrdbound death revives as a corrupted echo.' },
-  { key: 'Guardian', category: 'Class', threshold: 2, text: 'Guardians take 18% less damage.' },
-  { key: 'Ranger', category: 'Class', threshold: 2, text: 'Rangers attack 18% faster.' },
-  { key: 'Mage', category: 'Class', threshold: 2, text: 'Mages deal 20% more ability damage.' },
-  { key: 'Healer', category: 'Class', threshold: 2, text: 'Healers restore 25% more HP.' },
-  { key: 'Assassin', category: 'Class', threshold: 2, text: 'Assassins gain critical chance.' },
-  { key: 'Bruiser', category: 'Class', threshold: 2, text: 'Bruisers gain max HP.' }
+  { key: 'Heroic', category: 'Source', threshold: 2, text: 'Heroic units gain +10% crit chance.' },
+  { key: 'Heroic', category: 'Source', threshold: 4, text: 'Heroic units deal bonus damage against bosses.' },
+  { key: 'Sacred', category: 'Source', threshold: 2, text: 'Sacred units gain +15% healing and shielding power.' },
+  { key: 'Sacred', category: 'Source', threshold: 4, text: 'Allies receive a small shield when healed.' },
+  { key: 'Spirit', category: 'Source', threshold: 2, text: 'Spirit units gain bonus energy generation.' },
+  { key: 'Spirit', category: 'Source', threshold: 4, text: 'Spirit units grant allies small energy over time.' },
+  { key: 'Fae', category: 'Source', threshold: 2, text: 'Fae units gain dodge chance.' },
+  { key: 'Fae', category: 'Source', threshold: 4, text: 'Fae units gain energy when they dodge.' }
 ];
 
 const SAVE_KEY = 'riftbound-arena-v0-7-save';
@@ -906,29 +926,36 @@ function renderBench() {
 
 function renderSynergies() {
   const counts = getSynergyCounts();
-  const ownedKeys = getOwnedSynergyKeys();
   synergyEl.innerHTML = '';
 
-  const visibleSynergies = SYNERGIES.filter(s => ownedKeys.has(s.key));
-  if (!visibleSynergies.length) {
-    synergyEl.innerHTML = '<div class="empty-note">Choose or buy champions to reveal their synergies.</div>';
+  const visibleKeys = [...new Set(SYNERGIES.map(s => s.key))]
+    .filter(key => (counts[key] || 0) > 0);
+  if (!visibleKeys.length) {
+    synergyEl.innerHTML = '<div class="empty-note">Deploy champions to reveal active and near-active synergies.</div>';
     return;
   }
 
-  visibleSynergies.forEach(s => {
-    const current = counts[s.key] || 0;
-    const active = current >= s.threshold;
-    const progressPct = Math.min(100, Math.round((current / s.threshold) * 100));
-    const remaining = Math.max(0, s.threshold - current);
+  visibleKeys.forEach(key => {
+    const tiers = synergyTiers(key);
+    const current = counts[key] || 0;
+    const activeTiers = tiers.filter(s => current >= s.threshold);
+    const activeTier = activeTiers[activeTiers.length - 1] || null;
+    const nextTier = tiers.find(s => current < s.threshold) || null;
+    const targetTier = nextTier || tiers[tiers.length - 1];
+    const category = tiers[0]?.category || 'Synergy';
+    const progressPct = targetTier ? Math.min(100, Math.round((current / targetTier.threshold) * 100)) : 0;
+    const near = nextTier && nextTier.threshold - current <= 1;
+    const maxed = Boolean(activeTier && !nextTier);
     const item = document.createElement('div');
-    item.className = `synergy-item ${active ? 'active' : ''}`;
+    item.className = `synergy-item ${activeTier ? 'active' : 'inactive'} ${near ? 'near' : ''} ${maxed ? 'maxed' : ''}`;
     item.innerHTML = `
       <div class="synergy-main">
-        <div class="synergy-title"><strong>${s.key}</strong><span>${s.category}</span></div>
-        <div class="synergy-text">${s.text}</div>
+        <div class="synergy-title"><strong>${key}</strong><span>${category}</span></div>
+        ${activeTier ? `<div class="synergy-text"><b>Active:</b> ${activeTier.threshold} ${key} - ${activeTier.text}</div>` : ''}
+        ${nextTier ? `<div class="synergy-text next"><b>Next:</b> ${nextTier.threshold} ${key} - ${nextTier.text}</div>` : '<div class="synergy-text next"><b>Max:</b> All listed tiers active.</div>'}
         <div class="synergy-progress"><div style="width:${progressPct}%"></div></div>
       </div>
-      <div class="synergy-count">${current}/${s.threshold}<small>${active ? 'Active' : `${remaining} more`}</small></div>
+      <div class="synergy-count">${current}/${targetTier?.threshold || current}<small>${maxed ? 'Maxed' : activeTier ? 'Active' : near ? 'Close' : 'Inactive'}</small></div>
     `;
     synergyEl.appendChild(item);
   });
@@ -1462,7 +1489,17 @@ function cloneForCombat(unit) {
     corruptOnHit: false,
     canDeathResist: false,
     canWyrdboundEcho: false,
-    wildRegen: 0
+    wildRegen: 0,
+    castEnergyGain: 0,
+    dodgeEnergyGain: 0,
+    extraShotChance: 0,
+    killEnergyGain: 0,
+    bruiserMissingHpDamageMult: 0,
+    overhealShieldMult: 0,
+    healShieldOnHealed: 0,
+    healerPeriodicHeal: false,
+    spiritTeamEnergy: false,
+    lowHpSpeedMult: 1
   };
 }
 
@@ -1489,112 +1526,162 @@ function applySynergyBonuses(units) {
   const player = units.filter(u => u.side === 'player');
   const counts = getSynergyCounts();
   const active = SYNERGIES.filter(s => (counts[s.key] || 0) >= s.threshold);
+  const tier = (key) => synergyTier(key, counts);
+  const addMaxHp = (unit, pct) => {
+    const bonus = Math.round(unit.maxHp * pct);
+    unit.maxHp += bonus;
+    unit.hp += bonus;
+  };
+  const addShield = (unit, pct) => {
+    unit.shield += Math.round(unit.maxHp * pct);
+  };
 
   active.forEach(s => log(`${s.key} synergy active: ${s.text}`, 'good'));
   applyRelicBonuses(player);
 
-  if (activeSynergy('Hellenic', 2)) {
-    player.filter(u => u.pantheon === 'Hellenic').forEach(u => { u.abilityDamageMult += 0.2; });
-  }
-  if (activeSynergy('Hellenic', 4)) {
-    player.filter(u => u.pantheon === 'Hellenic').forEach(u => { u.manaGainMult += 0.25; });
-  }
-  if (activeSynergy('Norse', 2)) {
-    player.filter(u => u.pantheon === 'Norse').forEach(u => { u.damageMultiplier += 0.18; });
-  }
-  if (activeSynergy('Norse', 4)) {
-    player.filter(u => u.pantheon === 'Norse').forEach(u => {
-      u.armor += 5;
-      u.speed = Math.round(u.speed * 0.88);
-    });
-  }
-  if (activeSynergy('Egyptian', 2)) {
-    player.filter(u => u.pantheon === 'Egyptian').forEach(u => {
-      u.healMult += 0.25;
-      u.shieldMult += 0.25;
-    });
-  }
-  if (activeSynergy('Egyptian', 4)) {
-    player.filter(u => u.pantheon === 'Egyptian').forEach(u => { u.canDeathResist = true; });
-  }
-  if (activeSynergy('Celtic', 2)) {
-    player.filter(u => u.pantheon === 'Celtic').forEach(u => {
-      u.dodgeChance += 0.12;
-      u.speed = Math.round(u.speed * 0.92);
-    });
-  }
-  if (activeSynergy('Celtic', 4)) {
-    player.filter(u => u.pantheon === 'Celtic').forEach(u => { u.wildRegen = 5; });
-  }
-  if (activeSynergy('Arthurian', 2)) {
-    player.filter(u => u.pantheon === 'Arthurian').forEach(u => {
-      u.armor += 6;
-      u.shield += Math.round(u.maxHp * 0.12);
-    });
-  }
-  if (activeSynergy('Arthurian', 4)) {
-    player.filter(u => u.pantheon === 'Arthurian').forEach(u => { u.shieldedDamageMult += 0.25; });
-  }
-  if (activeSynergy('Empyrean', 2)) {
-    player.filter(u => u.sourceType === 'Empyrean').forEach(u => { u.abilityDamageMult += 0.2; });
-  }
-  if (activeSynergy('Empyrean', 4)) {
-    player.forEach(u => { u.shield += Math.round(u.maxHp * 0.08); });
-  }
-  if (activeSynergy('Heroic', 2)) {
-    player.filter(u => u.sourceType === 'Heroic').forEach(u => { u.critChance += 0.18; });
-  }
-  if (activeSynergy('Heroic', 4)) {
-    player.filter(u => u.sourceType === 'Heroic').forEach(u => { u.bossDamageMult += 0.35; });
-  }
-  if (activeSynergy('Sacred', 2)) {
-    player.filter(u => u.sourceType === 'Sacred').forEach(u => { u.healMult += 0.3; });
-  }
-  if (activeSynergy('Spirit', 2)) {
-    player.filter(u => u.sourceType === 'Spirit').forEach(u => { u.manaGainMult += 0.3; });
-  }
-  if (activeSynergy('Fae', 2)) {
-    player.filter(u => u.sourceType === 'Fae').forEach(u => { u.dodgeChance += 0.15; });
-  }
-  if (activeSynergy('Worshiper', 2)) {
-    player.filter(u => u.sourceType === 'Worshiper').forEach(u => {
-      const bonus = Math.round(u.maxHp * 0.1);
-      u.maxHp += bonus;
-      u.hp += bonus;
-    });
-  }
-  if (activeSynergy('Worshiper', 4)) {
-    player.forEach(u => { u.shield += Math.round(u.maxHp * 0.05); });
-  }
-  if (activeSynergy('Wyrdbound', 2)) {
-    player.filter(u => u.sourceType === 'Wyrdbound').forEach(u => { u.corruptOnHit = true; });
-  }
-  if (activeSynergy('Wyrdbound', 4)) {
-    player.filter(u => u.sourceType === 'Wyrdbound').forEach(u => { u.canWyrdboundEcho = true; });
-  }
+  const hellenicTier = tier('Hellenic');
+  player.filter(u => u.pantheon === 'Hellenic').forEach(u => {
+    if (hellenicTier >= 4) {
+      u.abilityDamageMult += 0.2;
+      u.manaGainMult += 0.12;
+    } else if (hellenicTier >= 2) {
+      u.abilityDamageMult += 0.1;
+    }
+    if (hellenicTier >= 6) u.castEnergyGain = 8;
+  });
 
-  if (activeSynergy('Guardian')) {
-    player.filter(u => u.unitClass === 'Guardian').forEach(u => { u.damageReduction += 0.18; });
-  }
-  if (activeSynergy('Ranger')) {
-    player.filter(u => u.unitClass === 'Ranger').forEach(u => { u.speed = Math.round(u.speed * 0.82); });
-  }
-  if (activeSynergy('Mage')) {
-    player.filter(u => u.unitClass === 'Mage').forEach(u => { u.abilityDamageMult += 0.2; });
-  }
-  if (activeSynergy('Healer')) {
-    player.filter(u => u.unitClass === 'Healer').forEach(u => { u.healMult += 0.25; });
-  }
-  if (activeSynergy('Assassin')) {
-    player.filter(u => u.unitClass === 'Assassin').forEach(u => { u.critChance += 0.25; u.critDamageMult += 0.4; });
-  }
-  if (activeSynergy('Bruiser')) {
-    player.filter(u => u.unitClass === 'Bruiser').forEach(u => {
-      const bonus = Math.round(u.maxHp * 0.25);
-      u.maxHp += bonus;
-      u.hp += bonus;
-    });
-  }
+  const norseTier = tier('Norse');
+  player.filter(u => u.pantheon === 'Norse').forEach(u => {
+    if (norseTier >= 4) {
+      u.damageMultiplier += 0.15;
+      u.armor += 10;
+    } else if (norseTier >= 2) {
+      u.damageMultiplier += 0.1;
+    }
+    if (norseTier >= 6) u.lowHpSpeedMult = 0.75;
+  });
+
+  const egyptianTier = tier('Egyptian');
+  player.filter(u => u.pantheon === 'Egyptian').forEach(u => {
+    if (egyptianTier >= 2) {
+      u.healMult += 0.1;
+      u.shieldMult += 0.1;
+    }
+    if (egyptianTier >= 4) addShield(u, 0.08);
+    if (egyptianTier >= 6) u.canDeathResist = true;
+  });
+
+  const celticTier = tier('Celtic');
+  player.filter(u => u.pantheon === 'Celtic').forEach(u => {
+    if (celticTier >= 2) u.dodgeChance += celticTier >= 4 ? 0.1 : 0.08;
+    if (celticTier >= 4) u.wildRegen = 4;
+    if (celticTier >= 6) {
+      u.wildRegen = 5;
+      u.dodgeEnergyGain = Math.max(u.dodgeEnergyGain, 10);
+    }
+  });
+
+  const arthurianTier = tier('Arthurian');
+  player.filter(u => u.pantheon === 'Arthurian').forEach(u => {
+    if (arthurianTier >= 2) u.armor += 10;
+    if (arthurianTier >= 4) addShield(u, 0.12);
+    if (arthurianTier >= 6) u.shieldedDamageMult += 0.25;
+  });
+
+  const guardianTier = tier('Guardian');
+  player.filter(u => u.unitClass === 'Guardian').forEach(u => {
+    if (guardianTier >= 2) u.armor += 15;
+    if (guardianTier >= 6) addMaxHp(u, 0.15);
+  });
+  if (guardianTier >= 4) player.forEach(u => addShield(u, 0.06));
+
+  const rangerTier = tier('Ranger');
+  player.filter(u => u.unitClass === 'Ranger').forEach(u => {
+    if (rangerTier >= 4) u.speed = Math.round(u.speed * 0.8);
+    else if (rangerTier >= 2) u.speed = Math.round(u.speed * 0.9);
+    if (rangerTier >= 6) u.extraShotChance = 0.25;
+  });
+
+  const mageTier = tier('Mage');
+  player.filter(u => u.unitClass === 'Mage').forEach(u => {
+    if (mageTier >= 4) u.abilityDamageMult += 0.2;
+    else if (mageTier >= 2) u.abilityDamageMult += 0.1;
+    if (mageTier >= 6) u.manaGainMult += 0.2;
+  });
+
+  const healerTier = tier('Healer');
+  player.filter(u => u.unitClass === 'Healer').forEach(u => {
+    if (healerTier >= 4) {
+      u.healMult += 0.25;
+      u.overhealShieldMult = 0.35;
+    } else if (healerTier >= 2) {
+      u.healMult += 0.15;
+    }
+    if (healerTier >= 6) u.healerPeriodicHeal = true;
+  });
+
+  const assassinTier = tier('Assassin');
+  player.filter(u => u.unitClass === 'Assassin').forEach(u => {
+    if (assassinTier >= 4) {
+      u.critChance += 0.2;
+      u.critDamageMult += 0.35;
+    } else if (assassinTier >= 2) {
+      u.critChance += 0.1;
+    }
+    if (assassinTier >= 6) u.killEnergyGain = 35;
+  });
+
+  const bruiserTier = tier('Bruiser');
+  player.filter(u => u.unitClass === 'Bruiser').forEach(u => {
+    if (bruiserTier >= 4) addMaxHp(u, 0.2);
+    else if (bruiserTier >= 2) addMaxHp(u, 0.1);
+    if (bruiserTier >= 6) u.bruiserMissingHpDamageMult = 0.3;
+  });
+
+  const worshiperTier = tier('Worshiper');
+  player.filter(u => u.sourceType === 'Worshiper').forEach(u => {
+    if (worshiperTier >= 2) addMaxHp(u, 0.15);
+  });
+  if (worshiperTier >= 4) player.forEach(u => addShield(u, 0.05));
+
+  const empyreanTier = tier('Empyrean');
+  player.filter(u => u.sourceType === 'Empyrean').forEach(u => {
+    if (empyreanTier >= 6) u.abilityDamageMult += 0.1;
+    else if (empyreanTier >= 3) u.abilityDamageMult += 0.05;
+  });
+
+  const wyrdboundTier = tier('Wyrdbound');
+  player.filter(u => u.sourceType === 'Wyrdbound').forEach(u => {
+    if (wyrdboundTier >= 2) u.corruptOnHit = true;
+    if (wyrdboundTier >= 4) u.canWyrdboundEcho = true;
+  });
+
+  const heroicTier = tier('Heroic');
+  player.filter(u => u.sourceType === 'Heroic').forEach(u => {
+    if (heroicTier >= 2) u.critChance += 0.1;
+    if (heroicTier >= 4) u.bossDamageMult += 0.3;
+  });
+
+  const sacredTier = tier('Sacred');
+  player.filter(u => u.sourceType === 'Sacred').forEach(u => {
+    if (sacredTier >= 2) {
+      u.healMult += 0.15;
+      u.shieldMult += 0.15;
+    }
+  });
+  if (sacredTier >= 4) player.forEach(u => { u.healShieldOnHealed = 0.18; });
+
+  const spiritTier = tier('Spirit');
+  player.filter(u => u.sourceType === 'Spirit').forEach(u => {
+    if (spiritTier >= 2) u.manaGainMult += 0.25;
+    if (spiritTier >= 4) u.spiritTeamEnergy = true;
+  });
+
+  const faeTier = tier('Fae');
+  player.filter(u => u.sourceType === 'Fae').forEach(u => {
+    if (faeTier >= 2) u.dodgeChance += 0.12;
+    if (faeTier >= 4) u.dodgeEnergyGain = Math.max(u.dodgeEnergyGain, 10);
+  });
 }
 
 function hasRelic(id) {
@@ -1643,6 +1730,7 @@ function combatTick() {
   if (!livingPlayers.length || !livingEnemies.length) return endBattle(livingPlayers.length > 0);
 
   state.combatUnits.filter(u => u.alive).forEach(unit => processStatuses(unit));
+  processTeamSynergyTicks();
 
   state.combatUnits.filter(u => u.alive).forEach(unit => {
     unit.attackTimer -= 420;
@@ -1651,7 +1739,9 @@ function combatTick() {
       if (!target) return;
       if (distance(unit, target) <= unit.range) {
         performAttack(unit, target);
-        unit.attackTimer = unit.speed;
+        unit.attackTimer = unit.lowHpSpeedMult < 1 && unit.hp < unit.maxHp / 2
+          ? Math.max(300, Math.round(unit.speed * unit.lowHpSpeedMult))
+          : unit.speed;
       } else {
         stepToward(unit, target);
         gainEnergy(unit, 12, distance(unit, target) <= unit.range ? target : null);
@@ -1660,6 +1750,28 @@ function combatTick() {
     }
   });
   renderBattlefield();
+}
+
+function processTeamSynergyTicks() {
+  const players = state.combatUnits.filter(u => u.side === 'player' && u.alive);
+  if (!players.length) return;
+
+  if (state.battleTick % 3 === 0) {
+    const healerCount = players.filter(u => u.healerPeriodicHeal).length;
+    if (healerCount > 0) {
+      const target = players
+        .filter(u => u.hp < u.maxHp)
+        .sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp))[0];
+      if (target) healUnit(target, 5 + healerCount * 3, 'Healer synergy', true);
+    }
+  }
+
+  if (state.battleTick % 4 === 0) {
+    const spiritCount = players.filter(u => u.spiritTeamEnergy).length;
+    if (spiritCount > 0) {
+      players.forEach(unit => gainEnergy(unit, 3 + spiritCount, null));
+    }
+  }
 }
 
 function processStatuses(unit) {
@@ -1720,6 +1832,10 @@ function performAttack(attacker, target) {
   if (attacker.bossDamageMult > 1 && target.unitClass === 'Boss') raw *= attacker.bossDamageMult;
   if (attacker.weakened) raw *= 0.9;
   if (attacker.ability === 'frenzy' && attacker.hp < attacker.maxHp / 2) raw *= 1.45;
+  if (attacker.bruiserMissingHpDamageMult > 0) {
+    const missingPct = Math.max(0, 1 - (attacker.hp / attacker.maxHp));
+    raw *= 1 + missingPct * attacker.bruiserMissingHpDamageMult;
+  }
 
   const didCrit = Math.random() < attacker.critChance;
   if (didCrit) raw *= attacker.critDamageMult;
@@ -1735,6 +1851,11 @@ function performAttack(attacker, target) {
   }
   if (attacker.corruptOnHit && dealt > 0) {
     applyCorruption(target, Math.max(5, Math.round(attacker.damage * 0.18)), 3, attacker.name);
+  }
+
+  if (attacker.extraShotChance > 0 && target.alive && Math.random() < attacker.extraShotChance) {
+    log(`${attacker.name} fires an extra shot.`, 'damage');
+    applyDamage(target, attacker.damage * 0.65 * attacker.damageMultiplier, { attacker, canDodge: true, attackType: 'extra shot' });
   }
 
 }
@@ -1794,6 +1915,9 @@ function castAbility(caster, target) {
     default:
       applyDamage(target, caster.damage, { attacker: caster, canDodge: true });
   }
+  if (caster.castEnergyGain > 0 && caster.alive) {
+    caster.mana = Math.min(caster.energyMax || 100, (caster.mana || 0) + caster.castEnergyGain);
+  }
 }
 
 function applyDamage(target, amount, options = {}) {
@@ -1805,6 +1929,7 @@ function applyDamage(target, amount, options = {}) {
   if (!options.ignoreDodge && options.canDodge && target.dodgeChance > 0 && Math.random() < target.dodgeChance) {
     popDamage(target, 'Dodge');
     if (attacker) log(`${target.name} dodges ${attacker.name}'s ${options.attackType || 'attack'}.`, 'dodge');
+    if (target.dodgeEnergyGain > 0) gainEnergy(target, target.dodgeEnergyGain, null);
     return 0;
   }
 
@@ -1836,6 +1961,9 @@ function applyDamage(target, amount, options = {}) {
 
   if (target.hp <= 0) {
     handleDeath(target);
+    if (attacker?.alive && !target.alive && attacker.killEnergyGain > 0) {
+      gainEnergy(attacker, attacker.killEnergyGain, null);
+    }
   }
   return hpDamage;
 }
@@ -1878,9 +2006,20 @@ function healUnit(target, amount, sourceName, silent = false) {
   const before = target.hp;
   target.hp = Math.min(target.maxHp, target.hp + heal);
   const actual = target.hp - before;
+  const overheal = Math.max(0, heal - actual);
   if (actual > 0) {
     popDamage(target, `+${actual}`);
     if (!silent) log(`${sourceName} heals ${target.name} for ${actual}.`, 'heal');
+    if (target.healShieldOnHealed > 0) {
+      const shieldGain = Math.max(1, Math.round(actual * target.healShieldOnHealed));
+      target.shield += shieldGain;
+      log(`${target.name} gains ${shieldGain} shield from sacred healing.`, 'shield');
+    }
+  }
+  if (overheal > 0 && target.overhealShieldMult > 0) {
+    const shieldGain = Math.max(1, Math.round(overheal * target.overhealShieldMult));
+    target.shield += shieldGain;
+    log(`${target.name} converts overhealing into ${shieldGain} shield.`, 'shield');
   }
 }
 
@@ -2035,8 +2174,19 @@ function getOwnedSynergyKeys() {
 
 function activeSynergy(key, threshold = null) {
   const counts = getSynergyCounts();
-  const synergy = SYNERGIES.find(s => s.key === key && (threshold === null || s.threshold === threshold));
-  return Boolean(synergy && (counts[key] || 0) >= synergy.threshold);
+  if (threshold === null) return synergyTier(key, counts) > 0;
+  return (counts[key] || 0) >= threshold && SYNERGIES.some(s => s.key === key && s.threshold === threshold);
+}
+
+function synergyTiers(key) {
+  return SYNERGIES
+    .filter(s => s.key === key)
+    .sort((a, b) => a.threshold - b.threshold);
+}
+
+function synergyTier(key, counts = getSynergyCounts()) {
+  const current = counts[key] || 0;
+  return synergyTiers(key).reduce((highest, s) => current >= s.threshold ? s.threshold : highest, 0);
 }
 
 function starLabel(star) {

@@ -145,6 +145,7 @@ const DEFAULT_CLASS_BY_SOURCE = {
   Sacred: 'Healer',
   Spirit: 'Ranger',
   Fae: 'Assassin',
+  Worshiper: 'Guardian',
   Wyrdbound: 'Bruiser'
 };
 
@@ -171,6 +172,11 @@ function makeChampion(config) {
   const rarityStats = RARITY_CONFIG[rarity] || RARITY_CONFIG.Uncommon;
   const attackSpeed = config.attackSpeed || Math.max(520, Math.round(base.attackSpeed * rarityStats.speed));
   const tags = [...new Set([config.pantheon, config.sourceType, config.class, rarity, ...(config.tags || [])])];
+  const status = config.status
+    || (config.bossOnly ? 'Boss Only'
+      : config.enemyOnly ? 'Enemy Only'
+        : config.locked ? 'Locked'
+          : 'Playable');
 
   return {
     type: config.type || championSlug(config.name),
@@ -195,13 +201,14 @@ function makeChampion(config) {
     abilityDescription: config.abilityDescription || base.abilityDescription,
     abilityText: config.abilityDescription || base.abilityDescription,
     tags,
-    enemyOnly: Boolean(config.enemyOnly),
-    bossOnly: Boolean(config.bossOnly),
-    locked: Boolean(config.locked)
+    status,
+    enemyOnly: status === 'Enemy Only',
+    bossOnly: status === 'Boss Only',
+    locked: status === 'Locked'
   };
 }
 
-function rosterGroup({ pantheon, sourceType, defaultClass, defaultRarity, names, enemyOnly = false, bossOnly = false }) {
+function rosterGroup({ pantheon, sourceType, defaultClass, defaultRarity, names, enemyOnly = false, bossOnly = false, locked = false }) {
   return names.map(entry => {
     const config = typeof entry === 'string' ? { name: entry } : entry;
     return makeChampion({
@@ -211,6 +218,7 @@ function rosterGroup({ pantheon, sourceType, defaultClass, defaultRarity, names,
       rarity: config.rarity || defaultRarity,
       enemyOnly: config.enemyOnly ?? enemyOnly,
       bossOnly: config.bossOnly ?? bossOnly,
+      locked: config.locked ?? locked,
       ...config
     });
   });
@@ -239,13 +247,33 @@ const CHAMPION_POOL = [
     { name: 'Hypnos', class: 'Mage', rarity: 'Epic', abilityName: 'Dream Fog' },
     { name: 'Thanatos', class: 'Assassin', rarity: 'Legendary', abilityName: "Death's Edge" }
   ] }),
-  ...rosterGroup({ pantheon: 'Hellenic', sourceType: 'Heroic', defaultRarity: 'Rare', names: [
+  ...rosterGroup({ pantheon: 'Hellenic', sourceType: 'Worshiper', defaultRarity: 'Common', names: [
+    { name: 'Hellenic Temple Guard', class: 'Guardian', abilityName: 'Oath Ward', abilityDescription: 'Raises a modest shield as an early Hellenic frontline.' },
+    { name: 'Hellenic Oracle Acolyte', class: 'Mage', abilityName: 'Mythic Burst', abilityDescription: 'Unleashes a small oracle flame at clustered enemies.' }
+  ] }),
+  ...rosterGroup({ pantheon: 'Norse', sourceType: 'Worshiper', defaultRarity: 'Common', names: [
+    { name: 'Norse Shield-Bearer', class: 'Guardian', abilityName: 'Oath Ward', abilityDescription: 'Raises a sturdy shield as an early Norse frontline.' },
+    { name: 'Norse Rune-Chanter', class: 'Mage', abilityName: 'Rune Burst', abilityDescription: 'Chants a small burst of rune magic at the target.' }
+  ] }),
+  ...rosterGroup({ pantheon: 'Egyptian', sourceType: 'Worshiper', defaultRarity: 'Common', names: [
+    { name: 'Egyptian Temple Sentinel', class: 'Guardian', abilityName: 'Oath Ward', abilityDescription: 'Raises a temple shield as an early Egyptian frontline.' },
+    { name: 'Egyptian Sun Acolyte', class: 'Healer', abilityName: 'Sacred Mend', abilityDescription: 'Heals the lowest-health ally with a small sun blessing.' }
+  ] }),
+  ...rosterGroup({ pantheon: 'Celtic', sourceType: 'Worshiper', defaultRarity: 'Common', names: [
+    { name: 'Celtic Grove Keeper', class: 'Guardian', abilityName: 'Oath Ward', abilityDescription: 'Raises a grove ward as an early Celtic frontline.' },
+    { name: 'Celtic Thornrunner', class: 'Assassin', abilityName: 'Fated Strike', abilityDescription: 'Dashes in for a quick thorned strike.' }
+  ] }),
+  ...rosterGroup({ pantheon: 'Arthurian', sourceType: 'Worshiper', defaultRarity: 'Common', names: [
+    { name: 'Arthurian Squire', class: 'Guardian', abilityName: 'Oath Ward', abilityDescription: 'Raises a small oath shield as an early Arthurian frontline.' },
+    { name: 'Grail Pilgrim', class: 'Healer', abilityName: 'Sacred Mend', abilityDescription: 'Heals the lowest-health ally with a humble grail prayer.' }
+  ] }),
+  ...rosterGroup({ pantheon: 'Hellenic', sourceType: 'Heroic', defaultRarity: 'Rare', locked: true, names: [
     { name: 'Heracles', class: 'Bruiser', rarity: 'Epic' }, { name: 'Perseus', class: 'Assassin', rarity: 'Rare' },
     { name: 'Achilles', class: 'Guardian', rarity: 'Epic' }, { name: 'Odysseus', class: 'Ranger', rarity: 'Rare' },
     { name: 'Theseus', class: 'Bruiser' }, { name: 'Jason', class: 'Guardian' }, { name: 'Atalanta', class: 'Ranger' },
     { name: 'Orpheus', class: 'Healer' }, { name: 'Aeneas', class: 'Guardian' }, { name: 'Helen of Troy', class: 'Healer' }
   ] }),
-  ...rosterGroup({ pantheon: 'Hellenic', sourceType: 'Wyrdbound', defaultRarity: 'Epic', names: [
+  ...rosterGroup({ pantheon: 'Hellenic', sourceType: 'Wyrdbound', defaultRarity: 'Epic', enemyOnly: true, names: [
     { name: 'Kronos', class: 'Bruiser', rarity: 'Mythic' }, { name: 'Rhea', class: 'Healer', rarity: 'Legendary' },
     { name: 'Nyx', class: 'Mage', rarity: 'Mythic' }, { name: 'Erebus', class: 'Mage', rarity: 'Legendary' },
     { name: 'Chaos', class: 'Mage', rarity: 'Mythic', bossOnly: true, hp: 1250, damage: 68, armor: 18, range: 3, abilityName: 'Primeval Unmaking' },
@@ -266,13 +294,13 @@ const CHAMPION_POOL = [
     { name: 'Sif', class: 'Guardian', rarity: 'Epic' }, { name: 'Vidar', class: 'Bruiser' }, { name: 'Vali', class: 'Assassin' },
     { name: 'Ullr', class: 'Ranger' }, { name: 'Forseti', class: 'Guardian' }
   ] }),
-  ...rosterGroup({ pantheon: 'Norse', sourceType: 'Heroic', defaultRarity: 'Common', names: [
+  ...rosterGroup({ pantheon: 'Norse', sourceType: 'Heroic', defaultRarity: 'Common', locked: true, names: [
     { name: 'Valkyries', class: 'Guardian', rarity: 'Rare' }, { name: 'Einherjar', class: 'Bruiser' }, { name: 'Berserkers', class: 'Bruiser' },
     { name: 'Volsung heroes', class: 'Assassin', rarity: 'Rare' }, { name: 'Rune-seers', class: 'Mage', sourceType: 'Spirit' },
     { name: 'Dwarven smith lines', class: 'Guardian', sourceType: 'Sacred' }, { name: 'Elf-blooded lines', class: 'Ranger', sourceType: 'Fae' },
     { name: 'Seidr witches', class: 'Mage', sourceType: 'Spirit' }
   ] }),
-  ...rosterGroup({ pantheon: 'Norse', sourceType: 'Wyrdbound', defaultRarity: 'Epic', names: [
+  ...rosterGroup({ pantheon: 'Norse', sourceType: 'Wyrdbound', defaultRarity: 'Epic', enemyOnly: true, names: [
     { name: 'Laufey, the Frost Giant Queen', class: 'Mage', rarity: 'Legendary' }, { name: 'Ymir', class: 'Bruiser', rarity: 'Mythic', bossOnly: true },
     { name: 'Fenrir', class: 'Assassin', rarity: 'Mythic', enemyOnly: true }, { name: 'Jormungandr', class: 'Bruiser', rarity: 'Mythic', enemyOnly: true },
     { name: 'Nidhogg', class: 'Assassin', rarity: 'Legendary' }, { name: 'Surtr', class: 'Bruiser', rarity: 'Mythic', enemyOnly: true },
@@ -292,13 +320,13 @@ const CHAMPION_POOL = [
     { name: 'Neith', class: 'Ranger' }, { name: 'Nut', class: 'Mage' }, { name: 'Geb', class: 'Guardian' },
     { name: 'Shu', class: 'Ranger' }, { name: 'Tefnut', class: 'Mage' }, { name: 'Wepwawet', class: 'Assassin', rarity: 'Epic' }
   ] }),
-  ...rosterGroup({ pantheon: 'Egyptian', sourceType: 'Sacred', defaultRarity: 'Common', names: [
+  ...rosterGroup({ pantheon: 'Egyptian', sourceType: 'Sacred', defaultRarity: 'Common', locked: true, names: [
     { name: 'Pharaoh bloodlines', class: 'Guardian', rarity: 'Rare' }, { name: "Ma'at-bound judges", class: 'Guardian' },
     { name: 'Thothian scribes', class: 'Mage' }, { name: 'Anubian death-guides', class: 'Assassin' },
     { name: 'Bastet protectors', class: 'Guardian' }, { name: 'Sekhmet war-healers', class: 'Healer', rarity: 'Rare' },
     { name: 'Horus royal lines', class: 'Ranger' }, { name: 'Osirian resurrection lines', class: 'Healer', rarity: 'Rare' }
   ] }),
-  ...rosterGroup({ pantheon: 'Egyptian', sourceType: 'Wyrdbound', defaultRarity: 'Rare', names: [
+  ...rosterGroup({ pantheon: 'Egyptian', sourceType: 'Wyrdbound', defaultRarity: 'Rare', enemyOnly: true, names: [
     { name: 'Apep', class: 'Mage', rarity: 'Mythic', bossOnly: true }, { name: 'Isfet', class: 'Mage', rarity: 'Legendary' },
     { name: 'Ammit', class: 'Bruiser', rarity: 'Epic', enemyOnly: true }, { name: 'The Unweighed Dead', class: 'Bruiser', enemyOnly: true },
     { name: 'Devourer spirits', class: 'Assassin', enemyOnly: true }, { name: 'Crocodile-pit horrors', class: 'Bruiser', enemyOnly: true },
@@ -315,13 +343,13 @@ const CHAMPION_POOL = [
     { name: 'Badb', class: 'Mage' }, { name: 'Eriu', class: 'Guardian' }, { name: 'Flidais', class: 'Ranger' },
     { name: 'Nantosuelta', class: 'Healer' }, { name: 'Taranis', class: 'Mage' }, { name: 'Epona', class: 'Ranger' }
   ] }),
-  ...rosterGroup({ pantheon: 'Celtic', sourceType: 'Fae', defaultRarity: 'Common', names: [
+  ...rosterGroup({ pantheon: 'Celtic', sourceType: 'Fae', defaultRarity: 'Common', locked: true, names: [
     { name: 'Cu Chulainn', class: 'Bruiser', sourceType: 'Heroic', rarity: 'Epic' }, { name: 'Fionn mac Cumhaill', class: 'Ranger', sourceType: 'Heroic', rarity: 'Rare' },
     { name: 'The Fianna', class: 'Ranger', sourceType: 'Heroic' }, { name: 'Druid bloodlines', class: 'Mage', sourceType: 'Sacred' },
     { name: 'Bardic bloodlines', class: 'Healer', sourceType: 'Spirit' }, { name: 'Sidhe-touched lines', class: 'Assassin' },
     { name: 'Sovereignty bloodlines', class: 'Guardian', sourceType: 'Sacred' }, { name: 'Beast-shifter families', class: 'Bruiser' }
   ] }),
-  ...rosterGroup({ pantheon: 'Celtic', sourceType: 'Wyrdbound', defaultRarity: 'Rare', names: [
+  ...rosterGroup({ pantheon: 'Celtic', sourceType: 'Wyrdbound', defaultRarity: 'Rare', enemyOnly: true, names: [
     { name: 'Balor', class: 'Mage', rarity: 'Mythic', bossOnly: true }, { name: 'The Fomorians', class: 'Bruiser', enemyOnly: true },
     { name: 'The Unseelie Deep', class: 'Mage', rarity: 'Epic' }, { name: 'Redcap lines', class: 'Assassin', rarity: 'Rare' },
     { name: 'Black Cauldron corruption', class: 'Mage', enemyOnly: true }, { name: 'Thorned Road entities', class: 'Assassin', enemyOnly: true },
@@ -338,13 +366,13 @@ const CHAMPION_POOL = [
     { name: 'Guinevere', class: 'Healer' }, { name: 'The Green Knight', class: 'Bruiser', rarity: 'Epic' },
     { name: 'The Grail Maidens', class: 'Healer' }, { name: 'The Pendragon Line', class: 'Guardian' }, { name: 'Avalon Queens', class: 'Mage' }
   ] }),
-  ...rosterGroup({ pantheon: 'Arthurian', sourceType: 'Heroic', defaultRarity: 'Common', names: [
+  ...rosterGroup({ pantheon: 'Arthurian', sourceType: 'Heroic', defaultRarity: 'Common', locked: true, names: [
     { name: 'Pendragon descendants', class: 'Guardian', rarity: 'Rare' }, { name: 'Grail guardians', class: 'Guardian', sourceType: 'Sacred' },
     { name: 'Merlinic descendants', class: 'Mage', sourceType: 'Spirit' }, { name: 'Lake-born enchanters', class: 'Healer', sourceType: 'Fae' },
     { name: 'Dragon-blooded royal lines', class: 'Bruiser', rarity: 'Rare' }, { name: 'Round Table knight lines', class: 'Guardian' },
     { name: 'Oathbound champions', class: 'Bruiser' }, { name: 'Sword-bearing heirs', class: 'Assassin' }
   ] }),
-  ...rosterGroup({ pantheon: 'Arthurian', sourceType: 'Wyrdbound', defaultRarity: 'Rare', names: [
+  ...rosterGroup({ pantheon: 'Arthurian', sourceType: 'Wyrdbound', defaultRarity: 'Rare', enemyOnly: true, names: [
     { name: 'Mordred', class: 'Assassin', rarity: 'Mythic', enemyOnly: true }, { name: 'The Black Grail', class: 'Mage', rarity: 'Legendary' },
     { name: 'The Hollow Round Table', class: 'Guardian', enemyOnly: true },
     { name: 'The Dragon Beneath Britain', class: 'Bruiser', rarity: 'Mythic', bossOnly: true },
@@ -355,14 +383,17 @@ const CHAMPION_POOL = [
   ] })
 ];
 
-const UNIT_LIBRARY = CHAMPION_POOL.filter(champion => !champion.enemyOnly && !champion.bossOnly && !champion.locked);
+const UNIT_LIBRARY = CHAMPION_POOL.filter(champion => champion.status === 'Playable');
 
 function enemyFromChampion(name, overrides = {}) {
   const champion = CHAMPION_POOL.find(entry => entry.name === name);
   return {
     ...(champion || makeChampion({ name, pantheon: 'Wyrdbound', sourceType: 'Wyrdbound', class: 'Bruiser', rarity: 'Rare' })),
     ...overrides,
-    enemyOnly: true
+    status: 'Enemy Only',
+    enemyOnly: true,
+    bossOnly: false,
+    locked: false
   };
 }
 
@@ -428,6 +459,8 @@ const SYNERGIES = [
   { key: 'Sacred', category: 'Source', threshold: 2, text: 'Sacred units gain healing power.' },
   { key: 'Spirit', category: 'Source', threshold: 2, text: 'Spirit units gain energy generation.' },
   { key: 'Fae', category: 'Source', threshold: 2, text: 'Fae units gain dodge chance.' },
+  { key: 'Worshiper', category: 'Source', threshold: 2, text: 'Worshipers gain a small max HP bonus.' },
+  { key: 'Worshiper', category: 'Source', threshold: 4, text: 'Worshipers grant all allies a small starting shield.' },
   { key: 'Wyrdbound', category: 'Source', threshold: 2, text: 'Wyrdbound units apply corruption damage over time.' },
   { key: 'Wyrdbound', category: 'Source', threshold: 4, text: 'The first Wyrdbound death revives as a corrupted echo.' },
   { key: 'Guardian', category: 'Class', threshold: 2, text: 'Guardians take 18% less damage.' },
@@ -1522,6 +1555,16 @@ function applySynergyBonuses(units) {
   }
   if (activeSynergy('Fae', 2)) {
     player.filter(u => u.sourceType === 'Fae').forEach(u => { u.dodgeChance += 0.15; });
+  }
+  if (activeSynergy('Worshiper', 2)) {
+    player.filter(u => u.sourceType === 'Worshiper').forEach(u => {
+      const bonus = Math.round(u.maxHp * 0.1);
+      u.maxHp += bonus;
+      u.hp += bonus;
+    });
+  }
+  if (activeSynergy('Worshiper', 4)) {
+    player.forEach(u => { u.shield += Math.round(u.maxHp * 0.05); });
   }
   if (activeSynergy('Wyrdbound', 2)) {
     player.filter(u => u.sourceType === 'Wyrdbound').forEach(u => { u.corruptOnHit = true; });

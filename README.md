@@ -57,11 +57,13 @@ Choose one of three random Common champions to start a new run, buy more mythic 
 
 ## Champion System
 
-The game uses a large mythic champion pool built around pantheons, source types, classes, and rarities.
+The game uses a mythic champion pool built around pantheons, source types, classes, and rarities. The normal shop pool has been reduced so gods and major Arthurian powers are the main collectible champions.
 
 Champion fields include name, pantheon, source type, class, rarity, cost, HP, damage, attack speed, range, armor, energy maximum, ability, and tags.
 
-Some roster entries are reserved as `enemyOnly` or `bossOnly`, allowing world-ending threats to appear in waves or boss fights without overwhelming the shop.
+The shop only pulls `Playable` units. Major Empyrean gods and Arthurian powers remain playable, while most older heroic, sacred, spirit, fae, and bloodline filler units are now `Locked` for future unlocks or production planning. Wyrdbound monsters and horrors are mostly `Enemy Only` or `Boss Only`.
+
+Each pantheon also has two Common `Worshiper` units. These weaker early units help players start pantheon synergies before finding gods, but they are not meant to outshine higher-rarity champions.
 
 ## Pantheons
 
@@ -80,6 +82,7 @@ Hellenic is the merged Greek/Roman classification, but Greek names are used.
 - Sacred
 - Spirit
 - Fae
+- Worshiper
 - Wyrdbound
 
 ## Rarities and Costs
@@ -92,6 +95,8 @@ Hellenic is the merged Greek/Roman classification, but Greek names are used.
 - Mythic: 6 gold
 
 The shop uses round-based rarity odds. Round 1 can only roll Common and Uncommon champions. Rare, Epic, Legendary, and Mythic champions unlock gradually as the run advances, with Mythic rolls only appearing near the endgame and secret boss round.
+
+With the reduced shop pool, Common rolls are mostly Worshipers. This keeps early rounds readable while preserving gods as the primary long-term chase units.
 
 Current shop rarity pacing:
 
@@ -121,9 +126,9 @@ Relics are persistent for the run and apply battle bonuses such as stronger shie
 
 ## Champion Codex
 
-The codex lists playable champions, supports pantheon filters, and shows each selected champion's rarity, class, source type, cost, stats, and ability.
+The codex lists playable champions, supports pantheon filters, and shows each selected champion's rarity, class, source type, cost, stats, and ability. Enemy-only, boss-only, and locked roster entries remain in `UNIT_PRODUCTION_LIST.md` for wave, boss, sprite, and future unlock planning.
 
-For production planning, see `UNIT_PRODUCTION_LIST.md` for every playable, enemy-only, and boss-only unit with description and sprite work columns.
+For production planning, see `UNIT_PRODUCTION_LIST.md` for every playable, enemy-only, boss-only, and locked unit with description and sprite work columns.
 
 ## Sprite Folders
 
@@ -187,6 +192,8 @@ Source type synergies:
 - 2 Sacred: Sacred units gain healing power.
 - 2 Spirit: Spirit units gain energy generation.
 - 2 Fae: Fae units gain dodge chance.
+- 2 Worshiper: Worshipers gain a small max HP bonus.
+- 4 Worshiper: Worshipers grant all allies a small starting shield.
 - 2 Wyrdbound: Wyrdbound units apply corruption damage over time.
 - 4 Wyrdbound: First Wyrdbound death each battle revives as a corrupted echo.
 
@@ -208,6 +215,9 @@ The combat log is scrollable and capped for performance. It marks events with ro
 - Phaser canvas appears in the battlefield area.
 - Phaser board renders an 8 x 6 grid.
 - Shop loads mythic champions.
+- Shop only rolls `Playable` units.
+- Common Worshipers appear in the shop and starter draft.
+- Enemy-only, boss-only, and locked units do not appear in the shop.
 - New runs offer three random Common starter champions.
 - Choosing a starter adds exactly one unit to the bench.
 - Units can be bought.

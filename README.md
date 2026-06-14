@@ -181,7 +181,7 @@ Three copies of the same 1-star champion combine into a 2-star champion. Three c
 
 ## Synergies
 
-Synergies count deployed player units only. Bench units, enemies, and dead enemy units do not activate player synergies. The panel reveals synergies from the current deployed board, highlights active bonuses, and shows the next reachable threshold.
+Synergies count deployed unique champion types only. Bench units, enemies, and dead enemy units do not activate player synergies. Duplicate deployed copies of the same champion still fight normally, but they only count once for pantheon, class, and source thresholds. The panel reveals synergies from the current deployed board, highlights active bonuses, and shows the next reachable threshold.
 
 There are three synergy layers:
 

@@ -2426,7 +2426,10 @@ function getActiveUnitCount() {
 
 function getSynergyCounts() {
   const counts = {};
+  const countedTypes = new Set();
   Object.values(state.board).forEach(u => {
+    if (!u || countedTypes.has(u.type)) return;
+    countedTypes.add(u.type);
     counts[u.pantheon] = (counts[u.pantheon] || 0) + 1;
     counts[u.sourceType] = (counts[u.sourceType] || 0) + 1;
     counts[u.unitClass] = (counts[u.unitClass] || 0) + 1;

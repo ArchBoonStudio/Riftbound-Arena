@@ -121,7 +121,7 @@ The **Sell Unit** zone accepts player units during planning. Selling grants gold
 
 ## Enemy Preview
 
-The **Next Wave** panel shows the current round's enemy lineup before combat starts. Boss rounds are called out at rounds 5, 10, 15, 20, and secret round 21.
+The **Next Wave** panel shows the current round's enemy lineup before combat starts. Boss rounds are called out at rounds 5, 10, 15, 20, and secret round 21. Trickster rounds preview the saved player formation they will mirror when a prior board snapshot is available.
 
 ## Relics and Rewards
 
@@ -132,6 +132,10 @@ After normal victories, the game awards gold. Boss victories at rounds 5, 10, 15
 - New relics
 
 Relics are persistent for the run and apply battle bonuses such as stronger shields, better healing, ability power, dodge, corruption, haste, or extra bruiser durability.
+
+## Trickster Mirrors
+
+The game saves lightweight snapshots of your deployed battlefield when battles begin. Snapshots store unit type, star level, and board position only, not temporary combat stats. Trickster rounds at 4, 8, 13, and 18 use the most recent previous snapshot as an enemy mirror formation, capped to the available enemy slots. If no previous snapshot exists, the round falls back to its normal enemy layout.
 
 ## Champion Codex
 
@@ -228,6 +232,7 @@ The combat log is scrollable and capped for performance. It marks events with ro
 ## Round Structure
 
 - Rounds 1-20 are the main campaign.
+- Rounds 4, 8, 13, and 18 are Trickster Mirror rounds that fight echoes of an earlier player board.
 - Rounds 5, 10, and 15 are mini-boss item rounds.
 - Round 20 is the main boss round and also grants an item choice.
 - Clearing round 20 unlocks secret round 21.
@@ -260,6 +265,7 @@ The combat log is scrollable and capped for performance. It marks events with ro
 - Source type synergies work.
 - Unowned/unrelated synergies stay hidden.
 - Enemy preview updates by round.
+- Trickster rounds preview and spawn saved player-board echoes.
 - Reward choices appear after victories.
 - Relics can be claimed and displayed.
 - Champion codex filters and details render.

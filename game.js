@@ -63,6 +63,8 @@ const LEGACY_UNIT_LIBRARY = [
 
 const PLAYER_UNIT_CAP = 10;
 const BENCH_CAP = 8;
+const BOARD_SNAPSHOT_LIMIT = 8;
+const TRICKSTER_ROUNDS = [4, 8, 13, 18];
 
 const LEGACY_ENEMY_LIBRARY = [
   { name: 'Training Goblin', icon: '👺', hp: 72, damage: 11, speed: 1220, range: 1, armor: 0 },
@@ -425,21 +427,21 @@ const WAVE_NAMES = {
   1: 'Restless Dead',
   2: 'Draugr Muster',
   3: 'Redcap Ambush',
-  4: 'Tomb-Cursed March',
+  4: 'Trickster Mirror: First Reflection',
   5: 'Mini Boss: Ymir Stirs',
   6: 'Fire Giant Push',
   7: 'False Merlin Coven',
-  8: 'Typhon Spawnline',
+  8: 'Trickster Mirror: Borrowed Blades',
   9: "Mordred's Betrayers",
   10: 'Mini Boss: Balor at the Black Tower',
   11: 'Sunless Deadfall',
   12: 'Giants at the Rift',
-  13: 'False Prophets',
+  13: 'Trickster Mirror: Stolen Formation',
   14: 'Serpent Moon',
   15: 'Mini Boss: Apep Uncoils',
   16: 'Betrayer Warband',
   17: 'Titan Road',
-  18: 'Dragon-Sworn Ruins',
+  18: 'Trickster Mirror: Last Echo',
   19: 'The Wounded Kingdom Rises',
   20: 'Boss: The Dragon Beneath Britain',
   21: 'Secret Mega Boss: The Kingdom That Never Healed'
@@ -550,6 +552,7 @@ const state = {
   shop: [],
   bench: [],
   board: {},
+  boardSnapshots: [],
   combatUnits: [],
   timers: [],
   nextId: 1,
@@ -594,6 +597,7 @@ function init() {
   state.shop = [];
   state.bench = [];
   state.board = {};
+  state.boardSnapshots = [];
   state.combatUnits = [];
   state.nextId = 10;
   state.battleFlags = {};
@@ -889,6 +893,51 @@ function snapshotUnit(unit) {
   };
 }
 
+function snapshotBoardForTrickster(round = state.round) {
+  const units = Object.values(state.board)
+    .filter(Boolean)
+    .map(snapshotUnit);
+  if (!units.length) return null;
+  return {
+    round,
+    createdAt: Date.now(),
+    units
+  };
+}
+
+function captureBoardSnapshot(round = state.round) {
+  const snapshot = snapshotBoardForTrickster(round);
+  if (!snapshot) return;
+  state.boardSnapshots.push(snapshot);
+  state.boardSnapshots = state.boardSnapshots
+    .filter(entry => Array.isArray(entry.units) && entry.units.length)
+    .slice(-BOARD_SNAPSHOT_LIMIT);
+}
+
+function restoreBoardSnapshot(snapshot) {
+  if (!snapshot || !Array.isArray(snapshot.units)) return null;
+  const units = snapshot.units
+    .map(unit => ({
+      type: unit.type,
+      star: Math.max(1, Math.min(3, unit.star || 1)),
+      x: Number.isFinite(unit.x) ? unit.x : 0,
+      y: Number.isFinite(unit.y) ? unit.y : 0
+    }))
+    .filter(unit => getTemplateByType(unit.type));
+  if (!units.length) return null;
+  return {
+    round: snapshot.round || 0,
+    createdAt: snapshot.createdAt || Date.now(),
+    units
+  };
+}
+
+function latestBoardSnapshotBefore(round) {
+  return [...state.boardSnapshots]
+    .filter(snapshot => snapshot.round < round && snapshot.units?.length)
+    .sort((a, b) => b.round - a.round || b.createdAt - a.createdAt)[0] || null;
+}
+
 function snapshotShopItem(item) {
   return {
     type: item.type,
@@ -1062,27 +1111,39 @@ function renderSynergies() {
 
 function renderEnemyPreview() {
   if (!enemyPreviewEl) return;
+  const tricksterSnapshot = isTricksterRound(state.round) ? latestBoardSnapshotBefore(state.round) : null;
   const picks = ENEMY_LAYOUTS[state.round] || ENEMY_LAYOUTS[state.maxRound];
   const counts = {};
-  picks.forEach(idx => {
-    const enemy = ENEMY_LIBRARY[idx];
-    if (!enemy) return;
-    counts[enemy.name] = (counts[enemy.name] || 0) + 1;
-  });
+  if (tricksterSnapshot) {
+    tricksterSnapshot.units.forEach(unit => {
+      const template = getTemplateByType(unit.type);
+      if (!template) return;
+      counts[template.name] = (counts[template.name] || 0) + 1;
+    });
+  } else {
+    picks.forEach(idx => {
+      const enemy = ENEMY_LIBRARY[idx];
+      if (!enemy) return;
+      counts[enemy.name] = (counts[enemy.name] || 0) + 1;
+    });
+  }
   if (enemyPreviewTitleEl) {
-    enemyPreviewTitleEl.textContent = state.round === state.secretRound
+    enemyPreviewTitleEl.textContent = tricksterSnapshot
+      ? `Trickster Round ${state.round}: Mirror of Round ${tricksterSnapshot.round}`
+      : state.round === state.secretRound
       ? 'Secret Round 21'
       : isBossRound(state.round)
         ? `Boss Round ${state.round}`
       : `Round ${state.round}: ${WAVE_NAMES[state.round]}`;
   }
   enemyPreviewEl.innerHTML = Object.entries(counts).map(([name, count]) => {
-    const enemy = ENEMY_LIBRARY.find(item => item.name === name);
+    const enemy = ENEMY_LIBRARY.find(item => item.name === name) || CHAMPION_POOL.find(item => item.name === name) || UNIT_LIBRARY.find(item => item.name === name);
+    const preview = enemy || { rarity: 'Rare', pantheon: 'Trickster', sourceType: 'Mirror', unitClass: 'Echo' };
     const countText = count > 1 ? ` x${count}` : '';
     return `
-      <div class="preview-chip rarity-${String(enemy.rarity || 'Rare').toLowerCase()}">
+      <div class="preview-chip rarity-${String(preview.rarity || 'Rare').toLowerCase()}">
         <strong>${name}${countText}</strong>
-        <span>${enemy.pantheon} / ${enemy.sourceType} / ${enemy.unitClass}</span>
+        <span>${preview.pantheon} / ${preview.sourceType} / ${preview.unitClass}</span>
       </div>
     `;
   }).join('');
@@ -1604,6 +1665,7 @@ function startBattle() {
   state.battleTick = 0;
   clearTimers();
   state.battleFlags = { egyptianDeathResistUsed: false, wyrdboundEchoUsed: false };
+  captureBoardSnapshot(state.round);
 
   const playerUnits = Object.values(state.board).map(u => cloneForCombat(u));
   const enemyUnits = spawnEnemies(state.round);
@@ -1625,6 +1687,10 @@ function beginRoundLog(round, playerUnits, enemyUnits) {
   if (round === state.secretRound) {
     log('The final rift opens. Secret Round 21 begins: the mega boss carries every surviving boss power into one war council.', 'boss');
     log('Boss rule: defeat The Kingdom That Never Healed and the gathered bosses to complete the run.', 'boss');
+  } else if (isTricksterRound(round)) {
+    const snapshot = latestBoardSnapshotBefore(round);
+    if (snapshot) log(`Trickster round: your battlefield from round ${snapshot.round} has returned as enemy echoes.`, 'boss');
+    else log('Trickster round: no old formation was found, so the rift sends a normal wave.', 'boss');
   } else if (isBossRound(round)) {
     log('Boss round: defeat the milestone enemy to claim a Sacred Arsenal item.', 'boss');
   }
@@ -1672,6 +1738,14 @@ function cloneForCombat(unit) {
 }
 
 function spawnEnemies(round) {
+  if (isTricksterRound(round)) {
+    const tricksterUnits = spawnTricksterEnemies(round);
+    if (tricksterUnits.length) return tricksterUnits;
+  }
+  return spawnLayoutEnemies(round);
+}
+
+function spawnLayoutEnemies(round) {
   const picks = ENEMY_LAYOUTS[round] || ENEMY_LAYOUTS[state.maxRound];
   return picks.map((idx, i) => {
     const base = ENEMY_LIBRARY[idx];
@@ -1691,6 +1765,28 @@ function spawnEnemies(round) {
     unit.y = ENEMY_SLOTS[i]?.[1] ?? 0;
     return unit;
   });
+}
+
+function spawnTricksterEnemies(round) {
+  const snapshot = latestBoardSnapshotBefore(round);
+  if (!snapshot) return [];
+  const scale = 0.75 + Math.min(round, state.maxRound) * 0.05;
+  return snapshot.units
+    .slice()
+    .sort((a, b) => (b.star || 1) - (a.star || 1))
+    .slice(0, ENEMY_SLOTS.length)
+    .map((snapshotUnit, i) => {
+      const template = getTemplateByType(snapshotUnit.type);
+      const unit = makeUnit({ ...template, star: snapshotUnit.star || 1 }, 'enemy');
+      unit.name = `Echo ${unit.name}`;
+      unit.hp = Math.round(unit.hp * scale);
+      unit.maxHp = Math.round(unit.maxHp * scale);
+      unit.damage = Math.round(unit.damage * scale);
+      unit.armor = Math.round(unit.armor * (1 + Math.min(0.45, round * 0.015)));
+      unit.x = Number.isFinite(snapshotUnit.x) ? Math.max(0, Math.min(7, snapshotUnit.x)) : ENEMY_SLOTS[i][0];
+      unit.y = Number.isFinite(snapshotUnit.y) ? Math.max(0, Math.min(1, 5 - snapshotUnit.y)) : ENEMY_SLOTS[i][1];
+      return unit;
+    });
 }
 
 function applySynergyBonuses(units) {
@@ -2381,6 +2477,10 @@ function isMiniBossRound(round) {
   return round > 0 && round < state.maxRound && round % 5 === 0;
 }
 
+function isTricksterRound(round) {
+  return TRICKSTER_ROUNDS.includes(round);
+}
+
 function posKey(x, y) { return `${x},${y}`; }
 
 function log(text, tone = '') {
@@ -2471,7 +2571,8 @@ function saveRun() {
     relics: [...state.relics],
     starterChosen: state.starterChosen,
     bench: Array.from({ length: BENCH_CAP }, (_, i) => state.bench[i] ? snapshotUnit(state.bench[i]) : null),
-    board: Object.entries(state.board).map(([pos, unit]) => ({ pos, unit: snapshotUnit(unit) }))
+    board: Object.entries(state.board).map(([pos, unit]) => ({ pos, unit: snapshotUnit(unit) })),
+    boardSnapshots: state.boardSnapshots.map(restoreBoardSnapshot).filter(Boolean)
   };
   localStorage.setItem(SAVE_KEY, JSON.stringify(payload));
   log('Run saved locally.', 'special');
@@ -2499,6 +2600,9 @@ function loadRun() {
   state.battleTick = 0;
   state.relics = Array.isArray(payload.relics) ? payload.relics.filter(id => RELICS.some(relic => relic.id === id)) : [];
   state.starterChosen = Boolean(payload.starterChosen);
+  state.boardSnapshots = Array.isArray(payload.boardSnapshots)
+    ? payload.boardSnapshots.map(restoreBoardSnapshot).filter(Boolean).slice(-BOARD_SNAPSHOT_LIMIT)
+    : [];
   state.bench = Array.from({ length: BENCH_CAP }, (_, i) => payload.bench?.[i] ? restoreUnit(payload.bench[i]) : null);
   state.board = {};
   (payload.board || []).forEach(entry => {

@@ -313,6 +313,10 @@ h3 { font-size: 18px; letter-spacing: -0.02em; }
     0 0 28px rgba(127, 242, 178, 0.18),
     0 16px 34px rgba(0,0,0,0.28);
 }
+.unit-card.maxed-unit {
+  background: rgba(255,255,255,0.035);
+  box-shadow: 0 16px 34px rgba(0,0,0,0.22);
+}
 .unit-card-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .unit-name { font-weight: 950; letter-spacing: -0.02em; }
 .unit-meta { color: var(--muted); font-size: 12px; line-height: 1.35; }

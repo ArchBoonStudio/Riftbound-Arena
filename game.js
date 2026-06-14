@@ -1053,10 +1053,12 @@ function renderLegacyBattlefield() {
 function renderShop() {
   shopEl.innerHTML = '';
   state.shop.forEach(item => {
-    const owned = getOwnedUnits().filter(u => u.type === item.type && u.star === 1).length;
-    const ownedAny = getOwnedUnits().some(u => u.type === item.type);
+    const ownedUnits = getOwnedUnits().filter(u => u.type === item.type);
+    const owned = ownedUnits.filter(u => u.star === 1).length;
+    const hasThreeStar = ownedUnits.some(u => u.star >= 3);
+    const shouldGlow = ownedUnits.length > 0 && !hasThreeStar;
     const card = document.createElement('div');
-    card.className = `unit-card rarity-${item.rarity.toLowerCase()} ${ownedAny ? 'owned-unit' : ''}`;
+    card.className = `unit-card rarity-${item.rarity.toLowerCase()} ${shouldGlow ? 'owned-unit' : ''} ${hasThreeStar ? 'maxed-unit' : ''}`;
     card.innerHTML = `
       <div class="unit-card-header">
         <div>
@@ -1074,7 +1076,7 @@ function renderShop() {
         <span class="pill">SPD ${speedLabel(item.attackSpeed || item.speed)}</span>
         <span class="pill">ARM ${item.armor || 0}</span>
         <span class="pill">EN ${item.energyMax}</span>
-        <span class="pill">Owned ${owned}/3</span>
+        <span class="pill">${hasThreeStar ? 'Maxed' : `Owned ${owned}/3`}</span>
       </div>
       <button class="primary-btn small buy-btn">Buy</button>
     `;

@@ -151,7 +151,7 @@ h3 { font-size: 18px; letter-spacing: -0.02em; }
 
 .phaser-battlefield {
   width: 100%;
-  aspect-ratio: 1640 / 1130;
+  aspect-ratio: 1512 / 1040;
   min-height: 0;
   border-radius: 20px;
   overflow: hidden;

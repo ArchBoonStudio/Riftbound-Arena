@@ -2,20 +2,19 @@
   const BOARD_COLS = 8;
   const BOARD_ROWS = 6;
   const BENCH_SLOTS = 8;
-  const INTERNAL_WIDTH = 1640;
-  const INTERNAL_HEIGHT = 1130;
-  // Measured from assets/ui/battlefield-background.png (1511x1041), then scaled
-  // into the Phaser internal canvas. Source board: x=195..1294, y=164..721.
-  const BOARD_X = 212;
-  const BOARD_Y = 178;
-  const BOARD_W = 1193;
-  const BOARD_H = 604;
+  const INTERNAL_WIDTH = 1512;
+  const INTERNAL_HEIGHT = 1040;
+  // Measured from assets/ui/battlefield-background.png (1512x1040).
+  // The art has a 9-column painted field; gameplay remains the existing 8x6.
+  const BOARD_X = 215;
+  const BOARD_Y = 100;
+  const BOARD_W = 1082;
+  const BOARD_H = 678;
   const TILE_GAP = 0;
-  // Source bench slot strip: x=241..1267, y=788..912.
-  const BENCH_X = 261;
-  const BENCH_Y = 855;
-  const BENCH_W = 1114;
-  const BENCH_H = 135;
+  const BENCH_X = 193;
+  const BENCH_Y = 820;
+  const BENCH_W = 1120;
+  const BENCH_H = 154;
   const TILE_W = BOARD_W / BOARD_COLS;
   const TILE_H = BOARD_H / BOARD_ROWS;
   const BENCH_SLOT_W = BENCH_W / BENCH_SLOTS;
@@ -611,8 +610,8 @@
       this.createDefeatedOverlay(root, view);
       root.add(view.token);
 
-      const hitW = BENCH_SLOT_W;
-      const hitH = BENCH_H;
+      const hitW = area === 'bench' ? BENCH_SLOT_W : TILE_W;
+      const hitH = area === 'bench' ? BENCH_H : TILE_H;
       view.hitZone = this.add.zone(center.x, center.y, hitW, hitH)
         .setOrigin(0.5)
         .setInteractive({ useHandCursor: true });

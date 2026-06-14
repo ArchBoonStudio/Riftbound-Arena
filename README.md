@@ -8,6 +8,33 @@ Open `index.html` directly in a modern browser. There is no install step, server
 
 Phaser is loaded locally from `lib/phaser.min.js`, so the game does not need the network at runtime.
 
+## Desktop Build
+
+The browser version still runs by opening `index.html` directly.
+
+To run the Electron desktop version in development:
+
+```bash
+npm install
+npm start
+```
+
+To build the Windows desktop version:
+
+```bash
+npm run make
+```
+
+Electron Forge writes packaged app and maker output to:
+
+```text
+out/
+```
+
+This desktop build is currently unsigned. Windows may show a security warning while testing. Code signing can be added later if needed.
+
+The desktop npm scripts use the local Node 22 runtime installed by `npm install` so Electron Forge packages reliably even if a newer global Node version is installed.
+
 ## Phaser Migration Status
 
 This is the first safe Phaser migration pass. The existing game loop and systems are preserved.

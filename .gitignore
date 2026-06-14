@@ -12,6 +12,7 @@ yarn-error.log*
 
 # Dependency/build folders if this prototype is ever opened with tooling
 node_modules/
+out/
 dist/
 build/
 

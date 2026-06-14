@@ -83,20 +83,6 @@
 
         <div class="lower-layout">
           <div class="lower-main-column">
-            <div class="combat-log-panel">
-              <div class="combat-log-header">
-                <div>
-                  <p class="eyebrow">Round Feed</p>
-                  <h3>Combat Log</h3>
-                </div>
-                <div class="log-actions">
-                  <button id="logFilterBtn" class="ghost-btn small" aria-pressed="false">Show All</button>
-                  <button id="clearLogBtn" class="ghost-btn small">Clear Log</button>
-                </div>
-              </div>
-              <div class="combat-log" id="combatLog" role="log" aria-live="polite"></div>
-            </div>
-
             <section class="flow-section shop-section">
               <div class="panel-heading compact">
                 <div>
@@ -112,6 +98,20 @@
               </div>
               <div id="shop" class="shop-list"></div>
             </section>
+
+            <div class="combat-log-panel">
+              <div class="combat-log-header">
+                <div>
+                  <p class="eyebrow">Round Feed</p>
+                  <h3>Combat Log</h3>
+                </div>
+                <div class="log-actions">
+                  <button id="logFilterBtn" class="ghost-btn small" aria-pressed="false">Show All</button>
+                  <button id="clearLogBtn" class="ghost-btn small">Clear Log</button>
+                </div>
+              </div>
+              <div class="combat-log" id="combatLog" role="log" aria-live="polite"></div>
+            </div>
           </div>
 
           <aside class="side-column">

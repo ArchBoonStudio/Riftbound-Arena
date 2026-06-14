@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Riftbound Arena Prototype v0.8</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Auto Battle Prototype v0.8</p>
+        <h1>Riftbound Arena</h1>
+      </div>
+      <div class="resource-row">
+        <div class="resource-card"><span>Round</span><strong id="roundText">1 / 10</strong></div>
+        <div class="resource-card"><span>Gold</span><strong id="goldText">10</strong></div>
+        <div class="resource-card"><span>HP</span><strong id="playerHpText">20</strong></div>
+        <div class="resource-card"><span>Deployed</span><strong id="activeUnitText">Active Units: 0 / 10</strong></div>
+        <div class="resource-card"><span>Status</span><strong id="statusText">Planning</strong></div>
+      </div>
+    </header>
+
+    <main class="main-grid">
+      <section class="panel arena-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Battlefield</p>
+            <h2>Deploy Your Squad</h2>
+            <p class="panel-note">Active unit cap: 10 deployed units. Every unit shows HP and energy bars in battle.</p>
+          </div>
+          <div class="button-row">
+            <button id="startBattleBtn" class="primary-btn">Start Battle</button>
+            <button id="saveBtn" class="ghost-btn">Save</button>
+            <button id="loadBtn" class="ghost-btn">Load</button>
+            <button id="resetBtn" class="ghost-btn">Reset Run</button>
+          </div>
+        </div>
+        <div class="battle-info-grid">
+          <section class="info-box">
+            <div class="panel-heading compact">
+              <div>
+                <p class="eyebrow">Next Wave</p>
+                <h3 id="enemyPreviewTitle">Round 1</h3>
+              </div>
+            </div>
+            <div id="enemyPreview" class="enemy-preview"></div>
+          </section>
+          <section class="info-box">
+            <div class="panel-heading compact">
+              <div>
+                <p class="eyebrow">Relics</p>
+                <h3>Sacred Arsenal</h3>
+              </div>
+            </div>
+            <div id="relicPanel" class="relic-list"></div>
+          </section>
+        </div>
+        <div class="battlefield-wrapper phaser-board-wrapper">
+          <div id="battlefield" class="phaser-battlefield" aria-label="Phaser auto battle battlefield"></div>
+        </div>
+        <div id="feedbackBanner" class="feedback-banner hidden" role="status" aria-live="polite"></div>
+
+        <section class="flow-section bench-section">
+          <div class="panel-heading compact">
+            <div>
+              <p class="eyebrow">Reserve</p>
+              <h2>Bench</h2>
+            </div>
+          </div>
+          <div id="bench" class="bench-list"></div>
+        </section>
+
+        <div class="lower-layout">
+          <section class="flow-section shop-section">
+            <div class="panel-heading compact">
+              <div>
+                <p class="eyebrow">Recruit</p>
+                <h2>Unit Shop</h2>
+              </div>
+              <button id="rerollBtn" class="ghost-btn small">Reroll 2g</button>
+            </div>
+            <div id="shop" class="shop-list"></div>
+          </section>
+
+          <aside class="side-column">
+            <section class="flow-section">
+              <div class="panel-heading compact">
+                <div>
+                  <p class="eyebrow">Bonuses</p>
+                  <h2>Synergies</h2>
+                </div>
+              </div>
+              <div id="synergyPanel" class="synergy-list"></div>
+            </section>
+
+            <section class="flow-section">
+              <div class="panel-heading compact">
+                <div>
+                  <p class="eyebrow">Archive</p>
+                  <h2>Champion Codex</h2>
+                </div>
+              </div>
+              <div id="codexPanel" class="codex-panel"></div>
+            </section>
+          </aside>
+        </div>
+
+        <div class="combat-log-panel">
+          <div class="combat-log-header">
+            <div>
+              <p class="eyebrow">Round Feed</p>
+              <h3>Combat Log</h3>
+            </div>
+            <div class="log-actions">
+              <button id="logFilterBtn" class="ghost-btn small" aria-pressed="false">Show All</button>
+              <button id="clearLogBtn" class="ghost-btn small">Clear Log</button>
+            </div>
+          </div>
+          <div class="combat-log" id="combatLog" role="log" aria-live="polite"></div>
+        </div>
+      </section>
+
+    </main>
+
+    <div id="modal" class="modal hidden">
+      <div class="modal-card">
+        <h2 id="modalTitle">Victory</h2>
+        <p id="modalBody">You won the fight.</p>
+        <div id="modalChoices" class="modal-choices"></div>
+        <button id="modalBtn" class="primary-btn">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="lib/phaser.min.js"></script>
+  <script src="src/phaser-game.js?v=board-measured-1"></script>
+  <script src="src/data.js"></script>
+  <script src="src/state.js"></script>
+  <script src="src/combat.js"></script>
+  <script src="src/ui.js"></script>
+  <script src="game.js?v=board-measured-1"></script>
+</body>
+</html>

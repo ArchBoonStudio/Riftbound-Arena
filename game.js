@@ -593,6 +593,9 @@ const enemyPreviewEl = $('enemyPreview');
 const enemyPreviewTitleEl = $('enemyPreviewTitle');
 const relicPanelEl = $('relicPanel');
 const codexPanelEl = $('codexPanel');
+const archiveBtn = $('archiveBtn');
+const codexWindowEl = $('codexWindow');
+const closeCodexBtn = $('closeCodexBtn');
 const modalChoicesEl = $('modalChoices');
 const shopGoldTextEl = $('shopGoldText');
 const shopLockBtn = $('shopLockBtn');
@@ -1472,6 +1475,18 @@ function renderCodex() {
       renderCodex();
     });
   });
+}
+
+function openCodexWindow() {
+  if (!codexWindowEl) return;
+  renderCodex();
+  codexWindowEl.classList.remove('hidden');
+  closeCodexBtn?.focus();
+}
+
+function closeCodexWindow() {
+  codexWindowEl?.classList.add('hidden');
+  archiveBtn?.focus();
 }
 
 function renderUnitToken(unit, draggable = false) {
@@ -3301,6 +3316,16 @@ $('modalBtn').addEventListener('click', () => $('modal').classList.add('hidden')
 $('startBattleBtn').addEventListener('click', startBattle);
 $('saveBtn').addEventListener('click', saveRun);
 $('loadBtn').addEventListener('click', loadRun);
+if (archiveBtn) archiveBtn.addEventListener('click', openCodexWindow);
+if (closeCodexBtn) closeCodexBtn.addEventListener('click', closeCodexWindow);
+if (codexWindowEl) {
+  codexWindowEl.addEventListener('click', (event) => {
+    if (event.target === codexWindowEl) closeCodexWindow();
+  });
+}
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && codexWindowEl && !codexWindowEl.classList.contains('hidden')) closeCodexWindow();
+});
 $('resetBtn').addEventListener('click', init);
 $('rerollBtn').addEventListener('click', () => rollShop(false));
 if (shopLockBtn) shopLockBtn.addEventListener('click', toggleShopLock);

@@ -404,13 +404,23 @@ h3 { font-size: 18px; letter-spacing: -0.02em; }
 
 .lower-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 410px);
   gap: 14px;
   align-items: start;
   margin-top: 14px;
 }
 
 .lower-layout .flow-section {
+  margin-top: 0;
+}
+
+.lower-main-column {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.lower-main-column .combat-log-panel {
   margin-top: 0;
 }
 
@@ -741,8 +751,8 @@ h3 { font-size: 18px; letter-spacing: -0.02em; }
   justify-content: flex-end;
 }
 .combat-log {
-  min-height: 152px;
-  max-height: 236px;
+  min-height: 188px;
+  max-height: 280px;
   overflow: auto;
   padding: 12px;
   color: var(--muted);
@@ -834,6 +844,30 @@ h3 { font-size: 18px; letter-spacing: -0.02em; }
   color: var(--muted);
   font-size: 12px;
   line-height: 1.35;
+}
+
+.codex-window {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(0,0,0,0.62);
+  backdrop-filter: blur(10px);
+  z-index: 18;
+}
+
+.codex-window.hidden { display: none; }
+
+.codex-window-card {
+  width: min(980px, calc(100vw - 32px));
+  max-height: min(820px, calc(100vh - 32px));
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: #11192e;
+  box-shadow: var(--shadow);
+  padding: 18px;
 }
 
 @media (max-width: 1120px) {
@@ -1040,11 +1074,12 @@ h3 { font-size: 18px; letter-spacing: -0.02em; }
 
 .codex-body {
   display: grid;
-  gap: 10px;
+  grid-template-columns: minmax(220px, 0.45fr) minmax(320px, 0.55fr);
+  gap: 12px;
 }
 
 .codex-list {
-  max-height: 220px;
+  max-height: 520px;
   overflow: auto;
   display: grid;
   gap: 6px;
@@ -1083,6 +1118,7 @@ h3 { font-size: 18px; letter-spacing: -0.02em; }
   border-radius: 12px;
   padding: 10px;
   background: rgba(0,0,0,0.16);
+  align-self: start;
 }
 
 .codex-detail p {
@@ -1157,6 +1193,10 @@ h3 { font-size: 18px; letter-spacing: -0.02em; }
   .battlefield .bar-label { display: none; }
   .recap-grid { grid-template-columns: 1fr; }
   .recap-header { flex-direction: column; }
+  .codex-window { padding: 12px; }
+  .codex-window-card { width: calc(100vw - 24px); padding: 14px; }
+  .codex-body { grid-template-columns: 1fr; }
+  .codex-list { max-height: 260px; }
   .combat-log-header { align-items: flex-start; flex-direction: column; }
   .log-actions { width: 100%; justify-content: stretch; }
   .log-actions button { flex: 1; }

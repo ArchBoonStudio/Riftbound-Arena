@@ -58,6 +58,16 @@
     Boss: 0xff6f7f
   };
 
+  const classAccentColors = {
+    Guardian: 0x5f8cff,
+    Ranger: 0x67d979,
+    Mage: 0x8e5cff,
+    Healer: 0x35dca3,
+    Assassin: 0xffa24f,
+    Bruiser: 0xff6578,
+    Boss: 0xff2d55
+  };
+
   let phaserGame = null;
   let boardScene = null;
   let pendingState = null;
@@ -551,6 +561,8 @@
         ringInner: null,
         core: null,
         emblem: null,
+        sigil: null,
+        crown: null,
         nameBack: null,
         nameText: null,
         starText: null,
@@ -574,9 +586,9 @@
       view.ringOuter = this.add.circle(0, -8, TOKEN_RADIUS + 3, 0x10172b, 0.98);
       view.ringInner = this.add.circle(0, -8, TOKEN_RADIUS - 5, 0x172a4a, 0.98);
       view.core = this.add.circle(0, -8, TOKEN_RADIUS - 14, 0x1b2743, 0.98);
-      view.emblem = this.add.rectangle(0, -13, TOKEN_RADIUS * 0.52, TOKEN_RADIUS * 0.52, 0xeef4ff, 0.9)
-        .setAngle(45)
-        .setStrokeStyle(2, 0xeef4ff, 0.28);
+      view.emblem = this.add.graphics();
+      view.sigil = this.add.graphics();
+      view.crown = this.add.graphics();
       view.nameBack = this.add.rectangle(0, TOKEN_NAME_Y + 10, Math.min(152, (area === 'bench' ? BENCH_SLOT_W : TILE_W) - 16), 23, 0x070a12, 0.62)
         .setStrokeStyle(1, 0xf2c96b, 0.18);
       view.starText = this.add.text(0, TOKEN_STAR_Y, '', {
@@ -606,10 +618,11 @@
         strokeThickness: 3
       }).setOrigin(0.5);
 
-      root.add([view.shadow, view.aura, view.ringOuter, view.ringInner, view.core, view.emblem, view.nameBack, view.starText, view.nameText, view.classText]);
+      root.add([view.shadow, view.aura, view.ringOuter, view.ringInner, view.core, view.emblem, view.sigil, view.crown, view.nameBack, view.starText, view.nameText, view.classText]);
       this.createBars(root, view);
       this.createDefeatedOverlay(root, view);
       root.add(view.token);
+      this.startPlaceholderIdle(view, unit);
 
       const hitW = area === 'bench' ? BENCH_SLOT_W : TILE_W;
       const hitH = area === 'bench' ? BENCH_H : TILE_H;
@@ -633,6 +646,103 @@
         this.unitViews.set(unit.id, view);
       }
       this.updateUnitView(view, unit, true);
+    }
+
+    startPlaceholderIdle(view, unit) {
+      const rarityColor = rarityColors[unit.rarity] || rarityColors.Common;
+      view.aura.setAlpha(0.72);
+      this.tweens.add({
+        targets: view.aura,
+        scaleX: 1.12,
+        scaleY: 1.12,
+        alpha: unit.unitClass === 'Boss' ? 0.95 : 0.78,
+        duration: unit.unitClass === 'Boss' ? 860 : 1280,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut'
+      });
+      if (unit.rarity === 'Legendary' || unit.rarity === 'Mythic' || unit.unitClass === 'Boss') {
+        const halo = this.add.circle(0, -8, TOKEN_RADIUS + 20, rarityColor, 0)
+          .setStrokeStyle(2, rarityColor, 0.46);
+        halo.setDepth(-3);
+        view.root.addAt(halo, 1);
+        view.rarityHalo = halo;
+        this.tweens.add({
+          targets: halo,
+          angle: 360,
+          duration: unit.unitClass === 'Boss' ? 2400 : 4200,
+          repeat: -1,
+          ease: 'Linear'
+        });
+      }
+    }
+
+    redrawPlaceholder(view, unit, rarityColor, classColor, fillColor, alive) {
+      const className = unit.unitClass || unit.class || 'Unit';
+      const accent = classAccentColors[className] || classColor;
+      view.emblem.clear();
+      view.sigil.clear();
+      view.crown.clear();
+
+      view.emblem.fillStyle(fillColor, alive ? 0.42 : 0.16);
+      view.emblem.lineStyle(2, rarityColor, alive ? 0.38 : 0.12);
+      view.emblem.fillCircle(0, -8, TOKEN_RADIUS - 10);
+      view.emblem.strokeCircle(0, -8, TOKEN_RADIUS - 10);
+      view.emblem.lineStyle(1, classColor, alive ? 0.36 : 0.12);
+      view.emblem.strokeCircle(0, -8, TOKEN_RADIUS - 20);
+
+      view.sigil.fillStyle(classColor, alive ? 0.92 : 0.38);
+      view.sigil.lineStyle(3, accent, alive ? 0.82 : 0.24);
+      switch (className) {
+        case 'Guardian':
+          view.sigil.fillPoints([{ x: 0, y: -34 }, { x: 21, y: -24 }, { x: 16, y: 0 }, { x: 0, y: 15 }, { x: -16, y: 0 }, { x: -21, y: -24 }], true);
+          view.sigil.strokePoints([{ x: 0, y: -34 }, { x: 21, y: -24 }, { x: 16, y: 0 }, { x: 0, y: 15 }, { x: -16, y: 0 }, { x: -21, y: -24 }], true);
+          view.sigil.lineBetween(0, -26, 0, 7);
+          break;
+        case 'Ranger':
+          view.sigil.lineStyle(5, classColor, alive ? 0.94 : 0.35);
+          view.sigil.beginPath();
+          view.sigil.arc(0, -12, 23, Phaser.Math.DegToRad(220), Phaser.Math.DegToRad(500), false);
+          view.sigil.strokePath();
+          view.sigil.lineStyle(2, accent, alive ? 0.88 : 0.24);
+          view.sigil.lineBetween(-18, -24, 18, 0);
+          view.sigil.fillTriangle(22, 3, 8, 0, 14, -10);
+          break;
+        case 'Mage':
+          view.sigil.fillPoints([{ x: 0, y: -38 }, { x: 8, y: -18 }, { x: 28, y: -18 }, { x: 12, y: -5 }, { x: 18, y: 16 }, { x: 0, y: 4 }, { x: -18, y: 16 }, { x: -12, y: -5 }, { x: -28, y: -18 }, { x: -8, y: -18 }], true);
+          view.sigil.strokeCircle(0, -12, 25);
+          break;
+        case 'Healer':
+          view.sigil.fillRoundedRect(-7, -37, 14, 50, 4);
+          view.sigil.fillRoundedRect(-25, -19, 50, 14, 4);
+          view.sigil.strokeCircle(0, -12, 26);
+          break;
+        case 'Assassin':
+          view.sigil.fillTriangle(0, -40, 13, -12, 0, 17);
+          view.sigil.fillTriangle(0, -40, -13, -12, 0, 17);
+          view.sigil.lineBetween(-11, -2, 11, -25);
+          break;
+        case 'Bruiser':
+          view.sigil.fillRoundedRect(-24, -25, 48, 23, 8);
+          view.sigil.fillRoundedRect(-15, -4, 30, 20, 6);
+          view.sigil.lineBetween(-18, -14, 18, -14);
+          break;
+        case 'Boss':
+          view.sigil.fillTriangle(0, -42, 28, -24, 18, 13);
+          view.sigil.fillTriangle(0, -42, -28, -24, -18, 13);
+          view.sigil.strokeCircle(0, -12, 28);
+          break;
+        default:
+          view.sigil.fillPoints([{ x: 0, y: -38 }, { x: 25, y: -12 }, { x: 0, y: 15 }, { x: -25, y: -12 }], true);
+      }
+
+      if (unit.star >= 2 || unit.rarity === 'Legendary' || unit.rarity === 'Mythic' || className === 'Boss') {
+        view.crown.lineStyle(2, rarityColor, alive ? 0.74 : 0.2);
+        view.crown.fillStyle(rarityColor, alive ? 0.32 : 0.08);
+        view.crown.fillTriangle(-22, -53, -12, -41, -2, -53);
+        view.crown.fillTriangle(2, -53, 12, -41, 22, -53);
+        view.crown.strokeRoundedRect(-24, -43, 48, 7, 4);
+      }
     }
 
     showTooltip(view) {
@@ -755,9 +865,10 @@
       view.ringInner.setFillStyle(fillColor, alive ? 0.94 : 0.32).setStrokeStyle(2, classColor, alive ? 0.48 : 0.16);
       view.core.setFillStyle(sideTint, alive ? 0.98 : 0.38).setStrokeStyle(1, rarityColor, alive ? 0.28 : 0.08);
       view.aura.setFillStyle(rarityColor, alive ? (unit.unitClass === 'Boss' ? 0.16 : 0.08) : 0.02);
-      view.emblem
-        .setFillStyle(alive ? classColor : 0x545b69, alive ? 0.9 : 0.45)
-        .setStrokeStyle(2, alive ? rarityColor : 0x7e8798, alive ? 0.32 : 0.14);
+      if (view.rarityHalo) {
+        view.rarityHalo.setStrokeStyle(2, rarityColor, alive ? (unit.unitClass === 'Boss' ? 0.68 : 0.46) : 0.12);
+      }
+      this.redrawPlaceholder(view, unit, rarityColor, classColor, fillColor, alive);
       view.nameText
         .setText(shortName(unit))
         .setColor(alive ? '#eef4ff' : '#aab1c1');
@@ -878,12 +989,27 @@
     }
 
     playDeathFade(view) {
+      const smoke = this.add.circle(view.root.x, view.root.y - 10, TOKEN_RADIUS + 10, 0x070a12, 0.42);
+      const ember = this.add.circle(view.root.x, view.root.y - 10, TOKEN_RADIUS + 2, 0xff6f7f, 0)
+        .setStrokeStyle(3, 0xff6f7f, 0.58);
+      this.effectLayer.add([smoke, ember]);
       this.tweens.add({
         targets: view.root,
         alpha: 0.5,
         scale: 0.93,
         duration: 220,
         ease: 'Sine.easeOut'
+      });
+      this.tweens.add({
+        targets: [smoke, ember],
+        alpha: 0,
+        scale: 1.65,
+        duration: 620,
+        ease: 'Sine.easeOut',
+        onComplete: () => {
+          smoke.destroy();
+          ember.destroy();
+        }
       });
     }
 
@@ -954,10 +1080,12 @@
     flashUnit(unitId, color, scale = 1.12) {
       const view = this.findUnitView(unitId);
       if (!view) return;
+      const className = view.unit?.unitClass || view.unit?.class || 'Unit';
+      const accent = classAccentColors[className] || color;
       this.tweens.add({
         targets: view.root,
         scale,
-        duration: 100,
+        duration: 130,
         yoyo: true,
         ease: 'Sine.easeOut'
       });
@@ -965,17 +1093,67 @@
       const glow = this.add.circle(view.root.x, view.root.y - 8, TOKEN_RADIUS + 14, color, 0.24);
       const ring = this.add.circle(view.root.x, view.root.y - 8, TOKEN_RADIUS + 4, color, 0)
         .setStrokeStyle(4, color, 0.65);
-      this.effectLayer.add([glow, ring]);
+      const innerRing = this.add.circle(view.root.x, view.root.y - 8, TOKEN_RADIUS - 8, accent, 0)
+        .setStrokeStyle(2, accent, 0.85);
+      this.effectLayer.add([glow, ring, innerRing]);
       this.tweens.add({
-        targets: [glow, ring],
+        targets: [glow, ring, innerRing],
         alpha: 0,
-        scale: 1.75,
-        duration: 480,
+        scale: 1.85,
+        duration: 580,
         ease: 'Sine.easeOut',
         onComplete: () => {
           glow.destroy();
           ring.destroy();
+          innerRing.destroy();
         }
+      });
+
+      for (let i = 0; i < 6; i += 1) {
+        const angle = (Math.PI * 2 * i) / 6;
+        const spark = this.add.circle(view.root.x, view.root.y - 8, 4, accent, 0.82);
+        this.effectLayer.add(spark);
+        this.tweens.add({
+          targets: spark,
+          x: spark.x + Math.cos(angle) * (TOKEN_RADIUS + 18),
+          y: spark.y + Math.sin(angle) * (TOKEN_RADIUS + 18),
+          alpha: 0,
+          scale: 0.4,
+          duration: 420,
+          ease: 'Quad.easeOut',
+          onComplete: () => spark.destroy()
+        });
+      }
+    }
+
+    abilityEffect(unitId, abilityName = 'Ability') {
+      const view = this.findUnitView(unitId);
+      if (!view) return;
+      this.flashUnit(unitId, 0xc78cff, 1.16);
+      const width = Math.min(210, Math.max(96, String(abilityName).length * 8));
+      const root = this.add.container(view.root.x, view.root.y - TILE_H * 0.56);
+      const back = this.add.graphics();
+      back.fillStyle(0x120b22, 0.78);
+      back.fillRoundedRect(-width / 2, -15, width, 30, 14);
+      back.lineStyle(1, 0xc78cff, 0.58);
+      back.strokeRoundedRect(-width / 2, -15, width, 30, 14);
+      const label = this.add.text(0, -1, String(abilityName), {
+        fontFamily: 'Segoe UI, Arial',
+        fontSize: '13px',
+        fontStyle: '900',
+        color: '#efe4ff',
+        stroke: '#070a12',
+        strokeThickness: 4
+      }).setOrigin(0.5);
+      root.add([back, label]);
+      this.effectLayer.add(root);
+      this.tweens.add({
+        targets: root,
+        y: root.y - 26,
+        alpha: 0,
+        duration: 760,
+        ease: 'Sine.easeOut',
+        onComplete: () => root.destroy(true)
       });
     }
 
@@ -988,6 +1166,9 @@
       const startY = attacker.root.y;
       const dx = target.root.x - startX;
       const dy = target.root.y - startY;
+      const angle = Math.atan2(dy, dx);
+      const hitX = Phaser.Math.Linear(startX, target.root.x, 0.72);
+      const hitY = Phaser.Math.Linear(startY, target.root.y, 0.72);
       this.tweens.add({
         targets: attacker.root,
         x: startX + dx * 0.20,
@@ -1002,45 +1183,85 @@
         }
       });
 
+      const trail = this.add.graphics();
+      trail.lineStyle(10, 0xffd1a1, 0.18);
+      trail.beginPath();
+      trail.moveTo(startX, startY - 8);
+      trail.lineTo(hitX, hitY - 8);
+      trail.strokePath();
+      trail.lineStyle(3, 0xfff1c6, 0.85);
+      trail.beginPath();
+      trail.moveTo(startX + Math.cos(angle + Math.PI / 2) * 8, startY - 8 + Math.sin(angle + Math.PI / 2) * 8);
+      trail.lineTo(hitX, hitY - 8);
+      trail.strokePath();
+      this.effectLayer.add(trail);
+
       const slash = this.add.rectangle(
-        Phaser.Math.Linear(startX, target.root.x, 0.62),
-        Phaser.Math.Linear(startY, target.root.y, 0.62),
+        hitX,
+        hitY,
         TILE_W * 0.50,
         4,
         0xffd1a1,
         0.9
-      ).setRotation(Math.atan2(dy, dx));
+      ).setRotation(angle);
       this.effectLayer.add(slash);
       this.tweens.add({
-        targets: slash,
+        targets: [slash, trail],
         alpha: 0,
         scaleX: 1.8,
         duration: 260,
-        onComplete: () => slash.destroy()
+        onComplete: () => {
+          slash.destroy();
+          trail.destroy();
+        }
       });
+      for (let i = 0; i < 5; i += 1) {
+        const spark = this.add.circle(target.root.x, target.root.y - 8, Phaser.Math.Between(3, 6), 0xffd1a1, 0.78);
+        this.effectLayer.add(spark);
+        this.tweens.add({
+          targets: spark,
+          x: spark.x + Phaser.Math.Between(-22, 22),
+          y: spark.y + Phaser.Math.Between(-26, 14),
+          alpha: 0,
+          duration: 320,
+          ease: 'Quad.easeOut',
+          onComplete: () => spark.destroy()
+        });
+      }
       this.flashUnit(targetId, 0xffd1a1, 1.05);
     }
 
     popup(unitId, text, color = null) {
       const view = this.findUnitView(unitId);
       if (!view) return;
-      const label = this.add.text(view.root.x, view.root.y - TILE_H * 0.34, String(text), {
+      const displayText = String(text);
+      const popupColor = color || numberColor(text);
+      const popupColorInt = Number(`0x${popupColor.replace('#', '')}`);
+      const width = Math.min(128, Math.max(52, displayText.length * 14));
+      const root = this.add.container(view.root.x, view.root.y - TILE_H * 0.34);
+      const back = this.add.graphics();
+      back.fillStyle(0x070a12, 0.72);
+      back.fillRoundedRect(-width / 2, -3, width, 31, 13);
+      back.lineStyle(1, popupColorInt, 0.5);
+      back.strokeRoundedRect(-width / 2, -3, width, 31, 13);
+      const label = this.add.text(0, 0, displayText, {
         fontFamily: 'Segoe UI, Arial',
         fontSize: '22px',
         fontStyle: '900',
-        color: color || numberColor(text),
+        color: popupColor,
         stroke: '#070a12',
         strokeThickness: 5
       }).setOrigin(0.5);
-      this.effectLayer.add(label);
+      root.add([back, label]);
+      this.effectLayer.add(root);
       this.tweens.add({
-        targets: label,
-        y: label.y - 38,
+        targets: root,
+        y: root.y - 38,
         alpha: 0,
         scale: 1.12,
         duration: 780,
         ease: 'Sine.easeOut',
-        onComplete: () => label.destroy()
+        onComplete: () => root.destroy(true)
       });
     }
 
@@ -1109,8 +1330,8 @@
     boardScene?.attackEffect(attackerId, targetId);
   }
 
-  function playAbilityEffect(unitId) {
-    boardScene?.flashUnit(unitId, 0xc78cff, 1.16);
+  function playAbilityEffect(unitId, abilityName = 'Ability') {
+    boardScene?.abilityEffect(unitId, abilityName);
   }
 
   function playDamagePopup(targetId, amount) {

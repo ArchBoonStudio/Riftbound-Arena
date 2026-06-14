@@ -529,6 +529,17 @@ const SYNERGIES = [
 ];
 
 const SAVE_KEY = 'riftbound-arena-v0-7-save';
+const SETTINGS_KEY = 'riftbound-arena-settings-v1';
+const DEFAULT_SETTINGS = {
+  combatLogDetail: 'all',
+  showTooltips: true,
+  damageNumbers: true,
+  reducedMotion: false,
+  confirmUpgradedSales: true,
+  gridOverlay: true,
+  uiScale: 'normal',
+  masterVolume: 80
+};
 
 const RELICS = [
   { id: 'aegis-shard', name: 'Aegis Shard', text: 'Guardians and Arthurian units start battle with a stronger shield.' },
@@ -577,7 +588,8 @@ const state = {
   latestCombatRecap: null,
   currentBattleStats: null,
   codexPantheon: 'All',
-  selectedCodexId: ''
+  selectedCodexId: '',
+  settings: { ...DEFAULT_SETTINGS }
 };
 
 const $ = (id) => document.getElementById(id);
@@ -596,14 +608,121 @@ const codexPanelEl = $('codexPanel');
 const archiveBtn = $('archiveBtn');
 const codexWindowEl = $('codexWindow');
 const closeCodexBtn = $('closeCodexBtn');
+const settingsBtn = $('settingsBtn');
+const settingsWindowEl = $('settingsWindow');
+const closeSettingsBtn = $('closeSettingsBtn');
 const modalChoicesEl = $('modalChoices');
 const shopGoldTextEl = $('shopGoldText');
 const shopLockBtn = $('shopLockBtn');
 const shopLockStateEl = $('shopLockState');
 const timerTextEl = $('timerText');
 const combatRecapEl = $('combatRecap');
+const settingCombatLogDetailEl = $('settingCombatLogDetail');
+const settingConfirmUpgradedSalesEl = $('settingConfirmUpgradedSales');
+const settingShowTooltipsEl = $('settingShowTooltips');
+const settingUiScaleEl = $('settingUiScale');
+const settingDamageNumbersEl = $('settingDamageNumbers');
+const settingGridOverlayEl = $('settingGridOverlay');
+const settingReducedMotionEl = $('settingReducedMotion');
+const settingMasterVolumeEl = $('settingMasterVolume');
+const fullscreenBtn = $('fullscreenBtn');
+const resetSettingsBtn = $('resetSettingsBtn');
+const resetSaveBtn = $('resetSaveBtn');
 
 const IMPORTANT_LOG_TYPES = new Set(['round', 'special', 'warning', 'boss', 'revive', 'death', 'victory', 'defeat']);
+
+function loadSettings() {
+  if (typeof localStorage === 'undefined') return { ...DEFAULT_SETTINGS };
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    if (!raw) return { ...DEFAULT_SETTINGS };
+    const parsed = JSON.parse(raw);
+    return {
+      ...DEFAULT_SETTINGS,
+      ...parsed,
+      combatLogDetail: parsed.combatLogDetail === 'important' ? 'important' : 'all',
+      uiScale: ['compact', 'normal', 'large'].includes(parsed.uiScale) ? parsed.uiScale : DEFAULT_SETTINGS.uiScale,
+      masterVolume: Math.max(0, Math.min(100, Number(parsed.masterVolume ?? DEFAULT_SETTINGS.masterVolume)))
+    };
+  } catch {
+    return { ...DEFAULT_SETTINGS };
+  }
+}
+
+function saveSettings() {
+  if (typeof localStorage === 'undefined') return;
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(state.settings));
+}
+
+function applySettings(options = {}) {
+  const settings = state.settings || DEFAULT_SETTINGS;
+  document.body.dataset.uiScale = settings.uiScale || 'normal';
+  document.body.classList.toggle('reduced-motion', Boolean(settings.reducedMotion));
+  document.body.classList.toggle('hide-grid-overlay', !settings.gridOverlay);
+  if (window.setPhaserSettings) window.setPhaserSettings(settings);
+  if (!options.skipLogFilter) setLogFilter(settings.combatLogDetail || 'all', { skipSettingsSync: true });
+  renderSettingsControls();
+}
+
+function updateSetting(key, value) {
+  state.settings = { ...state.settings, [key]: value };
+  saveSettings();
+  applySettings();
+  render();
+  if (key === 'combatLogDetail') log(`Combat log set to ${value === 'important' ? 'Important Only' : 'Show All'}.`, 'special');
+}
+
+function renderSettingsControls() {
+  const settings = state.settings || DEFAULT_SETTINGS;
+  if (settingCombatLogDetailEl) settingCombatLogDetailEl.value = settings.combatLogDetail || 'all';
+  if (settingConfirmUpgradedSalesEl) settingConfirmUpgradedSalesEl.checked = Boolean(settings.confirmUpgradedSales);
+  if (settingShowTooltipsEl) settingShowTooltipsEl.checked = Boolean(settings.showTooltips);
+  if (settingUiScaleEl) settingUiScaleEl.value = settings.uiScale || 'normal';
+  if (settingDamageNumbersEl) settingDamageNumbersEl.checked = Boolean(settings.damageNumbers);
+  if (settingGridOverlayEl) settingGridOverlayEl.checked = Boolean(settings.gridOverlay);
+  if (settingReducedMotionEl) settingReducedMotionEl.checked = Boolean(settings.reducedMotion);
+  if (settingMasterVolumeEl) settingMasterVolumeEl.value = settings.masterVolume ?? DEFAULT_SETTINGS.masterVolume;
+}
+
+function openSettingsWindow() {
+  if (!settingsWindowEl) return;
+  renderSettingsControls();
+  settingsWindowEl.classList.remove('hidden');
+  closeSettingsBtn?.focus();
+}
+
+function closeSettingsWindow() {
+  settingsWindowEl?.classList.add('hidden');
+  settingsBtn?.focus();
+}
+
+function resetSettings() {
+  state.settings = { ...DEFAULT_SETTINGS };
+  saveSettings();
+  applySettings();
+  render();
+  log('Settings reset to defaults.', 'special');
+  showFeedback('Settings reset.');
+}
+
+function resetSaveData() {
+  if (typeof localStorage === 'undefined') return warnPlayer('Save reset is unavailable in this browser context.');
+  const confirmed = typeof window === 'undefined' || !window.confirm
+    ? true
+    : window.confirm('Delete the saved run on this device? Your current run on screen will not reset until you press Reset Run or load again.');
+  if (!confirmed) return;
+  localStorage.removeItem(SAVE_KEY);
+  log('Local save data cleared.', 'warning');
+  showFeedback('Local save data cleared.');
+}
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen?.().catch(() => warnPlayer('Fullscreen is unavailable in this window.'));
+  } else {
+    document.exitFullscreen?.();
+  }
+}
 
 function init() {
   state.round = 1;
@@ -614,7 +733,7 @@ function init() {
   state.runComplete = false;
   state.battleTick = 0;
   resetBattleClock();
-  state.logFilter = 'all';
+  state.logFilter = state.settings.combatLogDetail || 'all';
   state.shop = [];
   state.bench = [];
   state.board = {};
@@ -635,7 +754,7 @@ function init() {
   clearTimers();
   rollShop(true);
   logEl.innerHTML = '';
-  setLogFilter('all');
+  applySettings();
   showFeedback('');
   log('Welcome to Riftbound Arena v0.9. Draft mythic champions, clear 20 rounds, and survive the secret round 21 mega boss.', 'special');
   log('Tip: 3 copies of the same 1★ unit combine into a 2★ unit. 3 copies of a 2★ unit combine into a 3★ unit.', 'special');
@@ -883,7 +1002,7 @@ function sellUnit(unitId, options = {}) {
   const unit = findOwnedUnit(unitId);
   if (!unit || unit.side !== 'player') return false;
   const refund = sellValueFor(unit);
-  if (unit.star > 1 && !options.skipConfirm && typeof window !== 'undefined' && window.confirm) {
+  if (unit.star > 1 && state.settings.confirmUpgradedSales && !options.skipConfirm && typeof window !== 'undefined' && window.confirm) {
     const confirmed = window.confirm(`Sell ${unit.name} ${starLabel(unit.star)} for ${refund} gold?`);
     if (!confirmed) {
       showFeedback('Sale canceled.');
@@ -1494,7 +1613,9 @@ function renderUnitToken(unit, draggable = false) {
   const selected = unit.id === state.selectedUnitId;
   token.className = `unit-token rarity-${String(unit.rarity || 'Common').toLowerCase()} ${unit.side === 'enemy' ? 'enemy' : ''} ${unit.alive === false ? 'dead' : ''} ${selected ? 'selected' : ''}`;
   token.dataset.unitId = unit.id;
-  token.title = `${unit.name} ${starLabel(unit.star)}\n${unit.pantheon} • ${unit.sourceType} • ${unit.unitClass} • ${unit.rarity}\nHP ${Math.max(0, Math.round(unit.hp))}/${unit.maxHp} | Energy ${Math.round(unit.mana || 0)}/${unit.energyMax} | DMG ${unit.damage} | RNG ${unit.range} | SPD ${speedLabel(unit.speed)} | ARM ${unit.armor}\n${unit.abilityName}: ${unit.abilityText}${unit.side === 'player' && state.mode === 'planning' ? '\nDrag to deploy. Double-click to sell.' : ''}`;
+  if (state.settings.showTooltips) {
+    token.title = `${unit.name} ${starLabel(unit.star)}\n${unit.pantheon} • ${unit.sourceType} • ${unit.unitClass} • ${unit.rarity}\nHP ${Math.max(0, Math.round(unit.hp))}/${unit.maxHp} | Energy ${Math.round(unit.mana || 0)}/${unit.energyMax} | DMG ${unit.damage} | RNG ${unit.range} | SPD ${speedLabel(unit.speed)} | ARM ${unit.armor}\n${unit.abilityName}: ${unit.abilityText}${unit.side === 'player' && state.mode === 'planning' ? '\nDrag to deploy. Double-click to sell.' : ''}`;
+  }
 
   if (draggable && state.mode === 'planning' && unit.side === 'player') {
     token.draggable = true;
@@ -2822,6 +2943,7 @@ function applyCorruption(target, damage, ticks, sourceName) {
 }
 
 function popDamage(target, amount) {
+  if (!state.settings.damageNumbers) return;
   if (window.RIFTBOUND_PHASER_READY) {
     const text = String(amount);
     if (text.startsWith('+')) {
@@ -3139,8 +3261,13 @@ function log(text, tone = '') {
   }
 }
 
-function setLogFilter(filter) {
+function setLogFilter(filter, options = {}) {
   state.logFilter = filter;
+  if (!options.skipSettingsSync) {
+    state.settings.combatLogDetail = filter;
+    saveSettings();
+    renderSettingsControls();
+  }
   const importantOnly = filter === 'important';
   logEl.classList.toggle('important-only', importantOnly);
   if (logFilterBtn) {
@@ -3318,19 +3445,39 @@ $('saveBtn').addEventListener('click', saveRun);
 $('loadBtn').addEventListener('click', loadRun);
 if (archiveBtn) archiveBtn.addEventListener('click', openCodexWindow);
 if (closeCodexBtn) closeCodexBtn.addEventListener('click', closeCodexWindow);
+if (settingsBtn) settingsBtn.addEventListener('click', openSettingsWindow);
+if (closeSettingsBtn) closeSettingsBtn.addEventListener('click', closeSettingsWindow);
 if (codexWindowEl) {
   codexWindowEl.addEventListener('click', (event) => {
     if (event.target === codexWindowEl) closeCodexWindow();
   });
 }
+if (settingsWindowEl) {
+  settingsWindowEl.addEventListener('click', (event) => {
+    if (event.target === settingsWindowEl) closeSettingsWindow();
+  });
+}
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && codexWindowEl && !codexWindowEl.classList.contains('hidden')) closeCodexWindow();
+  if (event.key === 'Escape' && settingsWindowEl && !settingsWindowEl.classList.contains('hidden')) closeSettingsWindow();
 });
 $('resetBtn').addEventListener('click', init);
 $('rerollBtn').addEventListener('click', () => rollShop(false));
 if (shopLockBtn) shopLockBtn.addEventListener('click', toggleShopLock);
 $('clearLogBtn').addEventListener('click', () => { logEl.innerHTML = ''; log('Combat log cleared.', 'special'); });
 if (logFilterBtn) logFilterBtn.addEventListener('click', toggleLogFilter);
+if (settingCombatLogDetailEl) settingCombatLogDetailEl.addEventListener('change', () => updateSetting('combatLogDetail', settingCombatLogDetailEl.value));
+if (settingConfirmUpgradedSalesEl) settingConfirmUpgradedSalesEl.addEventListener('change', () => updateSetting('confirmUpgradedSales', settingConfirmUpgradedSalesEl.checked));
+if (settingShowTooltipsEl) settingShowTooltipsEl.addEventListener('change', () => updateSetting('showTooltips', settingShowTooltipsEl.checked));
+if (settingUiScaleEl) settingUiScaleEl.addEventListener('change', () => updateSetting('uiScale', settingUiScaleEl.value));
+if (settingDamageNumbersEl) settingDamageNumbersEl.addEventListener('change', () => updateSetting('damageNumbers', settingDamageNumbersEl.checked));
+if (settingGridOverlayEl) settingGridOverlayEl.addEventListener('change', () => updateSetting('gridOverlay', settingGridOverlayEl.checked));
+if (settingReducedMotionEl) settingReducedMotionEl.addEventListener('change', () => updateSetting('reducedMotion', settingReducedMotionEl.checked));
+if (fullscreenBtn) fullscreenBtn.addEventListener('click', toggleFullscreen);
+if (resetSettingsBtn) resetSettingsBtn.addEventListener('click', resetSettings);
+if (resetSaveBtn) resetSaveBtn.addEventListener('click', resetSaveData);
+
+state.settings = loadSettings();
 
 if (window.initPhaserBoard) {
   const phaserReady = window.initPhaserBoard({

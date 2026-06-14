@@ -82,6 +82,7 @@ Choose one of three random Common champions to start a new run, buy more mythic 
 - Click **Start Battle** to begin auto combat.
 - Click **Save** to store the current run in localStorage.
 - Click **Load** to restore the saved run.
+- Click **Settings** to tune combat log detail, tooltips, damage numbers, reduced motion, grid overlay, UI size, fullscreen, and local reset tools.
 - Use **Show All / Important Only** to filter the combat log.
 - Use the Champion Codex filters to browse the roster by pantheon.
 
@@ -171,6 +172,10 @@ The game saves lightweight snapshots of your deployed battlefield when battles b
 The codex lists playable champions, supports pantheon filters, and shows each selected champion's rarity, class, source type, cost, stats, and ability. Enemy-only, boss-only, and locked roster entries remain in `UNIT_PRODUCTION_LIST.md` for wave, boss, sprite, and future unlock planning.
 
 For production planning, see `UNIT_PRODUCTION_LIST.md` for every playable, enemy-only, boss-only, and locked unit with description and sprite work columns.
+
+## Settings
+
+The Settings window stores preferences in localStorage separately from run saves. Current settings include combat log detail, upgraded-unit sale confirmations, unit tooltips, UI size, damage/healing/shield popups, board grid overlay, reduced motion, fullscreen toggle, reset settings, and reset save data. Audio controls are reserved for a future sound pass.
 
 ## Sprite Folders
 

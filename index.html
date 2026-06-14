@@ -36,6 +36,7 @@
             <button id="saveBtn" class="ghost-btn">Save</button>
             <button id="loadBtn" class="ghost-btn">Load</button>
             <button id="archiveBtn" class="ghost-btn">Archive</button>
+            <button id="settingsBtn" class="ghost-btn">Settings</button>
             <button id="resetBtn" class="ghost-btn">Reset Run</button>
           </div>
         </div>
@@ -143,6 +144,80 @@
       </div>
     </div>
 
+    <div id="settingsWindow" class="settings-window hidden" role="dialog" aria-modal="true" aria-labelledby="settingsWindowTitle">
+      <div class="settings-window-card">
+        <div class="panel-heading compact">
+          <div>
+            <p class="eyebrow">Options</p>
+            <h2 id="settingsWindowTitle">Settings</h2>
+          </div>
+          <button id="closeSettingsBtn" class="ghost-btn small" type="button">Close</button>
+        </div>
+
+        <div class="settings-grid">
+          <section class="settings-group">
+            <h3>Gameplay</h3>
+            <label class="settings-field">
+              <span>Combat Log Detail</span>
+              <select id="settingCombatLogDetail">
+                <option value="all">Show All</option>
+                <option value="important">Important Only</option>
+              </select>
+            </label>
+            <label class="settings-check">
+              <input id="settingConfirmUpgradedSales" type="checkbox" />
+              <span>Confirm selling 2-star and 3-star units</span>
+            </label>
+            <label class="settings-check">
+              <input id="settingShowTooltips" type="checkbox" />
+              <span>Show unit tooltips</span>
+            </label>
+          </section>
+
+          <section class="settings-group">
+            <h3>Visuals</h3>
+            <label class="settings-field">
+              <span>UI Size</span>
+              <select id="settingUiScale">
+                <option value="compact">Compact</option>
+                <option value="normal">Normal</option>
+                <option value="large">Large</option>
+              </select>
+            </label>
+            <label class="settings-check">
+              <input id="settingDamageNumbers" type="checkbox" />
+              <span>Show damage, healing, and shield numbers</span>
+            </label>
+            <label class="settings-check">
+              <input id="settingGridOverlay" type="checkbox" />
+              <span>Show board grid overlay</span>
+            </label>
+            <label class="settings-check">
+              <input id="settingReducedMotion" type="checkbox" />
+              <span>Reduced motion</span>
+            </label>
+          </section>
+
+          <section class="settings-group">
+            <h3>Audio</h3>
+            <label class="settings-field disabled">
+              <span>Master Volume</span>
+              <input id="settingMasterVolume" type="range" min="0" max="100" value="80" disabled />
+            </label>
+            <p class="settings-note">Audio controls are reserved for the upcoming sound pass.</p>
+          </section>
+
+          <section class="settings-group">
+            <h3>System</h3>
+            <button id="fullscreenBtn" class="ghost-btn small" type="button">Toggle Fullscreen</button>
+            <button id="resetSettingsBtn" class="ghost-btn small" type="button">Reset Settings</button>
+            <button id="resetSaveBtn" class="ghost-btn small danger" type="button">Reset Save Data</button>
+            <p class="settings-note">Riftbound Arena v0.11.0 desktop build, browser prototype v0.9.</p>
+          </section>
+        </div>
+      </div>
+    </div>
+
     <div id="modal" class="modal hidden">
       <div class="modal-card">
         <h2 id="modalTitle">Victory</h2>
@@ -154,11 +229,11 @@
   </div>
 
   <script src="lib/phaser.min.js"></script>
-  <script src="src/phaser-game.js?v=placeholder-revamp-1"></script>
+  <script src="src/phaser-game.js?v=settings-1"></script>
   <script src="src/data.js"></script>
   <script src="src/state.js"></script>
   <script src="src/combat.js"></script>
   <script src="src/ui.js"></script>
-  <script src="game.js?v=archive-layout-1"></script>
+  <script src="game.js?v=settings-1"></script>
 </body>
 </html>

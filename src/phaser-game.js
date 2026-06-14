@@ -72,6 +72,12 @@
   let boardScene = null;
   let pendingState = null;
   let callbacks = {};
+  let phaserSettings = {
+    showTooltips: true,
+    damageNumbers: true,
+    reducedMotion: false,
+    gridOverlay: true
+  };
 
   function clamp01(value) {
     return Math.max(0, Math.min(1, value));
@@ -288,8 +294,9 @@
       const fill = isEnemy ? 0x2b1420 : (isPlayer ? 0x0e2544 : 0x0a1020);
       const edge = isEnemy ? 0xff6f7f : (isPlayer ? 0x73a7ff : 0x8daeef);
       const alpha = isEnemy || isPlayer ? 0.64 : 0.46;
+      const showOverlay = phaserSettings.gridOverlay !== false;
 
-      if (!artBackground) {
+      if (!artBackground && showOverlay) {
         const tile = this.add.graphics();
         tile.fillStyle(fill, alpha);
         tile.fillRoundedRect(origin.x, origin.y, TILE_W, TILE_H, 13);
@@ -303,7 +310,7 @@
         tile.lineTo(origin.x + 12, origin.y + TILE_H - 12);
         tile.strokePath();
         this.gridLayer.add(tile);
-      } else {
+      } else if (showOverlay) {
         const tileGuide = this.add.graphics();
         tileGuide.fillStyle(fill, isEnemy || isPlayer ? 0.012 : 0.004);
         tileGuide.fillRoundedRect(origin.x, origin.y, TILE_W, TILE_H, 10);
@@ -318,7 +325,7 @@
       zone.on('pointerdown', () => callbacks.onCellClick?.(x, y));
       this.gridLayer.add(zone);
 
-      if (!artBackground) {
+      if (!artBackground && showOverlay) {
         const label = this.add.text(origin.x + 8, origin.y + 6, `${x + 1},${y + 1}`, {
           fontFamily: 'Segoe UI, Arial',
           fontSize: '12px',
@@ -746,7 +753,7 @@
     }
 
     showTooltip(view) {
-      if (!view?.unit || view.dragging) return;
+      if (!phaserSettings.showTooltips || !view?.unit || view.dragging) return;
       this.hideTooltip();
       const unit = view.unit;
       const lines = [
@@ -1080,6 +1087,7 @@
     flashUnit(unitId, color, scale = 1.12) {
       const view = this.findUnitView(unitId);
       if (!view) return;
+      if (phaserSettings.reducedMotion) return;
       const className = view.unit?.unitClass || view.unit?.class || 'Unit';
       const accent = classAccentColors[className] || color;
       this.tweens.add({
@@ -1129,6 +1137,7 @@
     abilityEffect(unitId, abilityName = 'Ability') {
       const view = this.findUnitView(unitId);
       if (!view) return;
+      if (phaserSettings.reducedMotion) return;
       this.flashUnit(unitId, 0xc78cff, 1.16);
       const width = Math.min(210, Math.max(96, String(abilityName).length * 8));
       const root = this.add.container(view.root.x, view.root.y - TILE_H * 0.56);
@@ -1161,6 +1170,7 @@
       const attacker = this.findUnitView(attackerId);
       const target = this.findUnitView(targetId);
       if (!attacker || !target) return;
+      if (phaserSettings.reducedMotion) return;
 
       const startX = attacker.root.x;
       const startY = attacker.root.y;
@@ -1232,6 +1242,7 @@
     }
 
     popup(unitId, text, color = null) {
+      if (!phaserSettings.damageNumbers) return;
       const view = this.findUnitView(unitId);
       if (!view) return;
       const displayText = String(text);
@@ -1266,6 +1277,7 @@
     }
 
     bossFlash() {
+      if (phaserSettings.reducedMotion) return;
       const flash = this.add.rectangle(0, 0, INTERNAL_WIDTH, INTERNAL_HEIGHT, 0xff6f7f, 0.24).setOrigin(0);
       const warning = this.add.text(INTERNAL_WIDTH / 2, INTERNAL_HEIGHT * 0.16, 'SECRET BOSS AWAKENS', {
         fontFamily: 'Segoe UI, Arial',
@@ -1383,6 +1395,15 @@
     boardScene?.clearUnitHighlights();
   }
 
+  function setPhaserSettings(nextSettings = {}) {
+    const previousGridOverlay = phaserSettings.gridOverlay;
+    phaserSettings = { ...phaserSettings, ...nextSettings };
+    if (boardScene && previousGridOverlay !== phaserSettings.gridOverlay) {
+      boardScene.drawGrid();
+    }
+    if (!phaserSettings.showTooltips) boardScene?.hideTooltip();
+  }
+
   window.initPhaserBoard = initPhaserBoard;
   window.refreshPhaserBoard = refreshPhaserBoard;
   window.updateUnitBars = updateUnitBars;
@@ -1399,4 +1420,5 @@
   window.flashInvalidPhaserDrop = flashInvalidPhaserDrop;
   window.highlightUnitsByIds = highlightUnitsByIds;
   window.clearUnitHighlights = clearUnitHighlights;
+  window.setPhaserSettings = setPhaserSettings;
 })();

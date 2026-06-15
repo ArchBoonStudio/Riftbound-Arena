@@ -461,15 +461,15 @@ const ENEMY_LAYOUTS = {
   6: [5, 5, 2, 0, 1],
   7: [6, 3, 6, 2, 4],
   8: [7, 1, 7, 2, 5, 3],
-  9: [8, 8, 6, 2, 5, 4],
+  9: [8, 6, 2, 5, 4, 3],
   10: [12],
   11: [9, 3, 0, 1, 2, 6],
   12: [5, 5, 4, 4, 1, 3],
   13: [6, 6, 8, 2, 3, 0],
   14: [9, 7, 2, 5, 6, 8],
   15: [13],
-  16: [8, 8, 7, 6, 5, 2, 1],
-  17: [7, 7, 5, 5, 4, 4, 3],
+  16: [8, 7, 6, 5, 2, 1, 4],
+  17: [7, 5, 5, 4, 4, 3, 2],
   18: [7, 5, 8, 6, 2, 3],
   19: [9, 8, 7, 6, 4, 3, 2],
   20: [14],
@@ -477,6 +477,20 @@ const ENEMY_LAYOUTS = {
 };
 
 const ENEMY_SLOTS = [[0,0],[7,0],[1,0],[6,0],[2,1],[5,1],[3,1],[4,1]];
+
+const SINGULAR_ENEMY_NAMES = new Set([
+  'Mordred',
+  'Typhon',
+  'Typhon, World-Breaker',
+  'Apep',
+  'Apep, Sunless Serpent',
+  'Chaos',
+  'Ymir',
+  'Balor',
+  'The Dragon Beneath Britain',
+  'The Wounded Kingdom',
+  'The Kingdom That Never Healed'
+]);
 
 const SYNERGIES = [
   { key: 'Hellenic', category: 'Pantheon', threshold: 2, text: 'Hellenic units gain +10% ability power.' },
@@ -1415,7 +1429,7 @@ function renderSynergies() {
 }
 
 function previewTemplatesForRound(round) {
-  const picks = ENEMY_LAYOUTS[round] || ENEMY_LAYOUTS[state.maxRound] || [];
+  const picks = normalizedEnemyLayoutForRound(round);
   return picks.map(idx => ENEMY_LIBRARY[idx]).filter(Boolean);
 }
 
@@ -2317,7 +2331,7 @@ function spawnEnemies(round) {
 }
 
 function spawnLayoutEnemies(round) {
-  const picks = ENEMY_LAYOUTS[round] || ENEMY_LAYOUTS[state.maxRound];
+  const picks = normalizedEnemyLayoutForRound(round);
   return picks.map((idx, i) => {
     const base = ENEMY_LIBRARY[idx];
     const isMegaBossRound = round === state.secretRound;
@@ -2335,6 +2349,20 @@ function spawnLayoutEnemies(round) {
     unit.x = ENEMY_SLOTS[i]?.[0] ?? 3;
     unit.y = ENEMY_SLOTS[i]?.[1] ?? 0;
     return unit;
+  });
+}
+
+function normalizedEnemyLayoutForRound(round) {
+  const picks = ENEMY_LAYOUTS[round] || ENEMY_LAYOUTS[state.maxRound] || [];
+  if (round === state.secretRound) return picks;
+
+  const seenSingular = new Set();
+  return picks.filter(idx => {
+    const template = ENEMY_LIBRARY[idx];
+    if (!template || !SINGULAR_ENEMY_NAMES.has(template.name)) return true;
+    if (seenSingular.has(template.name)) return false;
+    seenSingular.add(template.name);
+    return true;
   });
 }
 

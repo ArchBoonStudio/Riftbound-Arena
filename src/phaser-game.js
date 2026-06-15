@@ -148,6 +148,24 @@
     return { index };
   }
 
+  function installBattlefieldWheelPassthrough(parent) {
+    const canvas = phaserGame?.canvas || parent?.querySelector?.('canvas');
+    if (!canvas || canvas.dataset.wheelPassthrough === 'true') return;
+    canvas.dataset.wheelPassthrough = 'true';
+    canvas.addEventListener('wheel', (event) => {
+      if (event.ctrlKey) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const multiplier = event.deltaMode === 1 ? 16 : (event.deltaMode === 2 ? window.innerHeight : 1);
+      const scrollingElement = document.scrollingElement || document.documentElement;
+      scrollingElement.scrollBy({
+        left: event.deltaX * multiplier,
+        top: event.deltaY * multiplier,
+        behavior: 'auto'
+      });
+    }, { capture: true, passive: false });
+  }
+
   function numberColor(value) {
     if (String(value).startsWith('+')) return '#7ff2b2';
     if (String(value).toLowerCase().includes('shield')) return '#9ec7ff';
@@ -1323,8 +1341,14 @@
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH
       },
+      input: {
+        mouse: {
+          preventDefaultWheel: false
+        }
+      },
       scene: GameScene
     });
+    installBattlefieldWheelPassthrough(parent);
     return true;
   }
 

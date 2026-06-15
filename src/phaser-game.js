@@ -29,6 +29,20 @@
   const BACKGROUND_KEY = 'battlefield-background';
   const BACKGROUND_PATH = 'assets/ui/battlefield-background.png?v=flat-sync-1';
   const USE_ART_BACKGROUND = true;
+  const SPRITE_VERSION = 'worshiper-sprites-1';
+  const SPRITE_CROP = { x: 245, y: 90, width: 760, height: 760 };
+  const CHAMPION_SPRITE_FILES = {
+    'Hellenic Temple Guard': '021_hellenic_temple_guard.png',
+    'Hellenic Oracle Acolyte': '022_hellenic_oracle_acolyte.png',
+    'Norse Shield-Bearer': '023_norse_shield_bearer.png',
+    'Norse Rune-Chanter': '024_norse_rune_chanter.png',
+    'Egyptian Temple Sentinel': '025_egyptian_temple_sentinel.png',
+    'Egyptian Sun Acolyte': '026_egyptian_sun_acolyte.png',
+    'Celtic Grove Keeper': '027_celtic_grove_keeper.png',
+    'Celtic Thornrunner': '028_celtic_thornrunner.png',
+    'Arthurian Squire': '029_arthurian_squire.png',
+    'Grail Pilgrim': '030_grail_pilgrim.png'
+  };
 
   const rarityColors = {
     Common: 0xb9c4d6,
@@ -197,7 +211,23 @@
     return Object.keys(gameState?.board || {}).find(key => gameState.board[key]?.id === unitId) || null;
   }
 
+  function spriteKeyForFile(file) {
+    return `champion-sprite-${String(file).replace(/[^a-z0-9]+/gi, '-').toLowerCase()}`;
+  }
+
+  function spriteInfoFor(unit) {
+    if (!unit || unit.side === 'enemy') return null;
+    const file = CHAMPION_SPRITE_FILES[unit.name];
+    if (!file) return null;
+    return {
+      key: spriteKeyForFile(file),
+      path: `assets/champions/${file}?v=${SPRITE_VERSION}`
+    };
+  }
+
   function spritePathFor(unit) {
+    const mapped = spriteInfoFor(unit);
+    if (mapped) return mapped.path;
     const safeName = String(unit.type || unit.name || 'unit').replace(/[^a-z0-9-]/gi, '').toLowerCase();
     const folder = unit.side === 'enemy'
       ? (unit.unitClass === 'Boss' ? 'bosses' : 'enemies')
@@ -224,6 +254,9 @@
 
     preload() {
       this.load.image(BACKGROUND_KEY, BACKGROUND_PATH);
+      Object.values(CHAMPION_SPRITE_FILES).forEach(file => {
+        this.load.image(spriteKeyForFile(file), `assets/champions/${file}?v=${SPRITE_VERSION}`);
+      });
     }
 
     create() {
@@ -585,6 +618,8 @@
         ringOuter: null,
         ringInner: null,
         core: null,
+        sprite: null,
+        spriteKey: null,
         emblem: null,
         sigil: null,
         crown: null,
@@ -894,6 +929,7 @@
         view.rarityHalo.setStrokeStyle(2, rarityColor, alive ? (unit.unitClass === 'Boss' ? 0.68 : 0.46) : 0.12);
       }
       this.redrawPlaceholder(view, unit, rarityColor, classColor, fillColor, alive);
+      this.updateSpriteArt(view, unit, alive);
       view.nameText
         .setText(shortName(unit))
         .setColor(alive ? '#eef4ff' : '#aab1c1');
@@ -908,6 +944,38 @@
 
       if (view.lastAlive && !alive && !firstDraw) this.playDeathFade(view);
       view.lastAlive = alive;
+    }
+
+    updateSpriteArt(view, unit, alive) {
+      const info = spriteInfoFor(unit);
+      const hasSprite = info && this.textures.exists(info.key);
+      if (!hasSprite) {
+        if (view.sprite) view.sprite.setVisible(false);
+        view.emblem.setVisible(true);
+        view.sigil.setVisible(true);
+        view.crown.setVisible(true);
+        return;
+      }
+
+      if (!view.sprite || view.spriteKey !== info.key) {
+        if (view.sprite) view.sprite.destroy();
+        view.sprite = this.add.image(0, -8, info.key).setOrigin(0.5);
+        view.root.addAt(view.sprite, 5);
+        view.spriteKey = info.key;
+      }
+
+      const size = view.area === 'bench' ? 84 : 80;
+      view.sprite
+        .setVisible(true)
+        .setCrop(SPRITE_CROP.x, SPRITE_CROP.y, SPRITE_CROP.width, SPRITE_CROP.height)
+        .setDisplaySize(size, size)
+        .setAlpha(alive ? 0.98 : 0.42)
+        .setTint(alive ? 0xffffff : 0x606a7d);
+
+      if (alive) view.sprite.clearTint();
+      view.emblem.setVisible(false);
+      view.sigil.setVisible(false);
+      view.crown.setVisible(false);
     }
 
     setUnitDragEnabled(view, unit) {

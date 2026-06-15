@@ -457,22 +457,22 @@ const ENEMY_LAYOUTS = {
   2: [0, 1, 0],
   3: [2, 0, 2, 1],
   4: [3, 2, 0, 1],
-  5: [11, 1, 0],
+  5: [11],
   6: [5, 5, 2, 0, 1],
   7: [6, 3, 6, 2, 4],
   8: [7, 1, 7, 2, 5, 3],
   9: [8, 8, 6, 2, 5, 4],
-  10: [12, 8, 6, 2],
+  10: [12],
   11: [9, 3, 0, 1, 2, 6],
   12: [5, 5, 4, 4, 1, 3],
   13: [6, 6, 8, 2, 3, 0],
   14: [9, 7, 2, 5, 6, 8],
-  15: [13, 9, 3, 0],
+  15: [13],
   16: [8, 8, 7, 6, 5, 2, 1],
   17: [7, 7, 5, 5, 4, 4, 3],
-  18: [15, 5, 8, 6, 2, 3],
-  19: [16, 8, 7, 6, 4, 3, 2],
-  20: [14, 15, 13, 12],
+  18: [7, 5, 8, 6, 2, 3],
+  19: [9, 8, 7, 6, 4, 3, 2],
+  20: [14],
   21: [17, 10, 11, 12, 13, 14, 15, 16]
 };
 
@@ -2132,6 +2132,7 @@ function startBattle() {
   beginRoundLog(state.round, playerUnits, enemyUnits);
   if (isBossRound(state.round) && window.playBossIntroEffect) window.playBossIntroEffect();
   applySynergyBonuses(state.combatUnits);
+  applyOpeningAssassinJumps();
   render();
   startCombatTicker(COMBAT_TICK_MS);
 }
@@ -2647,8 +2648,64 @@ function chooseTarget(unit) {
   return enemies[0];
 }
 
+function applyOpeningAssassinJumps() {
+  const assassins = state.combatUnits.filter(unit => unit.alive && unit.unitClass === 'Assassin');
+  assassins.forEach(unit => {
+    const target = chooseAssassinJumpTarget(unit);
+    const landing = target ? findAssassinJumpCell(unit, target) : null;
+    if (!landing) return;
+    unit.x = landing.x;
+    unit.y = landing.y;
+    unit.openingJumpUsed = true;
+    log(`${unit.name} slips into the enemy backline as the battle begins.`, unit.side === 'player' ? 'good' : 'bad');
+  });
+}
+
+function chooseAssassinJumpTarget(unit) {
+  const enemies = state.combatUnits.filter(other => other.side !== unit.side && other.alive);
+  if (!enemies.length) return null;
+  const backlineRow = unit.side === 'player' ? 0 : 5;
+  const backline = enemies.filter(enemy => enemy.y === backlineRow);
+  const rangedBackline = backline.filter(enemy => enemy.range >= 2);
+  const preferred = rangedBackline.length ? rangedBackline : (backline.length ? backline : enemies.filter(enemy => enemy.range >= 2));
+  const pool = preferred.length ? preferred : enemies;
+  return pool.slice().sort((a, b) => {
+    const hpDelta = (a.hp / a.maxHp) - (b.hp / b.maxHp);
+    if (Math.abs(hpDelta) > 0.01) return hpDelta;
+    return distance(unit, a) - distance(unit, b);
+  })[0];
+}
+
+function findAssassinJumpCell(unit, target) {
+  const preferredRows = unit.side === 'player' ? [1, 0, 2] : [4, 5, 3];
+  const preferredCols = [target.x, target.x - 1, target.x + 1, target.x - 2, target.x + 2, 3, 4, 2, 5, 1, 6, 0, 7];
+  const candidates = [];
+
+  preferredRows.forEach((y, rowIndex) => {
+    preferredCols.forEach((x, colIndex) => {
+      if (x < 0 || x >= 8 || y < 0 || y >= 6) return;
+      candidates.push({ x, y, priority: rowIndex * 10 + colIndex });
+    });
+  });
+
+  for (let y = 0; y < 6; y += 1) {
+    for (let x = 0; x < 8; x += 1) {
+      candidates.push({ x, y, priority: 100 + distance({ x, y }, target) });
+    }
+  }
+
+  return candidates
+    .filter((cell, index, list) => list.findIndex(other => other.x === cell.x && other.y === cell.y) === index)
+    .filter(cell => !occupied(cell.x, cell.y, unit.id))
+    .sort((a, b) => {
+      const targetDelta = distance(a, target) - distance(b, target);
+      if (targetDelta !== 0) return targetDelta;
+      return a.priority - b.priority;
+    })[0] || null;
+}
+
 function distance(a, b) {
-  return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+  return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
 }
 
 function stepToward(unit, target) {
@@ -2694,15 +2751,18 @@ function fallbackStepToward(unit, target) {
 }
 
 function pathNeighbors(x, y, target = null) {
-  const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+  const dirs = [
+    [1, 0], [-1, 0], [0, 1], [0, -1],
+    [1, 1], [1, -1], [-1, 1], [-1, -1]
+  ];
   return dirs
     .map(([ox, oy]) => ({ x: x + ox, y: y + oy }))
     .filter(p => p.x >= 0 && p.x < 8 && p.y >= 0 && p.y < 6)
     .sort((a, b) => target ? distance(a, target) - distance(b, target) : 0);
 }
 
-function occupied(x, y) {
-  return state.combatUnits.some(u => u.alive && u.x === x && u.y === y);
+function occupied(x, y, ignoreUnitId = null) {
+  return state.combatUnits.some(u => u.alive && u.id !== ignoreUnitId && u.x === x && u.y === y);
 }
 
 function performAttack(attacker, target) {

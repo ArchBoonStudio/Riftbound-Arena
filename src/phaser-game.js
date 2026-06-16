@@ -26,6 +26,7 @@
   const TOKEN_NAME_Y = 24;
   const TOKEN_HP_Y = 50;
   const TOKEN_EN_Y = 68;
+  const STATUS_Y = 82;
   const BACKGROUND_KEY = 'battlefield-background';
   const BACKGROUND_PATH = 'assets/ui/battlefield-background.png?v=flat-sync-1';
   const USE_ART_BACKGROUND = true;
@@ -79,6 +80,12 @@
     Assassin: 0xffa24f,
     Bruiser: 0xff6578,
     Boss: 0xff2d55
+  };
+
+  const statusColors = {
+    shield: 0x9ec7ff,
+    burn: 0xff7a3d,
+    corruption: 0xc78cff
   };
 
   let phaserGame = null;
@@ -188,6 +195,21 @@
 
   function hexColor(value) {
     return `#${value.toString(16).padStart(6, '0')}`;
+  }
+
+  function stableOffset(value, spread = 18) {
+    const text = String(value || '');
+    let hash = 0;
+    for (let i = 0; i < text.length; i += 1) hash = ((hash << 5) - hash) + text.charCodeAt(i);
+    return ((Math.abs(hash) % (spread * 2 + 1)) - spread);
+  }
+
+  function unitStatusSummary(unit) {
+    const statuses = [];
+    if ((unit.shield || 0) > 0) statuses.push({ key: 'shield', label: `SHD ${Math.round(unit.shield)}` });
+    if (unit.statuses?.some(status => status.type === 'burn')) statuses.push({ key: 'burn', label: 'BRN' });
+    if (unit.statuses?.some(status => status.type === 'corruption')) statuses.push({ key: 'corruption', label: 'CRR' });
+    return statuses.slice(0, 3);
   }
 
   function unitsForState(gameState) {
@@ -617,6 +639,9 @@
         ringOuter: null,
         ringInner: null,
         core: null,
+        hoverRing: null,
+        selectedRing: null,
+        classBadge: null,
         sprite: null,
         spriteKey: null,
         emblem: null,
@@ -626,6 +651,8 @@
         nameText: null,
         starText: null,
         classText: null,
+        statusBack: null,
+        statusText: null,
         hpBack: null,
         hpFill: null,
         hpText: null,
@@ -637,6 +664,7 @@
         hitZone: null,
         unit: null,
         dragging: false,
+        hovered: false,
         lastAlive: true
       };
 
@@ -645,6 +673,13 @@
       view.ringOuter = this.add.circle(0, -8, TOKEN_RADIUS + 3, 0x10172b, 0.98);
       view.ringInner = this.add.circle(0, -8, TOKEN_RADIUS - 5, 0x172a4a, 0.98);
       view.core = this.add.circle(0, -8, TOKEN_RADIUS - 14, 0x1b2743, 0.98);
+      view.hoverRing = this.add.circle(0, -8, TOKEN_RADIUS + 13, 0xffffff, 0)
+        .setStrokeStyle(3, 0xf2c96b, 0)
+        .setVisible(false);
+      view.selectedRing = this.add.circle(0, -8, TOKEN_RADIUS + 18, 0xf2c96b, 0)
+        .setStrokeStyle(4, 0xf2c96b, 0)
+        .setVisible(false);
+      view.classBadge = this.add.graphics();
       view.emblem = this.add.graphics();
       view.sigil = this.add.graphics();
       view.crown = this.add.graphics();
@@ -676,8 +711,19 @@
         stroke: '#070a12',
         strokeThickness: 3
       }).setOrigin(0.5);
+      view.statusBack = this.add.rectangle(0, STATUS_Y, 94, 18, 0x070a12, 0.7)
+        .setStrokeStyle(1, 0x9ec7ff, 0.25)
+        .setVisible(false);
+      view.statusText = this.add.text(0, STATUS_Y - 1, '', {
+        fontFamily: 'Segoe UI, Arial',
+        fontSize: '10px',
+        fontStyle: '900',
+        color: '#dceaff',
+        stroke: '#070a12',
+        strokeThickness: 3
+      }).setOrigin(0.5).setVisible(false);
 
-      root.add([view.shadow, view.aura, view.ringOuter, view.ringInner, view.core, view.emblem, view.sigil, view.crown, view.nameBack, view.starText, view.nameText, view.classText]);
+      root.add([view.shadow, view.selectedRing, view.hoverRing, view.aura, view.ringOuter, view.ringInner, view.core, view.classBadge, view.emblem, view.sigil, view.crown, view.nameBack, view.starText, view.nameText, view.classText, view.statusBack, view.statusText]);
       this.createBars(root, view);
       this.createDefeatedOverlay(root, view);
       root.add(view.token);
@@ -689,8 +735,16 @@
         .setOrigin(0.5)
         .setInteractive({ useHandCursor: true });
       view.hitZone.on('pointerdown', () => callbacks.onUnitClick?.(unit.id, unit.x, unit.y));
-      view.hitZone.on('pointerover', () => this.showTooltip(view));
-      view.hitZone.on('pointerout', () => this.hideTooltip());
+      view.hitZone.on('pointerover', () => {
+        view.hovered = true;
+        this.updateHoverSelection(view);
+        this.showTooltip(view);
+      });
+      view.hitZone.on('pointerout', () => {
+        view.hovered = false;
+        this.updateHoverSelection(view);
+        this.hideTooltip();
+      });
       this.input.setDraggable(view.hitZone, true);
       view.hitZone.on('dragstart', () => this.startUnitDrag(view));
       view.hitZone.on('drag', (pointer, dragX, dragY) => this.dragUnit(view, dragX, dragY));
@@ -804,20 +858,101 @@
       }
     }
 
+    redrawClassBadge(view, unit, classColor, alive) {
+      const className = unit.unitClass || unit.class || 'Unit';
+      const badge = view.classBadge;
+      const alpha = alive ? 0.95 : 0.28;
+      badge.clear();
+      badge.fillStyle(0x070a12, alive ? 0.82 : 0.42);
+      badge.lineStyle(2, classColor, alive ? 0.82 : 0.24);
+      badge.fillCircle(-43, -43, 12);
+      badge.strokeCircle(-43, -43, 12);
+      badge.fillStyle(classColor, alpha);
+      badge.lineStyle(2, classColor, alpha);
+
+      switch (className) {
+        case 'Guardian':
+          badge.fillPoints([{ x: -43, y: -53 }, { x: -34, y: -48 }, { x: -36, y: -38 }, { x: -43, y: -32 }, { x: -50, y: -38 }, { x: -52, y: -48 }], true);
+          break;
+        case 'Ranger':
+          badge.beginPath();
+          badge.arc(-43, -43, 8, Phaser.Math.DegToRad(220), Phaser.Math.DegToRad(500), false);
+          badge.strokePath();
+          badge.lineBetween(-49, -48, -36, -38);
+          break;
+        case 'Mage':
+          badge.fillPoints([{ x: -43, y: -54 }, { x: -38, y: -45 }, { x: -29, y: -45 }, { x: -37, y: -40 }, { x: -34, y: -31 }, { x: -43, y: -36 }, { x: -52, y: -31 }, { x: -49, y: -40 }, { x: -57, y: -45 }, { x: -48, y: -45 }], true);
+          break;
+        case 'Healer':
+          badge.fillRoundedRect(-46, -53, 6, 20, 2);
+          badge.fillRoundedRect(-53, -46, 20, 6, 2);
+          break;
+        case 'Assassin':
+          badge.fillTriangle(-43, -55, -35, -33, -43, -38);
+          badge.fillTriangle(-43, -55, -51, -33, -43, -38);
+          break;
+        case 'Bruiser':
+          badge.fillRoundedRect(-53, -49, 20, 9, 4);
+          badge.fillRoundedRect(-49, -40, 12, 8, 3);
+          break;
+        case 'Boss':
+          badge.fillTriangle(-43, -56, -31, -47, -35, -33);
+          badge.fillTriangle(-43, -56, -55, -47, -51, -33);
+          break;
+        default:
+          badge.fillCircle(-43, -43, 6);
+      }
+    }
+
+    updateStatusBadges(view, unit, alive) {
+      const statuses = alive ? unitStatusSummary(unit) : [];
+      if (!statuses.length) {
+        view.statusBack.setVisible(false);
+        view.statusText.setVisible(false);
+        return;
+      }
+      const label = statuses.map(status => status.label).join(' ');
+      const primary = statusColors[statuses[0].key] || 0x9ec7ff;
+      const width = Math.min(126, Math.max(58, label.length * 8));
+      view.statusBack
+        .setVisible(true)
+        .setSize(width, 18)
+        .setFillStyle(0x070a12, 0.78)
+        .setStrokeStyle(1, primary, 0.62);
+      view.statusText
+        .setVisible(true)
+        .setText(label)
+        .setColor(hexColor(primary));
+    }
+
+    updateHoverSelection(view) {
+      const unit = view.unit;
+      const alive = unit?.alive !== false;
+      const selected = Boolean(unit?.id && this.latestState?.selectedUnitId === unit.id);
+      view.hoverRing
+        .setVisible(alive && view.hovered)
+        .setStrokeStyle(3, 0xf2c96b, alive && view.hovered ? 0.72 : 0);
+      view.selectedRing
+        .setVisible(alive && selected)
+        .setStrokeStyle(4, 0xf2c96b, alive && selected ? 0.9 : 0);
+    }
+
     showTooltip(view) {
       if (!phaserSettings.showTooltips || !view?.unit || view.dragging) return;
       this.hideTooltip();
       const unit = view.unit;
+      const statusLine = unitStatusSummary(unit).map(status => status.label).join(' / ') || 'No active status';
       const lines = [
         `${unit.name} ${'*'.repeat(unit.star || 1)}`,
         `${unit.pantheon || 'Unknown'} / ${unit.sourceType || 'Unknown'} / ${unit.unitClass || unit.class || 'Unit'}`,
         `${unit.rarity || 'Common'} | HP ${Math.max(0, Math.round(unit.hp || 0))}/${Math.max(1, Math.round(unit.maxHp || 1))} | EN ${Math.round(unit.mana || 0)}/${unit.energyMax || 100}`,
         `DMG ${unit.damage} | RNG ${unit.range} | ARM ${unit.armor || 0}`,
+        `Status: ${statusLine}`,
         `${unit.abilityName || 'Ability'}: ${unit.abilityText || unit.abilityDescription || 'No ability text.'}`
       ];
       const longest = lines.reduce((max, line) => Math.max(max, line.length), 0);
       const width = Math.min(440, Math.max(260, longest * 7));
-      const height = 118;
+      const height = 138;
       const x = Math.min(INTERNAL_WIDTH - width - 18, Math.max(18, view.root.x + TILE_W * 0.28));
       const y = Math.min(INTERNAL_HEIGHT - height - 18, Math.max(18, view.root.y - TILE_H * 0.56));
 
@@ -928,6 +1063,7 @@
         view.rarityHalo.setStrokeStyle(2, rarityColor, alive ? (unit.unitClass === 'Boss' ? 0.68 : 0.46) : 0.12);
       }
       this.redrawPlaceholder(view, unit, rarityColor, classColor, fillColor, alive);
+      this.redrawClassBadge(view, unit, classColor, alive);
       this.updateSpriteArt(view, unit, alive);
       view.nameText
         .setText(shortName(unit))
@@ -937,6 +1073,8 @@
         .setText(className.toUpperCase())
         .setColor(alive ? '#9fb0ce' : '#777f91');
 
+      this.updateStatusBadges(view, unit, alive);
+      this.updateHoverSelection(view);
       this.updateBars(view, unit);
       this.setDefeated(view, !alive);
       this.setUnitDragEnabled(view, unit);
@@ -1290,6 +1428,39 @@
       }
     }
 
+    targetPulse(view, color, label = '', radius = TOKEN_RADIUS + 18) {
+      if (!view) return;
+      const point = this.effectPoint(view, -8);
+      const ring = this.add.circle(point.x, point.y, radius * 0.72, color, 0)
+        .setStrokeStyle(4, color, 0.76);
+      const glow = this.add.circle(point.x, point.y, radius * 0.52, color, 0.13);
+      this.effectLayer.add([glow, ring]);
+      let text = null;
+      if (label) {
+        text = this.add.text(point.x, point.y + radius * 0.54, label, {
+          fontFamily: 'Segoe UI, Arial',
+          fontSize: '10px',
+          fontStyle: '900',
+          color: hexColor(color),
+          stroke: '#070a12',
+          strokeThickness: 3
+        }).setOrigin(0.5);
+        this.effectLayer.add(text);
+      }
+      this.tweens.add({
+        targets: [glow, ring, text].filter(Boolean),
+        scale: 1.45,
+        alpha: 0,
+        duration: 430,
+        ease: 'Sine.easeOut',
+        onComplete: () => {
+          glow.destroy();
+          ring.destroy();
+          text?.destroy();
+        }
+      });
+    }
+
     drawStrikeLine(start, end, color, width = 4, duration = 260, alpha = 0.9) {
       const line = this.add.graphics();
       line.lineStyle(width + 8, color, 0.13);
@@ -1344,6 +1515,7 @@
           orb.destroy();
           trail.destroy();
           this.burstAt(end.x, end.y, color, accent, 5, 24);
+          this.targetPulse(target, color, 'HIT', TOKEN_RADIUS + 10);
         }
       });
     }
@@ -1389,6 +1561,7 @@
         0.78
       );
       this.burstAt(targetPoint.x, targetPoint.y, color, accent, heavy ? 8 : 5, heavy ? 36 : 24);
+      this.targetPulse(target, color, heavy ? 'SMASH' : 'HIT', TOKEN_RADIUS + 12);
     }
 
     shieldAbility(view, abilityName) {
@@ -1400,6 +1573,7 @@
         .setStrokeStyle(2, 0xd8e7ff, 0.76);
       this.effectLayer.add([dome, ward]);
       this.addEffectLabel(abilityName, point.x, point.y - 68, '#dceaff', 0x9ec7ff);
+      this.targetPulse(view, 0x9ec7ff, 'SHIELD', TOKEN_RADIUS + 18);
       this.tweens.add({
         targets: [dome, ward],
         scale: 1.55,
@@ -1419,6 +1593,7 @@
       this.drawStrikeLine(start, end, 0x7ff2b2, 6, 420, 0.72);
       this.drawStrikeLine(start, end, 0xf2e9a8, 2, 420, 0.88);
       this.burstAt(end.x, end.y, 0x7ff2b2, 0xf2e9a8, 9, 38);
+      this.targetPulse(target, 0x7ff2b2, 'HEAL', TOKEN_RADIUS + 16);
       this.addEffectLabel(abilityName, end.x, end.y - 64, '#dfffee', 0x7ff2b2);
       this.flashUnit(target.unit.id, 0x7ff2b2, 1.08);
     }
@@ -1448,6 +1623,7 @@
         }
       });
       this.burstAt(point.x, point.y, color, accent, large ? 12 : 8, large ? 48 : 32);
+      this.targetPulse(target, color, large ? 'BURST' : 'SPELL', large ? TOKEN_RADIUS + 24 : TOKEN_RADIUS + 12);
     }
 
     abilityEffect(unitId, abilityName = 'Ability', targetId = null, abilityType = 'strike') {
@@ -1522,12 +1698,15 @@
       const popupColor = color || numberColor(text);
       const popupColorInt = Number(`0x${popupColor.replace('#', '')}`);
       const width = Math.min(128, Math.max(52, displayText.length * 14));
-      const root = this.add.container(view.root.x, view.root.y - TILE_H * 0.34);
+      const spreadX = stableOffset(`${unitId}:${displayText}`, 16);
+      const root = this.add.container(view.root.x + spreadX, view.root.y - TILE_H * 0.42);
       const back = this.add.graphics();
       back.fillStyle(0x070a12, 0.72);
       back.fillRoundedRect(-width / 2, -3, width, 31, 13);
       back.lineStyle(1, popupColorInt, 0.5);
       back.strokeRoundedRect(-width / 2, -3, width, 31, 13);
+      const marker = this.add.rectangle((-width / 2) + 5, 12, 5, 23, popupColorInt, 0.95)
+        .setOrigin(0.5);
       const label = this.add.text(0, 0, displayText, {
         fontFamily: 'Segoe UI, Arial',
         fontSize: '22px',
@@ -1536,11 +1715,19 @@
         stroke: '#070a12',
         strokeThickness: 5
       }).setOrigin(0.5);
-      root.add([back, label]);
+      root.add([back, marker, label]);
       this.effectLayer.add(root);
+      if (displayText.toLowerCase().includes('dodge')) {
+        this.targetPulse(view, 0xd8c2ff, 'DODGE', TOKEN_RADIUS + 18);
+      } else if (popupColor === '#7ff2b2' || displayText.startsWith('+')) {
+        this.targetPulse(view, 0x7ff2b2, 'HEAL', TOKEN_RADIUS + 12);
+      } else if (popupColor === '#9ec7ff' || displayText.toLowerCase().includes('shield')) {
+        this.targetPulse(view, 0x9ec7ff, 'SHIELD', TOKEN_RADIUS + 12);
+      }
       this.tweens.add({
         targets: root,
         y: root.y - 38,
+        x: view.root.x + spreadX * 0.35,
         alpha: 0,
         scale: 1.12,
         duration: 780,

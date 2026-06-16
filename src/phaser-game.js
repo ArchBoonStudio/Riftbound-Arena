@@ -29,8 +29,7 @@
   const BACKGROUND_KEY = 'battlefield-background';
   const BACKGROUND_PATH = 'assets/ui/battlefield-background.png?v=flat-sync-1';
   const USE_ART_BACKGROUND = true;
-  const SPRITE_VERSION = 'worshiper-sprites-1';
-  const SPRITE_CROP = { x: 245, y: 90, width: 760, height: 760 };
+  const SPRITE_VERSION = 'worshiper-sprites-2';
   const CHAMPION_SPRITE_FILES = {
     'Hellenic Temple Guard': '021_hellenic_temple_guard.png',
     'Hellenic Oracle Acolyte': '022_hellenic_oracle_acolyte.png',
@@ -964,11 +963,16 @@
         view.spriteKey = info.key;
       }
 
-      const size = view.area === 'bench' ? 84 : 80;
+      const source = this.textures.get(info.key).getSourceImage();
+      const sourceW = Math.max(1, source?.width || 1);
+      const sourceH = Math.max(1, source?.height || 1);
+      const displayH = view.area === 'bench' ? 108 : 104;
+      const maxW = view.area === 'bench' ? 104 : 98;
+      const displayW = Math.min(maxW, displayH * (sourceW / sourceH));
       view.sprite
         .setVisible(true)
-        .setCrop(SPRITE_CROP.x, SPRITE_CROP.y, SPRITE_CROP.width, SPRITE_CROP.height)
-        .setDisplaySize(size, size)
+        .setPosition(0, -15)
+        .setDisplaySize(displayW, displayH)
         .setAlpha(alive ? 0.98 : 0.42)
         .setTint(alive ? 0xffffff : 0x606a7d);
 

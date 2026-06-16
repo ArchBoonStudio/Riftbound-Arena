@@ -1224,23 +1224,23 @@
       }
     }
 
-    abilityEffect(unitId, abilityName = 'Ability') {
-      const view = this.findUnitView(unitId);
-      if (!view) return;
-      if (phaserSettings.reducedMotion) return;
-      this.flashUnit(unitId, 0xc78cff, 1.16);
-      const width = Math.min(210, Math.max(96, String(abilityName).length * 8));
-      const root = this.add.container(view.root.x, view.root.y - TILE_H * 0.56);
+    effectPoint(view, yOffset = -8) {
+      return { x: view.root.x, y: view.root.y + yOffset };
+    }
+
+    addEffectLabel(text, x, y, color = '#efe4ff', borderColor = 0xc78cff) {
+      const width = Math.min(220, Math.max(92, String(text).length * 8));
+      const root = this.add.container(x, y);
       const back = this.add.graphics();
-      back.fillStyle(0x120b22, 0.78);
+      back.fillStyle(0x080b16, 0.82);
       back.fillRoundedRect(-width / 2, -15, width, 30, 14);
-      back.lineStyle(1, 0xc78cff, 0.58);
+      back.lineStyle(1, borderColor, 0.58);
       back.strokeRoundedRect(-width / 2, -15, width, 30, 14);
-      const label = this.add.text(0, -1, String(abilityName), {
+      const label = this.add.text(0, -1, String(text), {
         fontFamily: 'Segoe UI, Arial',
         fontSize: '13px',
         fontStyle: '900',
-        color: '#efe4ff',
+        color,
         stroke: '#070a12',
         strokeThickness: 4
       }).setOrigin(0.5);
@@ -1248,33 +1248,120 @@
       this.effectLayer.add(root);
       this.tweens.add({
         targets: root,
-        y: root.y - 26,
+        y: root.y - 22,
         alpha: 0,
-        duration: 760,
+        duration: 720,
         ease: 'Sine.easeOut',
         onComplete: () => root.destroy(true)
       });
     }
 
-    attackEffect(attackerId, targetId) {
-      const attacker = this.findUnitView(attackerId);
-      const target = this.findUnitView(targetId);
-      if (!attacker || !target) return;
-      if (phaserSettings.reducedMotion) return;
+    burstAt(x, y, color, accent = color, count = 7, radius = 34) {
+      const ring = this.add.circle(x, y, 10, color, 0)
+        .setStrokeStyle(4, color, 0.72);
+      const core = this.add.circle(x, y, 12, accent, 0.28);
+      this.effectLayer.add([ring, core]);
+      this.tweens.add({
+        targets: [ring, core],
+        scale: 2.2,
+        alpha: 0,
+        duration: 380,
+        ease: 'Sine.easeOut',
+        onComplete: () => {
+          ring.destroy();
+          core.destroy();
+        }
+      });
 
+      for (let i = 0; i < count; i += 1) {
+        const angle = (Math.PI * 2 * i) / count;
+        const spark = this.add.circle(x, y, Phaser.Math.Between(3, 5), accent, 0.86);
+        this.effectLayer.add(spark);
+        this.tweens.add({
+          targets: spark,
+          x: x + Math.cos(angle) * Phaser.Math.Between(radius * 0.55, radius),
+          y: y + Math.sin(angle) * Phaser.Math.Between(radius * 0.55, radius),
+          alpha: 0,
+          scale: 0.42,
+          duration: 360,
+          ease: 'Quad.easeOut',
+          onComplete: () => spark.destroy()
+        });
+      }
+    }
+
+    drawStrikeLine(start, end, color, width = 4, duration = 260, alpha = 0.9) {
+      const line = this.add.graphics();
+      line.lineStyle(width + 8, color, 0.13);
+      line.beginPath();
+      line.moveTo(start.x, start.y);
+      line.lineTo(end.x, end.y);
+      line.strokePath();
+      line.lineStyle(width, color, alpha);
+      line.beginPath();
+      line.moveTo(start.x, start.y);
+      line.lineTo(end.x, end.y);
+      line.strokePath();
+      this.effectLayer.add(line);
+      this.tweens.add({
+        targets: line,
+        alpha: 0,
+        duration,
+        ease: 'Sine.easeOut',
+        onComplete: () => line.destroy()
+      });
+      return line;
+    }
+
+    projectileEffect(attacker, target, color, accent = color, size = 8, delay = 0) {
+      const start = this.effectPoint(attacker, -14);
+      const end = this.effectPoint(target, -10);
+      const orb = this.add.circle(start.x, start.y, size, color, 0.94)
+        .setStrokeStyle(2, accent, 0.7);
+      const trail = this.add.graphics();
+      this.effectLayer.add([trail, orb]);
+      this.tweens.add({
+        targets: orb,
+        x: end.x,
+        y: end.y,
+        delay,
+        duration: 210,
+        ease: 'Quad.easeIn',
+        onUpdate: () => {
+          trail.clear();
+          trail.lineStyle(size + 4, color, 0.14);
+          trail.beginPath();
+          trail.moveTo(start.x, start.y);
+          trail.lineTo(orb.x, orb.y);
+          trail.strokePath();
+          trail.lineStyle(Math.max(2, size - 3), accent, 0.62);
+          trail.beginPath();
+          trail.moveTo(start.x, start.y);
+          trail.lineTo(orb.x, orb.y);
+          trail.strokePath();
+        },
+        onComplete: () => {
+          orb.destroy();
+          trail.destroy();
+          this.burstAt(end.x, end.y, color, accent, 5, 24);
+        }
+      });
+    }
+
+    meleeEffect(attacker, target, color = 0xffd1a1, accent = 0xfff1c6, heavy = false) {
       const startX = attacker.root.x;
       const startY = attacker.root.y;
+      const targetPoint = this.effectPoint(target, -8);
       const dx = target.root.x - startX;
       const dy = target.root.y - startY;
       const angle = Math.atan2(dy, dx);
-      const hitX = Phaser.Math.Linear(startX, target.root.x, 0.72);
-      const hitY = Phaser.Math.Linear(startY, target.root.y, 0.72);
+
       this.tweens.add({
         targets: attacker.root,
-        x: startX + dx * 0.20,
-        y: startY + dy * 0.20,
-        scale: 1.08,
-        duration: 85,
+        x: startX + dx * 0.18,
+        y: startY + dy * 0.18,
+        scale: heavy ? 1.12 : 1.07,
+        duration: 80,
         yoyo: true,
         ease: 'Quad.easeOut',
         onComplete: () => {
@@ -1283,50 +1370,146 @@
         }
       });
 
-      const trail = this.add.graphics();
-      trail.lineStyle(10, 0xffd1a1, 0.18);
-      trail.beginPath();
-      trail.moveTo(startX, startY - 8);
-      trail.lineTo(hitX, hitY - 8);
-      trail.strokePath();
-      trail.lineStyle(3, 0xfff1c6, 0.85);
-      trail.beginPath();
-      trail.moveTo(startX + Math.cos(angle + Math.PI / 2) * 8, startY - 8 + Math.sin(angle + Math.PI / 2) * 8);
-      trail.lineTo(hitX, hitY - 8);
-      trail.strokePath();
-      this.effectLayer.add(trail);
+      const slashLength = heavy ? TILE_W * 0.72 : TILE_W * 0.56;
+      const slashA = {
+        x: targetPoint.x + Math.cos(angle + Math.PI / 2) * slashLength * 0.5,
+        y: targetPoint.y + Math.sin(angle + Math.PI / 2) * slashLength * 0.5
+      };
+      const slashB = {
+        x: targetPoint.x - Math.cos(angle + Math.PI / 2) * slashLength * 0.5,
+        y: targetPoint.y - Math.sin(angle + Math.PI / 2) * slashLength * 0.5
+      };
+      this.drawStrikeLine(slashA, slashB, color, heavy ? 7 : 4, 260);
+      this.drawStrikeLine(
+        { x: slashA.x - Math.cos(angle) * 10, y: slashA.y - Math.sin(angle) * 10 },
+        { x: slashB.x + Math.cos(angle) * 10, y: slashB.y + Math.sin(angle) * 10 },
+        accent,
+        heavy ? 3 : 2,
+        210,
+        0.78
+      );
+      this.burstAt(targetPoint.x, targetPoint.y, color, accent, heavy ? 8 : 5, heavy ? 36 : 24);
+    }
 
-      const slash = this.add.rectangle(
-        hitX,
-        hitY,
-        TILE_W * 0.50,
-        4,
-        0xffd1a1,
-        0.9
-      ).setRotation(angle);
-      this.effectLayer.add(slash);
+    shieldAbility(view, abilityName) {
+      const point = this.effectPoint(view, -8);
+      this.flashUnit(view.unit.id, 0x9ec7ff, 1.12);
+      const dome = this.add.circle(point.x, point.y, TOKEN_RADIUS + 12, 0x9ec7ff, 0.12)
+        .setStrokeStyle(5, 0x9ec7ff, 0.72);
+      const ward = this.add.rectangle(point.x, point.y + 8, TOKEN_RADIUS * 1.45, TOKEN_RADIUS * 1.05, 0x2c68ff, 0.12)
+        .setStrokeStyle(2, 0xd8e7ff, 0.76);
+      this.effectLayer.add([dome, ward]);
+      this.addEffectLabel(abilityName, point.x, point.y - 68, '#dceaff', 0x9ec7ff);
       this.tweens.add({
-        targets: [slash, trail],
+        targets: [dome, ward],
+        scale: 1.55,
         alpha: 0,
-        scaleX: 1.8,
-        duration: 260,
+        duration: 620,
+        ease: 'Sine.easeOut',
         onComplete: () => {
-          slash.destroy();
-          trail.destroy();
+          dome.destroy();
+          ward.destroy();
         }
       });
-      for (let i = 0; i < 5; i += 1) {
-        const spark = this.add.circle(target.root.x, target.root.y - 8, Phaser.Math.Between(3, 6), 0xffd1a1, 0.78);
-        this.effectLayer.add(spark);
-        this.tweens.add({
-          targets: spark,
-          x: spark.x + Phaser.Math.Between(-22, 22),
-          y: spark.y + Phaser.Math.Between(-26, 14),
-          alpha: 0,
-          duration: 320,
-          ease: 'Quad.easeOut',
-          onComplete: () => spark.destroy()
-        });
+    }
+
+    healAbility(caster, target, abilityName) {
+      const start = this.effectPoint(caster, -14);
+      const end = this.effectPoint(target, -12);
+      this.drawStrikeLine(start, end, 0x7ff2b2, 6, 420, 0.72);
+      this.drawStrikeLine(start, end, 0xf2e9a8, 2, 420, 0.88);
+      this.burstAt(end.x, end.y, 0x7ff2b2, 0xf2e9a8, 9, 38);
+      this.addEffectLabel(abilityName, end.x, end.y - 64, '#dfffee', 0x7ff2b2);
+      this.flashUnit(target.unit.id, 0x7ff2b2, 1.08);
+    }
+
+    magicAbility(caster, target, abilityName, large = false) {
+      const point = this.effectPoint(target, -10);
+      const color = 0xc78cff;
+      const accent = 0x73a7ff;
+      this.flashUnit(caster.unit.id, color, 1.12);
+      const rune = this.add.circle(point.x, point.y, large ? 38 : 28, color, 0)
+        .setStrokeStyle(4, color, 0.82);
+      const crossA = this.add.rectangle(point.x, point.y, large ? 90 : 66, 4, accent, 0.72).setRotation(0.78);
+      const crossB = this.add.rectangle(point.x, point.y, large ? 90 : 66, 4, accent, 0.72).setRotation(-0.78);
+      this.effectLayer.add([rune, crossA, crossB]);
+      this.addEffectLabel(abilityName, point.x, point.y - 70, '#efe4ff', color);
+      this.tweens.add({
+        targets: [rune, crossA, crossB],
+        angle: '+=90',
+        scale: large ? 1.75 : 1.45,
+        alpha: 0,
+        duration: 520,
+        ease: 'Sine.easeOut',
+        onComplete: () => {
+          rune.destroy();
+          crossA.destroy();
+          crossB.destroy();
+        }
+      });
+      this.burstAt(point.x, point.y, color, accent, large ? 12 : 8, large ? 48 : 32);
+    }
+
+    abilityEffect(unitId, abilityName = 'Ability', targetId = null, abilityType = 'strike') {
+      const caster = this.findUnitView(unitId);
+      const target = this.findUnitView(targetId) || caster;
+      if (!caster || !target) return;
+      if (phaserSettings.reducedMotion) return;
+
+      switch (abilityType) {
+        case 'shield':
+          this.shieldAbility(caster, abilityName);
+          break;
+        case 'heal':
+          this.healAbility(caster, target, abilityName);
+          break;
+        case 'rapid':
+          this.projectileEffect(caster, target, 0x9ff2a8, 0xf2c96b, 7, 0);
+          this.projectileEffect(caster, target, 0x9ff2a8, 0xf2c96b, 7, 85);
+          this.addEffectLabel(abilityName, target.root.x, target.root.y - 72, '#eaffd8', 0x9ff2a8);
+          break;
+        case 'aoe':
+          this.magicAbility(caster, target, abilityName, true);
+          break;
+        case 'crit':
+          this.meleeEffect(caster, target, 0xffa24f, 0x2a1120, true);
+          this.addEffectLabel(abilityName, target.root.x, target.root.y - 72, '#ffe0c0', 0xffa24f);
+          break;
+        case 'cleave':
+        case 'frenzy':
+          this.meleeEffect(caster, target, 0xff6f7f, 0xf2c96b, true);
+          this.addEffectLabel(abilityName, target.root.x, target.root.y - 72, '#ffd9df', 0xff6f7f);
+          break;
+        case 'healer-strike':
+          this.projectileEffect(caster, target, 0xf2e9a8, 0x7ff2b2, 9);
+          this.addEffectLabel(abilityName, target.root.x, target.root.y - 72, '#fff6c8', 0xf2e9a8);
+          break;
+        default:
+          this.magicAbility(caster, target, abilityName, false);
+      }
+    }
+
+    attackEffect(attackerId, targetId) {
+      const attacker = this.findUnitView(attackerId);
+      const target = this.findUnitView(targetId);
+      if (!attacker || !target) return;
+      if (phaserSettings.reducedMotion) return;
+
+      const className = attacker.unit?.unitClass || attacker.unit?.class || 'Unit';
+      const range = attacker.unit?.range || 1;
+      if (className === 'Ranger') {
+        this.projectileEffect(attacker, target, 0x9ff2a8, 0xf2c96b, 7);
+      } else if (className === 'Mage') {
+        this.projectileEffect(attacker, target, 0xc78cff, 0x73a7ff, 9);
+      } else if (className === 'Healer') {
+        this.projectileEffect(attacker, target, 0xf2e9a8, 0x7ff2b2, 7);
+      } else if (range > 1) {
+        this.projectileEffect(attacker, target, 0x73a7ff, 0xd8e7ff, 7);
+      } else {
+        const heavy = className === 'Bruiser' || className === 'Guardian' || className === 'Boss';
+        const color = className === 'Assassin' ? 0xffa24f : className === 'Boss' ? 0xff6f7f : 0xffd1a1;
+        const accent = className === 'Assassin' ? 0x2a1120 : 0xfff1c6;
+        this.meleeEffect(attacker, target, color, accent, heavy);
       }
       this.flashUnit(targetId, 0xffd1a1, 1.05);
     }
@@ -1438,8 +1621,8 @@
     boardScene?.attackEffect(attackerId, targetId);
   }
 
-  function playAbilityEffect(unitId, abilityName = 'Ability') {
-    boardScene?.abilityEffect(unitId, abilityName);
+  function playAbilityEffect(unitId, abilityName = 'Ability', targetId = null, abilityType = 'strike') {
+    boardScene?.abilityEffect(unitId, abilityName, targetId, abilityType);
   }
 
   function playDamagePopup(targetId, amount) {

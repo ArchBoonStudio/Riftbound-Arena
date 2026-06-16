@@ -2847,10 +2847,10 @@ function chooseHealTarget(caster) {
 function castAbility(caster, target) {
   if (!caster.alive || !target?.alive) return;
   log(`${caster.name} uses ${caster.abilityName}.`, 'special');
-  if (window.playAbilityEffect) window.playAbilityEffect(caster.id, caster.abilityName);
   popDamage(caster, 'Cast');
   switch (caster.ability) {
     case 'shield': {
+      if (window.playAbilityEffect) window.playAbilityEffect(caster.id, caster.abilityName, caster.id, caster.ability);
       const shieldGain = Math.round((56 + caster.star * 14) * caster.abilityDamageMult * caster.shieldMult);
       caster.shield += shieldGain;
       recordShielding(caster, shieldGain);
@@ -2860,10 +2860,12 @@ function castAbility(caster, target) {
       break;
     }
     case 'rapid':
+      if (window.playAbilityEffect) window.playAbilityEffect(caster.id, caster.abilityName, target.id, caster.ability);
       applyDamage(target, caster.damage * 0.95 * caster.abilityDamageMult, { attacker: caster, canDodge: true });
       if (target.alive) applyDamage(target, caster.damage * 0.95 * caster.abilityDamageMult, { attacker: caster, canDodge: true });
       break;
     case 'aoe': {
+      if (window.playAbilityEffect) window.playAbilityEffect(caster.id, caster.abilityName, target.id, caster.ability);
       const enemies = state.combatUnits.filter(u => u.side !== caster.side && u.alive && distance(u, target) <= 1);
       enemies.forEach(u => applyDamage(u, caster.damage * 1.55 * caster.abilityDamageMult, { attacker: caster, canDodge: false }));
       break;
@@ -2871,25 +2873,31 @@ function castAbility(caster, target) {
     case 'heal': {
       const healTarget = chooseHealTarget(caster);
       if (healTarget) {
+        if (window.playAbilityEffect) window.playAbilityEffect(caster.id, caster.abilityName, healTarget.id, caster.ability);
         healUnit(healTarget, (52 + caster.star * 12) * caster.healMult, caster.name, false, caster);
       } else {
+        if (window.playAbilityEffect) window.playAbilityEffect(caster.id, caster.abilityName, target.id, 'healer-strike');
         log(`${caster.name} finds no urgent wounds and turns the blessing into an attack.`, 'damage');
         applyDamage(target, caster.damage * 1.15 * caster.abilityDamageMult, { attacker: caster, canDodge: true, attackType: 'healer strike' });
       }
       break;
     }
     case 'crit':
+      if (window.playAbilityEffect) window.playAbilityEffect(caster.id, caster.abilityName, target.id, caster.ability);
       applyDamage(target, caster.damage * 2.45 * caster.abilityDamageMult, { attacker: caster, canDodge: true });
       break;
     case 'cleave': {
+      if (window.playAbilityEffect) window.playAbilityEffect(caster.id, caster.abilityName, target.id, caster.ability);
       const enemies = state.combatUnits.filter(u => u.side !== caster.side && u.alive && distance(u, target) <= 1);
       enemies.forEach(u => applyDamage(u, caster.damage * 1.2 * caster.abilityDamageMult, { attacker: caster, canDodge: true }));
       break;
     }
     case 'frenzy':
+      if (window.playAbilityEffect) window.playAbilityEffect(caster.id, caster.abilityName, target.id, caster.ability);
       applyDamage(target, caster.damage * 1.7 * caster.abilityDamageMult, { attacker: caster, canDodge: true });
       break;
     default:
+      if (window.playAbilityEffect) window.playAbilityEffect(caster.id, caster.abilityName, target.id, caster.ability);
       applyDamage(target, caster.damage, { attacker: caster, canDodge: true });
   }
   if (caster.castEnergyGain > 0 && caster.alive) {

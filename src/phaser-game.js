@@ -1116,9 +1116,9 @@
       if (!view.sprite || view.spriteKey !== info.key) {
         if (view.sprite) view.sprite.destroy();
         view.sprite = this.add.image(0, -8, info.key).setOrigin(0.5);
-        view.root.addAt(view.sprite, 5);
         view.spriteKey = info.key;
       }
+      this.placeSpriteAbovePlaceholder(view);
 
       const source = this.textures.get(info.key).getSourceImage();
       const sourceW = Math.max(1, source?.width || 1);
@@ -1137,6 +1137,15 @@
       view.emblem.setVisible(false);
       view.sigil.setVisible(false);
       view.crown.setVisible(false);
+    }
+
+    placeSpriteAbovePlaceholder(view) {
+      if (!view?.sprite || !view?.root?.list) return;
+      const root = view.root;
+      if (root.list.includes(view.sprite)) root.remove(view.sprite, false);
+      const classBadgeIndex = root.list.indexOf(view.classBadge);
+      const insertIndex = classBadgeIndex >= 0 ? classBadgeIndex : root.list.length;
+      root.addAt(view.sprite, insertIndex);
     }
 
     setUnitDragEnabled(view, unit) {

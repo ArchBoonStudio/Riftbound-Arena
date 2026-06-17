@@ -212,6 +212,22 @@
     return statuses.slice(0, 3);
   }
 
+  function bossUnitsForState(gameState) {
+    if (!gameState || gameState.mode !== 'battle') return [];
+    return (gameState.combatUnits || [])
+      .filter(unit => unit?.side === 'enemy' && unit.unitClass === 'Boss');
+  }
+
+  function primaryBossForState(gameState) {
+    const bosses = bossUnitsForState(gameState);
+    if (!bosses.length) return null;
+    const livingBosses = bosses.filter(unit => unit.alive !== false);
+    return livingBosses.find(unit => String(unit.name).includes('Kingdom That Never Healed'))
+      || livingBosses[0]
+      || bosses.find(unit => String(unit.name).includes('Kingdom That Never Healed'))
+      || bosses[0];
+  }
+
   function unitsForState(gameState) {
     if (!gameState) return [];
     const units = gameState.mode === 'battle'
@@ -271,6 +287,7 @@
       this.benchViews = new Map();
       this.unitHighlights = new Map();
       this.latestState = null;
+      this.bossNameplate = null;
     }
 
     preload() {
@@ -621,6 +638,8 @@
         if (view) this.updateUnitView(view, unit);
         else this.createUnitView(unit, 'bench');
       });
+
+      this.updateBossNameplate(gameState);
     }
 
     createUnitView(unit, area = 'board') {
@@ -1266,6 +1285,80 @@
           this.unitViews.delete(id);
         }
       });
+      this.updateBossNameplate(gameState);
+    }
+
+    clearBossNameplate() {
+      this.bossNameplate?.root?.destroy(true);
+      this.bossNameplate = null;
+    }
+
+    createBossNameplate() {
+      const width = 650;
+      const root = this.add.container(INTERNAL_WIDTH / 2, 38).setDepth(90);
+      const bg = this.add.graphics();
+      const nameText = this.add.text(0, -15, '', {
+        fontFamily: 'Segoe UI, Arial',
+        fontSize: '22px',
+        fontStyle: '900',
+        color: '#ffe1e6',
+        stroke: '#070a12',
+        strokeThickness: 5,
+        align: 'center',
+        fixedWidth: width - 40
+      }).setOrigin(0.5);
+      const abilityText = this.add.text(0, 9, '', {
+        fontFamily: 'Segoe UI, Arial',
+        fontSize: '12px',
+        fontStyle: '900',
+        color: '#f2c96b',
+        stroke: '#070a12',
+        strokeThickness: 3,
+        align: 'center',
+        fixedWidth: width - 80
+      }).setOrigin(0.5);
+      const hpBack = this.add.rectangle(-250, 30, 500, 10, 0x12080d, 0.94).setOrigin(0, 0.5);
+      const hpFill = this.add.rectangle(-250, 30, 500, 10, 0xff6f7f, 1).setOrigin(0, 0.5);
+      const hpText = this.add.text(0, 30, '', {
+        fontFamily: 'Segoe UI, Arial',
+        fontSize: '9px',
+        fontStyle: '900',
+        color: '#fff6f8',
+        stroke: '#070a12',
+        strokeThickness: 2
+      }).setOrigin(0.5);
+      root.add([bg, nameText, abilityText, hpBack, hpFill, hpText]);
+      this.effectLayer.add(root);
+      this.bossNameplate = { root, bg, nameText, abilityText, hpBack, hpFill, hpText, width };
+    }
+
+    updateBossNameplate(gameState = this.latestState) {
+      const boss = primaryBossForState(gameState);
+      if (!boss || !bossUnitsForState(gameState).some(unit => unit.alive !== false)) {
+        this.clearBossNameplate();
+        return;
+      }
+      if (!this.bossNameplate) this.createBossNameplate();
+      const bosses = bossUnitsForState(gameState);
+      const plate = this.bossNameplate;
+      const maxHp = Math.max(1, Math.round(boss.maxHp || boss.hp || 1));
+      const hp = Math.max(0, Math.round(boss.hp || 0));
+      const hpPct = clamp01(hp / maxHp);
+      const mega = bosses.length > 1 || String(boss.name).includes('Kingdom That Never Healed');
+      plate.bg.clear();
+      plate.bg.fillStyle(0x070a12, 0.88);
+      plate.bg.fillRoundedRect(-plate.width / 2, -34, plate.width, 82, 18);
+      plate.bg.lineStyle(2, mega ? 0xff2d55 : 0xf2c96b, mega ? 0.82 : 0.62);
+      plate.bg.strokeRoundedRect(-plate.width / 2, -34, plate.width, 82, 18);
+      plate.bg.fillStyle(mega ? 0xff2d55 : 0xf2c96b, 0.14);
+      plate.bg.fillRoundedRect((-plate.width / 2) + 8, -26, 9, 66, 4);
+      plate.nameText
+        .setText(`${mega ? 'SECRET MEGA BOSS' : 'BOSS'} - ${boss.name}`)
+        .setColor(mega ? '#ffd4dc' : '#fff0c6');
+      plate.abilityText.setText(`${boss.abilityName || 'Boss Power'}${bosses.length > 1 ? ` | Council: ${bosses.length} bosses` : ''}`);
+      plate.hpFill.width = Math.max(1, 500 * hpPct);
+      plate.hpFill.setFillStyle(hpPct <= 0.25 ? 0xff2d55 : 0xff6f7f, 1);
+      plate.hpText.setText(`${hp}/${maxHp}`);
     }
 
     findUnitView(unitId) {
@@ -1736,30 +1829,153 @@
       });
     }
 
-    bossFlash() {
+    bossIntroCard(meta = {}) {
+      const mega = Boolean(meta?.mega);
+      const width = 720;
+      const root = this.add.container(INTERNAL_WIDTH / 2, INTERNAL_HEIGHT * 0.22).setDepth(120);
+      const bg = this.add.graphics();
+      bg.fillStyle(0x070a12, 0.94);
+      bg.fillRoundedRect(-width / 2, -88, width, 176, 22);
+      bg.lineStyle(3, mega ? 0xff2d55 : 0xf2c96b, 0.86);
+      bg.strokeRoundedRect(-width / 2, -88, width, 176, 22);
+      bg.fillStyle(mega ? 0xff2d55 : 0xf2c96b, 0.16);
+      bg.fillRoundedRect((-width / 2) + 12, -74, 12, 148, 6);
+
+      const title = this.add.text(0, -58, meta.title || (mega ? 'Secret Mega Boss' : 'Boss Encounter'), {
+        fontFamily: 'Segoe UI, Arial',
+        fontSize: '18px',
+        fontStyle: '900',
+        color: mega ? '#ff9aa6' : '#f2c96b',
+        stroke: '#070a12',
+        strokeThickness: 5,
+        align: 'center',
+        fixedWidth: width - 52
+      }).setOrigin(0.5);
+      const bossName = this.add.text(0, -24, meta.bossName || 'Boss Awakened', {
+        fontFamily: 'Segoe UI, Arial',
+        fontSize: '30px',
+        fontStyle: '900',
+        color: '#fff6f8',
+        stroke: '#070a12',
+        strokeThickness: 6,
+        align: 'center',
+        fixedWidth: width - 60
+      }).setOrigin(0.5);
+      const ability = this.add.text(0, 13, `Signature: ${meta.abilityName || 'Unknown Power'}`, {
+        fontFamily: 'Segoe UI, Arial',
+        fontSize: '15px',
+        fontStyle: '900',
+        color: '#ffe3a8',
+        stroke: '#070a12',
+        strokeThickness: 4,
+        align: 'center',
+        fixedWidth: width - 72
+      }).setOrigin(0.5);
+      const threat = this.add.text(0, 45, meta.threat || meta.subtitle || 'A milestone enemy enters the arena.', {
+        fontFamily: 'Segoe UI, Arial',
+        fontSize: '13px',
+        fontStyle: '800',
+        color: '#dce7ff',
+        stroke: '#070a12',
+        strokeThickness: 3,
+        align: 'center',
+        fixedWidth: width - 92,
+        wordWrap: { width: width - 92, useAdvancedWrap: true }
+      }).setOrigin(0.5);
+
+      root.add([bg, title, bossName, ability, threat]);
+      this.effectLayer.add(root);
+      if (!phaserSettings.reducedMotion) {
+        root.setScale(0.92);
+        this.tweens.add({
+          targets: root,
+          scale: 1,
+          duration: 260,
+          ease: 'Back.easeOut'
+        });
+      }
+      this.tweens.add({
+        targets: root,
+        alpha: 0,
+        y: root.y - (phaserSettings.reducedMotion ? 0 : 28),
+        delay: phaserSettings.reducedMotion ? 1700 : 2300,
+        duration: phaserSettings.reducedMotion ? 180 : 520,
+        ease: 'Sine.easeOut',
+        onComplete: () => root.destroy(true)
+      });
+    }
+
+    bossAbilityWarning(unitId, abilityName = 'Boss Power', targetId = null, abilityType = 'aoe') {
       if (phaserSettings.reducedMotion) return;
-      const flash = this.add.rectangle(0, 0, INTERNAL_WIDTH, INTERNAL_HEIGHT, 0xff6f7f, 0.24).setOrigin(0);
-      const warning = this.add.text(INTERNAL_WIDTH / 2, INTERNAL_HEIGHT * 0.16, 'SECRET BOSS AWAKENS', {
+      const caster = this.findUnitView(unitId);
+      const target = this.findUnitView(targetId) || caster;
+      if (!caster || !target) return;
+      const point = this.effectPoint(target, -8);
+      const radius = abilityType === 'aoe' ? TILE_W * 1.08 : TOKEN_RADIUS + 42;
+      const warning = this.add.circle(point.x, point.y, radius * 0.42, 0xff2d55, 0.08)
+        .setStrokeStyle(5, 0xff2d55, 0.9);
+      const inner = this.add.circle(point.x, point.y, Math.max(TOKEN_RADIUS + 12, radius * 0.25), 0xf2c96b, 0)
+        .setStrokeStyle(2, 0xf2c96b, 0.78);
+      const line = this.drawStrikeLine(this.effectPoint(caster, -14), point, 0xff2d55, 3, 520, 0.58);
+      const label = this.add.text(point.x, point.y - radius * 0.48, `WARNING: ${abilityName}`, {
+        fontFamily: 'Segoe UI, Arial',
+        fontSize: '14px',
+        fontStyle: '900',
+        color: '#ffced5',
+        stroke: '#070a12',
+        strokeThickness: 4,
+        align: 'center',
+        fixedWidth: 260
+      }).setOrigin(0.5);
+      this.effectLayer.add([warning, inner, label]);
+      this.cameras.main.shake(180, 0.003);
+      this.flashUnit(unitId, 0xff2d55, 1.16);
+      this.tweens.add({
+        targets: [warning, inner],
+        scale: 1.34,
+        alpha: 0,
+        duration: 620,
+        ease: 'Sine.easeOut',
+        onComplete: () => {
+          warning.destroy();
+          inner.destroy();
+        }
+      });
+      this.tweens.add({
+        targets: label,
+        y: label.y - 18,
+        alpha: 0,
+        duration: 650,
+        ease: 'Sine.easeOut',
+        onComplete: () => label.destroy()
+      });
+      return line;
+    }
+
+    bossFlash(meta = {}) {
+      this.bossIntroCard(meta);
+      const flash = this.add.rectangle(0, 0, INTERNAL_WIDTH, INTERNAL_HEIGHT, 0xff6f7f, phaserSettings.reducedMotion ? 0.08 : 0.24).setOrigin(0);
+      const warning = this.add.text(INTERNAL_WIDTH / 2, INTERNAL_HEIGHT * 0.16, meta?.mega ? 'SECRET MEGA BOSS AWAKENS' : 'BOSS ENTERS THE ARENA', {
         fontFamily: 'Segoe UI, Arial',
         fontSize: '36px',
         fontStyle: '900',
-        color: '#ffced5',
+        color: meta?.mega ? '#ffced5' : '#ffe3a8',
         stroke: '#070a12',
         strokeThickness: 6
       }).setOrigin(0.5);
       this.effectLayer.add([flash, warning]);
-      this.cameras.main.shake(520, 0.006);
+      if (!phaserSettings.reducedMotion) this.cameras.main.shake(520, 0.006);
       this.tweens.add({
         targets: flash,
         alpha: 0,
-        duration: 950,
+        duration: phaserSettings.reducedMotion ? 420 : 950,
         onComplete: () => flash.destroy()
       });
       this.tweens.add({
         targets: warning,
-        y: warning.y - 22,
+        y: warning.y - (phaserSettings.reducedMotion ? 0 : 22),
         alpha: 0,
-        duration: 1050,
+        duration: phaserSettings.reducedMotion ? 620 : 1050,
         ease: 'Sine.easeOut',
         onComplete: () => warning.destroy()
       });
@@ -1828,8 +2044,12 @@
     if (boardScene) boardScene.refresh({ mode: 'planning', board: {}, combatUnits: [] });
   }
 
-  function playBossIntroEffect() {
-    boardScene?.bossFlash();
+  function playBossIntroEffect(meta = {}) {
+    boardScene?.bossFlash(meta);
+  }
+
+  function playBossAbilityWarning(unitId, abilityName = 'Boss Power', targetId = null, abilityType = 'aoe') {
+    boardScene?.bossAbilityWarning(unitId, abilityName, targetId, abilityType);
   }
 
   function beginPhaserBoardDrag(gameState) {
@@ -1880,6 +2100,7 @@
   window.playShieldPopup = playShieldPopup;
   window.clearBattlefield = clearBattlefield;
   window.playBossIntroEffect = playBossIntroEffect;
+  window.playBossAbilityWarning = playBossAbilityWarning;
   window.beginPhaserBoardDrag = beginPhaserBoardDrag;
   window.previewPhaserBoardDrop = previewPhaserBoardDrop;
   window.endPhaserBoardDrag = endPhaserBoardDrag;

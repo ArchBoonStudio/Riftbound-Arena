@@ -1474,6 +1474,30 @@ function threatTextForPreview(units, kind) {
   return 'A mixed wave tests your frontline, damage, and positioning.';
 }
 
+function bossPresentationForRound(round, enemyUnits = previewTemplatesForRound(round)) {
+  const bossUnits = (enemyUnits || []).filter(unit => unitClassName(unit) === 'Boss');
+  if (!bossUnits.length) return null;
+  const primaryBoss = round === state.secretRound
+    ? bossUnits.find(unit => String(unit.name).includes('Kingdom That Never Healed')) || bossUnits[0]
+    : bossUnits[0];
+  const extraBosses = Math.max(0, bossUnits.length - 1);
+  const mega = round === state.secretRound;
+  const threat = mega
+    ? `Mega boss round: ${primaryBoss.name} enters with ${extraBosses} gathered boss powers.`
+    : `${primaryBoss.name} brings ${primaryBoss.abilityName || 'a boss power'} and punishing combat stats.`;
+  return {
+    round,
+    mega,
+    title: mega ? 'Secret Mega Boss' : 'Boss Encounter',
+    subtitle: WAVE_NAMES[round] || `Round ${round}`,
+    bossName: primaryBoss.name,
+    abilityName: primaryBoss.abilityName || 'Unknown Power',
+    threat,
+    bossCount: bossUnits.length,
+    extraBosses
+  };
+}
+
 function buildEnemyPreview() {
   const round = state.round;
   const trickster = isTricksterRound(round);
@@ -1515,6 +1539,11 @@ function buildEnemyPreview() {
   if (boss && !trickster) {
     const bossUnit = units.find(unit => unitClassName(unit) === 'Boss') || units[0];
     if (bossUnit) stats.unshift({ label: 'Boss', value: bossUnit.name });
+    const bossPresentation = bossPresentationForRound(round, units);
+    if (bossPresentation) {
+      stats.push({ label: 'Signature', value: bossPresentation.abilityName });
+      if (bossPresentation.mega) stats.push({ label: 'Boss Council', value: `${bossPresentation.bossCount} bosses` });
+    }
   }
 
   return {
@@ -2144,7 +2173,9 @@ function startBattle() {
   state.combatUnits = [...playerUnits, ...enemyUnits];
   initBattleStats(playerUnits, enemyUnits);
   beginRoundLog(state.round, playerUnits, enemyUnits);
-  if (isBossRound(state.round) && window.playBossIntroEffect) window.playBossIntroEffect();
+  if (isBossRound(state.round) && window.playBossIntroEffect) {
+    window.playBossIntroEffect(bossPresentationForRound(state.round, enemyUnits));
+  }
   applySynergyBonuses(state.combatUnits);
   applyOpeningAssassinJumps();
   render();
@@ -2848,6 +2879,9 @@ function castAbility(caster, target) {
   if (!caster.alive || !target?.alive) return;
   log(`${caster.name} uses ${caster.abilityName}.`, 'special');
   popDamage(caster, 'Cast');
+  if (caster.side === 'enemy' && unitClassName(caster) === 'Boss' && window.playBossAbilityWarning) {
+    window.playBossAbilityWarning(caster.id, caster.abilityName, target.id, caster.ability);
+  }
   switch (caster.ability) {
     case 'shield': {
       if (window.playAbilityEffect) window.playAbilityEffect(caster.id, caster.abilityName, caster.id, caster.ability);

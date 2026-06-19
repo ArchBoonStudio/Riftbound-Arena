@@ -161,6 +161,8 @@ After normal victories, the game awards gold. Boss victories at rounds 5, 10, 15
 - Run HP healing
 - New relics
 
+Sacred Arsenal offers reserve one choice for a synergy currently active on the deployed board. The other choice remains random. If no matching unclaimed relic is available, both choices safely fall back to the normal random pool. Bench units do not influence the matched item.
+
 Relics are persistent for the run and apply battle bonuses such as stronger shields, better healing, ability power, dodge, corruption, haste, or extra bruiser durability.
 
 ## Trickster Mirrors

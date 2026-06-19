@@ -561,14 +561,14 @@ const DEFAULT_SETTINGS = {
 };
 
 const RELICS = [
-  { id: 'aegis-shard', name: 'Aegis Shard', text: 'Guardians and Arthurian units start battle with a stronger shield.' },
-  { id: 'thunder-seed', name: 'Thunder Seed', text: 'Mages and Empyrean units gain ability power.' },
-  { id: 'valkyrie-horn', name: 'Valkyrie Horn', text: 'Heroic and Norse units gain attack damage.' },
-  { id: 'ankh-of-return', name: 'Ankh of Return', text: 'Healers and Egyptian units gain healing power.' },
-  { id: 'fae-briar', name: 'Fae Briar', text: 'Fae and Celtic units gain dodge chance.' },
-  { id: 'black-grail', name: 'Black Grail', text: 'Wyrdbound units apply stronger corruption.' },
-  { id: 'sun-forged-spear', name: 'Sun-Forged Spear', text: 'Rangers gain attack speed and bonus damage.' },
-  { id: 'wyrd-iron-crown', name: 'Wyrd-Iron Crown', text: 'Bruisers gain max HP and armor.' }
+  { id: 'aegis-shard', name: 'Aegis Shard', text: 'Guardians, Arthurian units, and Worshipers start battle with a stronger shield.', synergyKeys: ['Guardian', 'Arthurian', 'Worshiper'] },
+  { id: 'thunder-seed', name: 'Thunder Seed', text: 'Mages, Empyrean, Hellenic, and Spirit units gain ability power and energy tempo.', synergyKeys: ['Mage', 'Empyrean', 'Hellenic', 'Spirit'] },
+  { id: 'valkyrie-horn', name: 'Valkyrie Horn', text: 'Heroic, Norse, and Assassin units gain attack damage.', synergyKeys: ['Heroic', 'Norse', 'Assassin'] },
+  { id: 'ankh-of-return', name: 'Ankh of Return', text: 'Healers, Egyptian units, and Sacred units gain healing and shielding power.', synergyKeys: ['Healer', 'Egyptian', 'Sacred'] },
+  { id: 'fae-briar', name: 'Fae Briar', text: 'Fae and Celtic units gain dodge chance.', synergyKeys: ['Fae', 'Celtic'] },
+  { id: 'black-grail', name: 'Black Grail', text: 'Wyrdbound units apply stronger corruption.', synergyKeys: ['Wyrdbound'] },
+  { id: 'sun-forged-spear', name: 'Sun-Forged Spear', text: 'Rangers gain attack speed and bonus damage.', synergyKeys: ['Ranger'] },
+  { id: 'wyrd-iron-crown', name: 'Wyrd-Iron Crown', text: 'Bruisers gain max HP and armor.', synergyKeys: ['Bruiser'] }
 ];
 
 const state = {
@@ -2612,16 +2612,17 @@ function hasRelic(id) {
 
 function applyRelicBonuses(player) {
   player.forEach(unit => {
-    if (hasRelic('aegis-shard') && (unit.unitClass === 'Guardian' || unit.pantheon === 'Arthurian')) {
+    if (hasRelic('aegis-shard') && (unit.unitClass === 'Guardian' || unit.pantheon === 'Arthurian' || unit.sourceType === 'Worshiper')) {
       unit.shield += Math.round(unit.maxHp * 0.12);
     }
-    if (hasRelic('thunder-seed') && (unit.unitClass === 'Mage' || unit.sourceType === 'Empyrean')) {
+    if (hasRelic('thunder-seed') && (unit.unitClass === 'Mage' || unit.sourceType === 'Empyrean' || unit.pantheon === 'Hellenic' || unit.sourceType === 'Spirit')) {
       unit.abilityDamageMult += 0.22;
+      if (unit.sourceType === 'Spirit') unit.manaGainMult += 0.08;
     }
-    if (hasRelic('valkyrie-horn') && (unit.sourceType === 'Heroic' || unit.pantheon === 'Norse')) {
+    if (hasRelic('valkyrie-horn') && (unit.sourceType === 'Heroic' || unit.pantheon === 'Norse' || unit.unitClass === 'Assassin')) {
       unit.damageMultiplier += 0.18;
     }
-    if (hasRelic('ankh-of-return') && (unit.unitClass === 'Healer' || unit.pantheon === 'Egyptian')) {
+    if (hasRelic('ankh-of-return') && (unit.unitClass === 'Healer' || unit.pantheon === 'Egyptian' || unit.sourceType === 'Sacred')) {
       unit.healMult += 0.25;
       unit.shieldMult += 0.15;
     }
@@ -3553,6 +3554,22 @@ function loadRun() {
 function pickRewardRelics() {
   const available = RELICS.filter(relic => !state.relics.includes(relic.id));
   const picks = [];
+  const counts = getSynergyCounts();
+  const activeKeys = new Set(SYNERGIES
+    .filter(synergy => (counts[synergy.key] || 0) >= synergy.threshold)
+    .map(synergy => synergy.key));
+  const matching = available.filter(relic => (relic.synergyKeys || []).some(key => activeKeys.has(key)));
+
+  if (matching.length) {
+    const relic = matching[Math.floor(Math.random() * matching.length)];
+    const matchedSynergies = (relic.synergyKeys || []).filter(key => activeKeys.has(key));
+    picks.push({
+      ...relic,
+      matchedSynergy: matchedSynergies[Math.floor(Math.random() * matchedSynergies.length)]
+    });
+    available.splice(available.findIndex(item => item.id === relic.id), 1);
+  }
+
   while (available.length && picks.length < 2) {
     const index = Math.floor(Math.random() * available.length);
     picks.push(available.splice(index, 1)[0]);
@@ -3564,7 +3581,7 @@ function showRewardChoices(title, body, options = {}) {
   const relicChoices = options.includeRelics ? pickRewardRelics() : [];
   const choices = relicChoices.map(relic => ({
       label: relic.name,
-      detail: relic.text,
+      detail: `${relic.matchedSynergy ? `Synergy Match: ${relic.matchedSynergy}. ` : ''}${relic.text}`,
       action: () => {
         if (!state.relics.includes(relic.id)) state.relics.push(relic.id);
         log(`Relic claimed: ${relic.name}.`, 'special');

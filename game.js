@@ -70,6 +70,11 @@ const OVERTIME_DURATION_MS = 10000;
 const COMBAT_TICK_MS = 420;
 const OVERTIME_TICK_MS = Math.max(90, Math.round(COMBAT_TICK_MS / 4));
 const HEALER_MIN_MISSING_HP_PCT = 0.1;
+const NORMAL_ENEMY_SCALE_PER_ROUND = 0.13;
+const BOSS_ENEMY_SCALE_PER_ROUND = 0.08;
+const FIRST_TRICKSTER_SCALE = 0.78;
+const FIRST_TRICKSTER_DEFEAT_DAMAGE_CAP = 8;
+const OWNED_UPGRADE_SHOP_WEIGHT = 1.75;
 
 const LEGACY_ENEMY_LIBRARY = [
   { name: 'Training Goblin', icon: '👺', hp: 72, damage: 11, speed: 1220, range: 1, armor: 0 },
@@ -466,7 +471,7 @@ const ENEMY_LAYOUTS = {
   11: [9, 3, 0, 1, 2, 6],
   12: [5, 5, 4, 4, 1, 3],
   13: [6, 6, 8, 2, 3, 0],
-  14: [9, 7, 2, 5, 6, 8],
+  14: [9, 7, 5, 6, 8],
   15: [13],
   16: [8, 7, 6, 5, 2, 1, 4],
   17: [7, 5, 5, 4, 4, 3, 2],
@@ -890,7 +895,22 @@ function weightedUnitPick() {
   const availableRarities = Object.keys(odds).filter(rarity => UNIT_LIBRARY.some(unit => unit.rarity === rarity));
   const rarity = pickWeightedRarity(Object.fromEntries(availableRarities.map(key => [key, odds[key]])));
   const pool = UNIT_LIBRARY.filter(unit => unit.rarity === rarity);
-  return pool[Math.floor(Math.random() * pool.length)] || UNIT_LIBRARY[0];
+  const ownedUnits = getOwnedUnits();
+  const weightedPool = pool.map(template => {
+    const matchingUnits = ownedUnits.filter(unit => unit.type === template.type);
+    const isMaxed = matchingUnits.some(unit => unit.star >= 3);
+    return {
+      template,
+      weight: matchingUnits.length > 0 && !isMaxed ? OWNED_UPGRADE_SHOP_WEIGHT : 1
+    };
+  });
+  const totalWeight = weightedPool.reduce((sum, entry) => sum + entry.weight, 0);
+  let roll = Math.random() * totalWeight;
+  for (const entry of weightedPool) {
+    roll -= entry.weight;
+    if (roll <= 0) return entry.template;
+  }
+  return weightedPool[0]?.template || UNIT_LIBRARY[0];
 }
 
 function shopRarityOddsForRound(round) {
@@ -1520,7 +1540,7 @@ function buildEnemyPreview() {
       })
       .filter(Boolean)
       .slice(0, ENEMY_SLOTS.length);
-    const scale = 0.75 + Math.min(round, state.maxRound) * 0.05;
+    const scale = tricksterScaleForRound(round);
     stats.push({ label: 'Mirrored Round', value: snapshot.round });
     stats.push({ label: 'Copied Units', value: units.length });
     stats.push({ label: 'Scaling', value: `${scale.toFixed(2)}x` });
@@ -2367,8 +2387,8 @@ function spawnLayoutEnemies(round) {
     const base = ENEMY_LIBRARY[idx];
     const isMegaBossRound = round === state.secretRound;
     const isBossUnit = base.unitClass === 'Boss' || base.class === 'Boss';
-    const normalScale = 1 + (Math.min(round, state.maxRound) - 1) * 0.18;
-    const bossScale = isMegaBossRound ? 1 : 1 + (Math.min(round, state.maxRound) - 1) * 0.08;
+    const normalScale = 1 + (Math.min(round, state.maxRound) - 1) * NORMAL_ENEMY_SCALE_PER_ROUND;
+    const bossScale = isMegaBossRound ? 1 : 1 + (Math.min(round, state.maxRound) - 1) * BOSS_ENEMY_SCALE_PER_ROUND;
     const scale = isBossUnit ? bossScale : normalScale;
     const unit = makeUnit({
       ...base,
@@ -2400,7 +2420,7 @@ function normalizedEnemyLayoutForRound(round) {
 function spawnTricksterEnemies(round) {
   const snapshot = latestBoardSnapshotBefore(round);
   if (!snapshot) return [];
-  const scale = 0.75 + Math.min(round, state.maxRound) * 0.05;
+  const scale = tricksterScaleForRound(round);
   return snapshot.units
     .slice()
     .sort((a, b) => (b.star || 1) - (a.star || 1))
@@ -2417,6 +2437,11 @@ function spawnTricksterEnemies(round) {
       unit.y = Number.isFinite(snapshotUnit.y) ? Math.max(0, Math.min(1, 5 - snapshotUnit.y)) : ENEMY_SLOTS[i][1];
       return unit;
     });
+}
+
+function tricksterScaleForRound(round) {
+  if (round === TRICKSTER_ROUNDS[0]) return FIRST_TRICKSTER_SCALE;
+  return 0.75 + Math.min(round, state.maxRound) * 0.05;
 }
 
 function applySynergyBonuses(units) {
@@ -3279,13 +3304,18 @@ function endBattle(playerWon) {
   } else {
     const bossAlive = livingEnemies.some(u => u.unitClass === 'Boss');
     const damagePerEnemy = roundDamagePerLivingEnemy(state.round);
-    const damage = state.round === state.secretRound || bossAlive
+    const uncappedDamage = state.round === state.secretRound || bossAlive
       ? state.playerHp
       : livingEnemies.length * damagePerEnemy;
+    const damage = state.round === TRICKSTER_ROUNDS[0] && !bossAlive
+      ? Math.min(FIRST_TRICKSTER_DEFEAT_DAMAGE_CAP, uncappedDamage)
+      : uncappedDamage;
     state.playerHp -= damage;
     const damageText = state.round === state.secretRound || bossAlive
       ? 'Boss defeat is instant loss.'
-      : `${livingEnemies.length} enemies survived x ${damagePerEnemy} HP each.`;
+      : state.round === TRICKSTER_ROUNDS[0] && uncappedDamage > damage
+        ? `${livingEnemies.length} echoes survived; first-mirror damage capped at ${FIRST_TRICKSTER_DEFEAT_DAMAGE_CAP} HP.`
+        : `${livingEnemies.length} enemies survived x ${damagePerEnemy} HP each.`;
     log(`Defeat on ${WAVE_NAMES[state.round]}. You lost ${damage} HP. ${damageText}`, 'defeat');
     if (state.playerHp <= 0) {
       finalizeCombatRecap(false, { hpLost: damage });

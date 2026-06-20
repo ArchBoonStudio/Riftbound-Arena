@@ -29,6 +29,10 @@ function createWindow() {
   });
 
   Menu.setApplicationMenu(null);
+  win.on('page-title-updated', event => {
+    event.preventDefault();
+    win.setTitle(APP_TITLE);
+  });
   win.once('ready-to-show', () => win.show());
   win.loadFile(path.join(__dirname, 'index.html'));
 

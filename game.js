@@ -884,7 +884,7 @@ function init() {
   logEl.innerHTML = '';
   applySettings();
   showFeedback('');
-  log('Welcome to Riftbound Arena v0.9. Draft mythic champions, clear 20 rounds, and survive the secret round 21 mega boss.', 'special');
+  log('Welcome to Riftbound Arena. Draft mythic champions, clear 20 rounds, and survive the secret round 21 mega boss.', 'special');
   log('Tip: 3 copies of the same 1★ unit combine into a 2★ unit. 3 copies of a 2★ unit combine into a 3★ unit.', 'special');
   log('Preview each enemy wave, build pantheon/source synergies, and save your run during planning.', 'special');
   render();
@@ -1261,8 +1261,34 @@ function render() {
   const activeCount = getActiveUnitCount();
   const activeTextEl = $('activeUnitText');
   if (activeTextEl) activeTextEl.textContent = `Active Units: ${activeCount} / ${state.activeUnitCap}`;
-  $('statusText').textContent = state.runComplete ? 'Cleared' : (state.mode === 'planning' ? (state.round === state.secretRound ? 'Secret Mega Boss' : isBossRound(state.round) ? 'Boss Round' : 'Planning') : 'Battling');
-  $('startBattleBtn').disabled = state.runComplete || state.mode !== 'planning' || Object.keys(state.board).length === 0;
+  const runLost = state.runComplete && state.playerHp <= 0;
+  $('statusText').textContent = runLost
+    ? 'Defeated'
+    : state.runComplete
+      ? 'Cleared'
+      : state.mode === 'planning'
+        ? (state.round === state.secretRound ? 'Secret Mega Boss' : isBossRound(state.round) ? 'Boss Round' : 'Planning')
+        : 'Battling';
+  const roundActionBtn = $('startBattleBtn');
+  const retryingRound = !state.runComplete
+    && state.mode === 'planning'
+    && state.latestCombatRecap?.result === 'Defeat'
+    && state.latestCombatRecap.round === state.round;
+  const advancingRound = !state.runComplete
+    && state.mode === 'planning'
+    && state.latestCombatRecap?.result === 'Victory'
+    && state.latestCombatRecap.round !== state.round;
+  roundActionBtn.textContent = state.runComplete
+    ? 'New Run'
+    : state.mode === 'battle'
+      ? 'Battle in Progress'
+      : retryingRound
+        ? `Retry Round ${state.round}`
+        : advancingRound
+          ? `Next Round ${state.round}`
+          : `Start Round ${state.round}`;
+  roundActionBtn.disabled = state.mode !== 'planning' || (!state.runComplete && Object.keys(state.board).length === 0);
+  roundActionBtn.classList.toggle('run-reset-action', state.runComplete);
   $('rerollBtn').disabled = state.mode !== 'planning' || state.shopLocked;
   $('rerollBtn').textContent = state.shopLocked ? 'Reroll Locked' : 'Reroll 2g';
   if (shopLockBtn) {
@@ -3782,8 +3808,8 @@ function endBattle(playerWon) {
     if (state.round === state.secretRound) {
       state.runComplete = true;
       state.combatUnits = [];
-      log('Secret mega boss defeated! Riftbound Arena v0.9 is cleared.', 'victory');
-      showModal('Secret Mega Boss Defeated', 'You beat secret round 21 and completed the v0.9 prototype run. The arena is yours.');
+      log('Secret mega boss defeated! Riftbound Arena is cleared.', 'victory');
+      showModal('Secret Mega Boss Defeated', 'You beat secret round 21 and completed the run. The arena is yours.');
       render();
       return;
     }
@@ -3809,21 +3835,23 @@ function endBattle(playerWon) {
     const uncappedDamage = state.round === state.secretRound || bossAlive
       ? state.playerHp
       : livingEnemies.length * damagePerEnemy;
-    const damage = state.round === TRICKSTER_ROUNDS[0] && !bossAlive
+    const calculatedDamage = state.round === TRICKSTER_ROUNDS[0] && !bossAlive
       ? Math.min(FIRST_TRICKSTER_DEFEAT_DAMAGE_CAP, uncappedDamage)
       : uncappedDamage;
-    state.playerHp -= damage;
+    const damage = Math.min(Math.max(0, state.playerHp), Math.max(0, calculatedDamage));
+    state.playerHp = Math.max(0, state.playerHp - damage);
     const damageText = state.round === state.secretRound || bossAlive
       ? 'Boss defeat is instant loss.'
-      : state.round === TRICKSTER_ROUNDS[0] && uncappedDamage > damage
+      : state.round === TRICKSTER_ROUNDS[0] && uncappedDamage > calculatedDamage
         ? `${livingEnemies.length} echoes survived; first-mirror damage capped at ${FIRST_TRICKSTER_DEFEAT_DAMAGE_CAP} HP.`
         : `${livingEnemies.length} enemies survived x ${damagePerEnemy} HP each.`;
     log(`Defeat on ${WAVE_NAMES[state.round]}. You lost ${damage} HP. ${damageText}`, 'defeat');
     if (state.playerHp <= 0) {
+      state.runComplete = true;
       finalizeCombatRecap(false, { hpLost: damage });
       showModal('Run Lost', state.round === state.secretRound || bossAlive
-        ? 'A boss survived the battle. Boss defeats are instant loss. Reset the run and try a different squad.'
-        : `Your team was defeated. ${damageText} Reset the run and try a different squad.`);
+        ? 'A boss survived the battle. Boss defeats are instant loss. Close this message and use New Run to begin again.'
+        : `Your team was defeated. ${damageText} Close this message and use New Run to begin again.`);
     } else {
       const goldAward = awardGoldWithInterest(roundGoldRewardFor(state.round), 'Round gold');
       finalizeCombatRecap(false, { goldAward, hpLost: damage });
@@ -4015,10 +4043,10 @@ function loadRun() {
   clearTimers();
   state.round = payload.round || 1;
   state.gold = payload.gold ?? 10;
-  state.playerHp = payload.playerHp ?? 20;
+  state.playerHp = Math.max(0, payload.playerHp ?? 20);
   state.mode = 'planning';
   state.shopLocked = Boolean(payload.shopLocked);
-  state.runComplete = Boolean(payload.runComplete);
+  state.runComplete = Boolean(payload.runComplete) || state.playerHp <= 0;
   state.battleTick = 0;
   resetBattleClock();
   state.relics = Array.isArray(payload.relics) ? payload.relics.filter(id => RELICS.some(relic => relic.id === id)) : [];
@@ -4120,7 +4148,14 @@ function showModal(title, body, choices = []) {
 }
 
 $('modalBtn').addEventListener('click', () => $('modal').classList.add('hidden'));
-$('startBattleBtn').addEventListener('click', startBattle);
+$('startBattleBtn').addEventListener('click', () => {
+  if (state.runComplete) {
+    $('modal').classList.add('hidden');
+    init();
+    return;
+  }
+  startBattle();
+});
 $('saveBtn').addEventListener('click', saveRun);
 $('loadBtn').addEventListener('click', loadRun);
 if (archiveBtn) archiveBtn.addEventListener('click', openCodexWindow);

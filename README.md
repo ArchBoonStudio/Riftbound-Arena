@@ -1,4 +1,4 @@
-# Riftbound Arena - Auto Battle Prototype v0.9 Phaser Migration
+# Riftbound Arena
 
 A lightweight browser auto battler built with plain HTML, CSS, JavaScript, and a local Phaser browser file for the battlefield visuals.
 
@@ -88,7 +88,7 @@ Choose one of three random Common champions to start a new run, buy more mythic 
 
 ### Viewport Dashboard
 
-At the supported desktop minimum of 1280 x 800, the game uses a fixed one-screen dashboard instead of a vertically scrolling page. The Phaser arena uses a widened 1760 x 1040 presentation canvas to fill more horizontal space while keeping unit tokens and interaction hitboxes correctly proportioned. All five clickable shop offers sit beneath it. During planning, one connected overlay places the next-wave preview over the enemy half, the Start Battle button at its center, and the latest combat recap over the neutral rows; the overlay fades away when combat starts. The right rail places a compact, scrollable combat log above the expanding synergy list, with Sacred Arsenal attached to the bottom of the synergy panel. This keeps recent actions, active bonuses, and relics visible without moving the arena off screen. Smaller browser windows continue using the responsive fallback layout.
+At the supported desktop minimum of 1280 x 800, the game uses a fixed one-screen dashboard instead of a vertically scrolling page. The Phaser arena uses a widened 1900 x 1040 presentation canvas to fill more horizontal space while keeping unit tokens and interaction hitboxes correctly proportioned. Five enlarged, fully clickable shop offers sit beneath it in a responsive-height shop band. During planning, one connected overlay places the next-wave preview over the enemy half, the Start Battle button at its center, and the latest combat recap over the neutral rows; the overlay fades away when combat starts. The right rail places a compact, scrollable combat log above the expanding synergy list, with Sacred Arsenal attached to the bottom of the synergy panel. This keeps recent actions, active bonuses, and relics visible without moving the arena off screen. Smaller browser windows continue using the responsive fallback layout.
 
 ## Champion System
 
@@ -292,6 +292,8 @@ Each battle has a 60-second round timer. If both teams still have living units w
 - Clearing round 20 unlocks secret round 21.
 - Secret round 21 is the mega-boss council led by The Kingdom That Never Healed.
 - Beating secret round 21 wins the prototype run.
+- Player HP is clamped at zero and never becomes negative. Reaching zero ends the run and changes the centered battle control to **New Run**.
+- The centered control reads **Next Round** after victories and **Retry Round** after survivable defeats.
 
 ## Smoke Testing Checklist
 

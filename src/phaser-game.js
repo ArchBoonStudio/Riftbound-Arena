@@ -3,7 +3,7 @@
   const BOARD_ROWS = 6;
   const BENCH_SLOTS = 8;
   const SOURCE_WIDTH = 1512;
-  const INTERNAL_WIDTH = 1760;
+  const INTERNAL_WIDTH = 1900;
   const INTERNAL_HEIGHT = 1040;
   const HORIZONTAL_SCALE = INTERNAL_WIDTH / SOURCE_WIDTH;
   const scaleX = value => value * HORIZONTAL_SCALE;

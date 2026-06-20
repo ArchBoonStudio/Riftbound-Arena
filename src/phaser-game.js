@@ -32,15 +32,15 @@
   const USE_ART_BACKGROUND = true;
   const SPRITE_VERSION = 'worshiper-sprites-2';
   const CHAMPION_SPRITE_FILES = {
-    'Hellenic Temple Guard': '021_hellenic_temple_guard.png',
-    'Hellenic Oracle Acolyte': '022_hellenic_oracle_acolyte.png',
-    'Norse Shield-Bearer': '023_norse_shield_bearer.png',
-    'Norse Rune-Chanter': '024_norse_rune_chanter.png',
-    'Egyptian Temple Sentinel': '025_egyptian_temple_sentinel.png',
-    'Egyptian Sun Acolyte': '026_egyptian_sun_acolyte.png',
-    'Celtic Grove Keeper': '027_celtic_grove_keeper.png',
-    'Celtic Thornrunner': '028_celtic_thornrunner.png',
-    'Arthurian Squire': '029_arthurian_squire.png',
+    'Aegis Hoplite': '021_hellenic_temple_guard.png',
+    'Pythian Seer': '022_hellenic_oracle_acolyte.png',
+    'Fjord Huscarle': '023_norse_shield_bearer.png',
+    'Ashbone Carver': '024_norse_rune_chanter.png',
+    'Sun-Gate Medjay': '025_egyptian_temple_sentinel.png',
+    'Dawn Priest': '026_egyptian_sun_acolyte.png',
+    'Oakbound Warden': '027_celtic_grove_keeper.png',
+    'Briarblade': '028_celtic_thornrunner.png',
+    'Camelot Squire': '029_arthurian_squire.png',
     'Grail Pilgrim': '030_grail_pilgrim.png'
   };
 
@@ -82,6 +82,14 @@
     Boss: 0xff2d55
   };
 
+  const pantheonColors = {
+    Hellenic: 0xf2c96b,
+    Norse: 0x83c8ff,
+    Egyptian: 0xffd36b,
+    Celtic: 0x75d99a,
+    Arthurian: 0xb79cff
+  };
+
   const statusColors = {
     shield: 0x9ec7ff,
     burn: 0xff7a3d,
@@ -94,6 +102,8 @@
   let callbacks = {};
   let phaserSettings = {
     showTooltips: true,
+    showUnitNames: true,
+    showClassLabels: true,
     damageNumbers: true,
     reducedMotion: false,
     gridOverlay: true
@@ -274,10 +284,39 @@
 
   function shortName(unit) {
     const name = String(unit.name || 'Unit');
-    if (name.length <= 12) return name;
-    const parts = name.split(/\s+/).filter(Boolean);
-    if (parts.length > 1) return parts.map(part => part[0]).join('').slice(0, 5).toUpperCase();
-    return name.slice(0, 11);
+    if (name.length <= 16) return name;
+    return name.slice(0, 15);
+  }
+
+  function drawPantheonMark(graphics, pantheon, x, y, scale, color, alpha) {
+    graphics.fillStyle(color, alpha);
+    graphics.lineStyle(Math.max(1, 2 * scale), color, alpha);
+    if (pantheon === 'Hellenic') {
+      graphics.fillPoints([
+        { x: x - 4 * scale, y: y - 12 * scale }, { x: x + 7 * scale, y: y - 12 * scale },
+        { x: x + scale, y: y - 2 * scale }, { x: x + 8 * scale, y: y - 2 * scale },
+        { x: x - 7 * scale, y: y + 13 * scale }, { x: x - 2 * scale, y: y + 3 * scale },
+        { x: x - 9 * scale, y: y + 3 * scale }
+      ], true);
+    } else if (pantheon === 'Norse') {
+      graphics.lineBetween(x - 8 * scale, y - 12 * scale, x - 8 * scale, y + 12 * scale);
+      graphics.lineBetween(x - 8 * scale, y - 10 * scale, x + 8 * scale, y + 10 * scale);
+      graphics.lineBetween(x - 8 * scale, y + 10 * scale, x + 8 * scale, y - 10 * scale);
+    } else if (pantheon === 'Egyptian') {
+      graphics.strokeEllipse(x, y, 24 * scale, 13 * scale);
+      graphics.fillCircle(x, y, 4 * scale);
+      graphics.lineBetween(x + 11 * scale, y, x + 16 * scale, y + 5 * scale);
+    } else if (pantheon === 'Celtic') {
+      graphics.strokeCircle(x, y - 7 * scale, 7 * scale);
+      graphics.strokeCircle(x - 7 * scale, y + 5 * scale, 7 * scale);
+      graphics.strokeCircle(x + 7 * scale, y + 5 * scale, 7 * scale);
+    } else if (pantheon === 'Arthurian') {
+      graphics.fillTriangle(x, y - 13 * scale, x - 5 * scale, y + 5 * scale, x + 5 * scale, y + 5 * scale);
+      graphics.fillRoundedRect(x - 2 * scale, y - 8 * scale, 4 * scale, 22 * scale, 2 * scale);
+      graphics.lineBetween(x - 9 * scale, y + 2 * scale, x + 9 * scale, y + 2 * scale);
+    } else {
+      graphics.fillPoints([{ x, y: y - 12 * scale }, { x: x + 11 * scale, y }, { x, y: y + 12 * scale }, { x: x - 11 * scale, y }], true);
+    }
   }
 
   class GameScene extends Phaser.Scene {
@@ -826,49 +865,15 @@
       view.emblem.lineStyle(1, classColor, alive ? 0.36 : 0.12);
       view.emblem.strokeCircle(0, -8, TOKEN_RADIUS - 20);
 
-      view.sigil.fillStyle(classColor, alive ? 0.92 : 0.38);
-      view.sigil.lineStyle(3, accent, alive ? 0.82 : 0.24);
-      switch (className) {
-        case 'Guardian':
-          view.sigil.fillPoints([{ x: 0, y: -34 }, { x: 21, y: -24 }, { x: 16, y: 0 }, { x: 0, y: 15 }, { x: -16, y: 0 }, { x: -21, y: -24 }], true);
-          view.sigil.strokePoints([{ x: 0, y: -34 }, { x: 21, y: -24 }, { x: 16, y: 0 }, { x: 0, y: 15 }, { x: -16, y: 0 }, { x: -21, y: -24 }], true);
-          view.sigil.lineBetween(0, -26, 0, 7);
-          break;
-        case 'Ranger':
-          view.sigil.lineStyle(5, classColor, alive ? 0.94 : 0.35);
-          view.sigil.beginPath();
-          view.sigil.arc(0, -12, 23, Phaser.Math.DegToRad(220), Phaser.Math.DegToRad(500), false);
-          view.sigil.strokePath();
-          view.sigil.lineStyle(2, accent, alive ? 0.88 : 0.24);
-          view.sigil.lineBetween(-18, -24, 18, 0);
-          view.sigil.fillTriangle(22, 3, 8, 0, 14, -10);
-          break;
-        case 'Mage':
-          view.sigil.fillPoints([{ x: 0, y: -38 }, { x: 8, y: -18 }, { x: 28, y: -18 }, { x: 12, y: -5 }, { x: 18, y: 16 }, { x: 0, y: 4 }, { x: -18, y: 16 }, { x: -12, y: -5 }, { x: -28, y: -18 }, { x: -8, y: -18 }], true);
-          view.sigil.strokeCircle(0, -12, 25);
-          break;
-        case 'Healer':
-          view.sigil.fillRoundedRect(-7, -37, 14, 50, 4);
-          view.sigil.fillRoundedRect(-25, -19, 50, 14, 4);
-          view.sigil.strokeCircle(0, -12, 26);
-          break;
-        case 'Assassin':
-          view.sigil.fillTriangle(0, -40, 13, -12, 0, 17);
-          view.sigil.fillTriangle(0, -40, -13, -12, 0, 17);
-          view.sigil.lineBetween(-11, -2, 11, -25);
-          break;
-        case 'Bruiser':
-          view.sigil.fillRoundedRect(-24, -25, 48, 23, 8);
-          view.sigil.fillRoundedRect(-15, -4, 30, 20, 6);
-          view.sigil.lineBetween(-18, -14, 18, -14);
-          break;
-        case 'Boss':
-          view.sigil.fillTriangle(0, -42, 28, -24, 18, 13);
-          view.sigil.fillTriangle(0, -42, -28, -24, -18, 13);
-          view.sigil.strokeCircle(0, -12, 28);
-          break;
-        default:
-          view.sigil.fillPoints([{ x: 0, y: -38 }, { x: 25, y: -12 }, { x: 0, y: 15 }, { x: -25, y: -12 }], true);
+      const pantheonColor = pantheonColors[unit.pantheon] || classColor;
+      if (className === 'Boss') {
+        view.sigil.fillStyle(pantheonColor, alive ? 0.92 : 0.38);
+        view.sigil.lineStyle(3, accent, alive ? 0.82 : 0.24);
+        view.sigil.fillTriangle(0, -42, 28, -24, 18, 13);
+        view.sigil.fillTriangle(0, -42, -28, -24, -18, 13);
+        view.sigil.strokeCircle(0, -12, 28);
+      } else {
+        drawPantheonMark(view.sigil, unit.pantheon, 0, -12, 2.05, pantheonColor, alive ? 0.92 : 0.34);
       }
 
       if (unit.star >= 2 || unit.rarity === 'Legendary' || unit.rarity === 'Mythic' || className === 'Boss') {
@@ -880,50 +885,16 @@
       }
     }
 
-    redrawClassBadge(view, unit, classColor, alive) {
-      const className = unit.unitClass || unit.class || 'Unit';
+    redrawPantheonBadge(view, unit, classColor, alive) {
       const badge = view.classBadge;
+      const pantheonColor = pantheonColors[unit.pantheon] || classColor;
       const alpha = alive ? 0.95 : 0.28;
       badge.clear();
       badge.fillStyle(0x070a12, alive ? 0.82 : 0.42);
-      badge.lineStyle(2, classColor, alive ? 0.82 : 0.24);
+      badge.lineStyle(2, pantheonColor, alive ? 0.82 : 0.24);
       badge.fillCircle(-43, -43, 12);
       badge.strokeCircle(-43, -43, 12);
-      badge.fillStyle(classColor, alpha);
-      badge.lineStyle(2, classColor, alpha);
-
-      switch (className) {
-        case 'Guardian':
-          badge.fillPoints([{ x: -43, y: -53 }, { x: -34, y: -48 }, { x: -36, y: -38 }, { x: -43, y: -32 }, { x: -50, y: -38 }, { x: -52, y: -48 }], true);
-          break;
-        case 'Ranger':
-          badge.beginPath();
-          badge.arc(-43, -43, 8, Phaser.Math.DegToRad(220), Phaser.Math.DegToRad(500), false);
-          badge.strokePath();
-          badge.lineBetween(-49, -48, -36, -38);
-          break;
-        case 'Mage':
-          badge.fillPoints([{ x: -43, y: -54 }, { x: -38, y: -45 }, { x: -29, y: -45 }, { x: -37, y: -40 }, { x: -34, y: -31 }, { x: -43, y: -36 }, { x: -52, y: -31 }, { x: -49, y: -40 }, { x: -57, y: -45 }, { x: -48, y: -45 }], true);
-          break;
-        case 'Healer':
-          badge.fillRoundedRect(-46, -53, 6, 20, 2);
-          badge.fillRoundedRect(-53, -46, 20, 6, 2);
-          break;
-        case 'Assassin':
-          badge.fillTriangle(-43, -55, -35, -33, -43, -38);
-          badge.fillTriangle(-43, -55, -51, -33, -43, -38);
-          break;
-        case 'Bruiser':
-          badge.fillRoundedRect(-53, -49, 20, 9, 4);
-          badge.fillRoundedRect(-49, -40, 12, 8, 3);
-          break;
-        case 'Boss':
-          badge.fillTriangle(-43, -56, -31, -47, -35, -33);
-          badge.fillTriangle(-43, -56, -55, -47, -51, -33);
-          break;
-        default:
-          badge.fillCircle(-43, -43, 6);
-      }
+      drawPantheonMark(badge, unit.pantheon, -43, -43, 0.62, pantheonColor, alpha);
     }
 
     updateStatusBadges(view, unit, alive) {
@@ -1085,15 +1056,18 @@
         view.rarityHalo.setStrokeStyle(2, rarityColor, alive ? (unit.unitClass === 'Boss' ? 0.68 : 0.46) : 0.12);
       }
       this.redrawPlaceholder(view, unit, rarityColor, classColor, fillColor, alive);
-      this.redrawClassBadge(view, unit, classColor, alive);
+      this.redrawPantheonBadge(view, unit, classColor, alive);
       this.updateSpriteArt(view, unit, alive);
       view.nameText
         .setText(shortName(unit))
-        .setColor(alive ? '#eef4ff' : '#aab1c1');
+        .setColor(alive ? '#eef4ff' : '#aab1c1')
+        .setVisible(phaserSettings.showUnitNames !== false);
+      view.nameBack.setVisible(phaserSettings.showUnitNames !== false);
       view.starText.setText('*'.repeat(unit.star || 1));
       view.classText
         .setText(className.toUpperCase())
-        .setColor(alive ? '#9fb0ce' : '#777f91');
+        .setColor(alive ? '#9fb0ce' : '#777f91')
+        .setVisible(phaserSettings.showClassLabels !== false);
 
       this.updateStatusBadges(view, unit, alive);
       this.updateHoverSelection(view);
@@ -2099,6 +2073,7 @@
     if (boardScene && previousGridOverlay !== phaserSettings.gridOverlay) {
       boardScene.drawGrid();
     }
+    if (boardScene?.latestState) boardScene.refresh(boardScene.latestState);
     if (!phaserSettings.showTooltips) boardScene?.hideTooltip();
   }
 

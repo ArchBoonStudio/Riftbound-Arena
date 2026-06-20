@@ -82,7 +82,7 @@ Choose one of three random Common champions to start a new run, buy more mythic 
 - Click **Start Battle** to begin auto combat.
 - Click **Save** to store the current run in localStorage.
 - Click **Load** to restore the saved run.
-- Click **Settings** to tune combat log detail, tooltips, damage numbers, reduced motion, grid overlay, UI size, fullscreen, and local reset tools.
+- Click **Settings** to tune combat log detail, tooltips, battlefield names, class labels, damage numbers, reduced motion, grid overlay, UI size, fullscreen, and local reset tools.
 - Use **Show All / Important Only** to filter the combat log.
 - Use the Champion Codex filters to browse the roster by pantheon.
 
@@ -96,7 +96,7 @@ The first four major powers listed for each pantheon are signature champions wit
 
 The shop only pulls `Playable` units. Major Empyrean gods and Arthurian powers remain playable, while most older heroic, sacred, spirit, fae, and bloodline filler units are now `Locked` for future unlocks or production planning. Wyrdbound monsters and horrors are mostly `Enemy Only` or `Boss Only`.
 
-Each pantheon also has two Common `Worshiper` units. These weaker early units help players start pantheon synergies before finding gods, but they are not meant to outshine higher-rarity champions.
+Each pantheon also has two Common `Worshiper` units. These weaker early units help players start pantheon synergies before finding gods, but they are not meant to outshine higher-rarity champions. Their display names are setting-specific rather than generic faction labels: Aegis Hoplite, Pythian Seer, Fjord Huscarle, Ashbone Carver, Sun-Gate Medjay, Dawn Priest, Oakbound Warden, Briarblade, Camelot Squire, and Grail Pilgrim.
 
 ## Pantheons
 
@@ -181,7 +181,7 @@ For production planning, see `UNIT_PRODUCTION_LIST.md` for every playable, enemy
 
 ## Settings
 
-The Settings window stores preferences in localStorage separately from run saves. Current settings include combat log detail, upgraded-unit sale confirmations, unit tooltips, UI size, damage/healing/shield popups, board grid overlay, reduced motion, fullscreen toggle, reset settings, and reset save data. Audio controls are reserved for a future sound pass.
+The Settings window stores preferences in localStorage separately from run saves. Current settings include combat log detail, upgraded-unit sale confirmations, unit tooltips, battlefield/bench name labels, class labels, UI size, damage/healing/shield popups, board grid overlay, reduced motion, fullscreen toggle, reset settings, and reset save data. Names and class labels can be hidden independently; pantheon emblems remain on tokens for faction recognition. Audio controls are reserved for a future sound pass.
 
 ## Sprite Folders
 
@@ -272,6 +272,8 @@ The combat log is scrollable and capped for performance. It marks events with ro
 ## Combat Movement
 
 During battle, units path across the 8 x 6 battlefield toward a reachable attack position for their target. Living units occupy movement lanes, so attackers route around occupied cells when another path is available instead of only stepping directly toward the target.
+
+During planning, a bench unit can only be deployed into an empty player cell. Moving one deployed unit onto another swaps their positions, with both stored coordinates updated together so two units cannot occupy the same square.
 
 ## Combat Timer
 

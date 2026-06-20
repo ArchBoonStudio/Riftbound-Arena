@@ -27,16 +27,16 @@ Current combat notes: Healer abilities heal allies only when a living ally is mi
 
 | Unit | Pantheon | Class | Rarity | Cost | Status | Ability | Role |
 |---|---|---|---|---:|---|---|---|
-| Hellenic Temple Guard | Hellenic | Guardian | Common | 1 | Playable | Oath Ward | Early frontline unit for Hellenic builds. |
-| Hellenic Oracle Acolyte | Hellenic | Mage | Common | 1 | Playable | Mythic Burst | Early caster unit for Hellenic builds. |
-| Norse Shield-Bearer | Norse | Guardian | Common | 1 | Playable | Oath Ward | Early frontline unit for Norse builds. |
-| Norse Rune-Chanter | Norse | Mage | Common | 1 | Playable | Rune Burst | Early caster/support unit for Norse builds. |
-| Egyptian Temple Sentinel | Egyptian | Guardian | Common | 1 | Playable | Oath Ward | Early frontline unit for Egyptian builds. |
-| Egyptian Sun Acolyte | Egyptian | Healer | Common | 1 | Playable | Sacred Mend | Early healer unit for Egyptian builds. |
-| Celtic Grove Keeper | Celtic | Guardian | Common | 1 | Playable | Oath Ward | Early frontline unit for Celtic builds. |
-| Celtic Thornrunner | Celtic | Assassin | Common | 1 | Playable | Fated Strike | Early agile damage unit for Celtic builds. |
-| Arthurian Squire | Arthurian | Guardian | Common | 1 | Playable | Oath Ward | Early frontline unit for Arthurian builds. |
-| Grail Pilgrim | Arthurian | Healer | Common | 1 | Playable | Sacred Mend | Early support unit for Arthurian builds. |
+| Aegis Hoplite | Hellenic | Guardian | Common | 1 | Playable | Aegis Brace | Early frontline unit for Hellenic builds. |
+| Pythian Seer | Hellenic | Mage | Common | 1 | Playable | Delphic Flame | Early caster unit for Hellenic builds. |
+| Fjord Huscarle | Norse | Guardian | Common | 1 | Playable | Shieldwall Brace | Early frontline unit for Norse builds. |
+| Ashbone Carver | Norse | Mage | Common | 1 | Playable | Carved Doom | Early caster/support unit for Norse builds. |
+| Sun-Gate Medjay | Egyptian | Guardian | Common | 1 | Playable | Solar Bulwark | Early frontline unit for Egyptian builds. |
+| Dawn Priest | Egyptian | Healer | Common | 1 | Playable | Dawn Benediction | Early healer unit for Egyptian builds. |
+| Oakbound Warden | Celtic | Guardian | Common | 1 | Playable | Oakheart Ward | Early frontline unit for Celtic builds. |
+| Briarblade | Celtic | Assassin | Common | 1 | Playable | Briar Ambush | Early agile damage unit for Celtic builds. |
+| Camelot Squire | Arthurian | Guardian | Common | 1 | Playable | Oathbound Guard | Early frontline unit for Arthurian builds. |
+| Grail Pilgrim | Arthurian | Healer | Common | 1 | Playable | Pilgrim's Grace | Early support unit for Arthurian builds. |
 
 ## Arthurian / Empyrean
 
@@ -92,8 +92,8 @@ Current combat notes: Healer abilities heal allies only when a living ally is mi
 
 | # | Unit | Class | Rarity | Cost | Status | Ability | Description Notes | Sprite Notes |
 |---:|---|---|---|---:|---|---|---|---|
-| 29 | Arthurian Squire | Guardian | Common | 1 | Playable | Oath Ward | TODO: final lore description. Current ability note: Raises a small oath shield as an early Arthurian frontline. | TODO: Arthurian Worshiper Guardian, common auto-battler sprite. |
-| 30 | Grail Pilgrim | Healer | Common | 1 | Playable | Sacred Mend | TODO: final lore description. Current ability note: Heals the lowest-health ally with a humble grail prayer. | TODO: Arthurian Worshiper Healer, common auto-battler sprite. |
+| 29 | Camelot Squire | Guardian | Common | 1 | Playable | Oathbound Guard | Upholds a knightly oath to gain a defensive shield. | Arthurian Worshiper Guardian sprite complete. |
+| 30 | Grail Pilgrim | Healer | Common | 1 | Playable | Pilgrim's Grace | Heals the most wounded ally or attacks when no urgent healing is needed. | Arthurian Worshiper Healer sprite complete. |
 
 ## Arthurian / Wyrdbound
 
@@ -168,8 +168,8 @@ Current combat notes: Healer abilities heal allies only when a living ally is mi
 
 | # | Unit | Class | Rarity | Cost | Status | Ability | Description Notes | Sprite Notes |
 |---:|---|---|---|---:|---|---|---|---|
-| 27 | Celtic Grove Keeper | Guardian | Common | 1 | Playable | Oath Ward | TODO: final lore description. Current ability note: Raises a grove ward as an early Celtic frontline. | TODO: Celtic Worshiper Guardian, common auto-battler sprite. |
-| 28 | Celtic Thornrunner | Assassin | Common | 1 | Playable | Fated Strike | TODO: final lore description. Current ability note: Dashes in for a quick thorned strike. | TODO: Celtic Worshiper Assassin, common auto-battler sprite. |
+| 27 | Oakbound Warden | Guardian | Common | 1 | Playable | Oakheart Ward | Calls up an oak ward for a defensive shield. | Celtic Worshiper Guardian sprite complete. |
+| 28 | Briarblade | Assassin | Common | 1 | Playable | Briar Ambush | Lunges at the target for a heavy strike. | Celtic Worshiper Assassin sprite complete. |
 
 ## Celtic / Wyrdbound
 
@@ -229,8 +229,8 @@ Current combat notes: Healer abilities heal allies only when a living ally is mi
 
 | # | Unit | Class | Rarity | Cost | Status | Ability | Description Notes | Sprite Notes |
 |---:|---|---|---|---:|---|---|---|---|
-| 26 | Egyptian Sun Acolyte | Healer | Common | 1 | Playable | Sacred Mend | TODO: final lore description. Current ability note: Heals the lowest-health ally with a small sun blessing. | TODO: Egyptian Worshiper Healer, common auto-battler sprite. |
-| 25 | Egyptian Temple Sentinel | Guardian | Common | 1 | Playable | Oath Ward | TODO: final lore description. Current ability note: Raises a temple shield as an early Egyptian frontline. | TODO: Egyptian Worshiper Guardian, common auto-battler sprite. |
+| 26 | Dawn Priest | Healer | Common | 1 | Playable | Dawn Benediction | Heals the most wounded ally or attacks when no urgent healing is needed. | Egyptian Worshiper Healer sprite complete. |
+| 25 | Sun-Gate Medjay | Guardian | Common | 1 | Playable | Solar Bulwark | Raises a sun-forged defensive shield. | Egyptian Worshiper Guardian sprite complete. |
 
 ## Egyptian / Wyrdbound
 
@@ -291,8 +291,8 @@ Current combat notes: Healer abilities heal allies only when a living ally is mi
 
 | # | Unit | Class | Rarity | Cost | Status | Ability | Description Notes | Sprite Notes |
 |---:|---|---|---|---:|---|---|---|---|
-| 22 | Hellenic Oracle Acolyte | Mage | Common | 1 | Playable | Mythic Burst | TODO: final lore description. Current ability note: Unleashes a small oracle flame at clustered enemies. | TODO: Hellenic Worshiper Mage, common auto-battler sprite. |
-| 21 | Hellenic Temple Guard | Guardian | Common | 1 | Playable | Oath Ward | TODO: final lore description. Current ability note: Raises a modest shield as an early Hellenic frontline. | TODO: Hellenic Worshiper Guardian, common auto-battler sprite. |
+| 22 | Pythian Seer | Mage | Common | 1 | Playable | Delphic Flame | Blasts clustered enemies with an undodgeable oracle flame. | Hellenic Worshiper Mage sprite complete. |
+| 21 | Aegis Hoplite | Guardian | Common | 1 | Playable | Aegis Brace | Braces behind an aegis to gain a defensive shield. | Hellenic Worshiper Guardian sprite complete. |
 
 ## Hellenic / Wyrdbound
 
@@ -370,8 +370,8 @@ Current combat notes: Healer abilities heal allies only when a living ally is mi
 
 | # | Unit | Class | Rarity | Cost | Status | Ability | Description Notes | Sprite Notes |
 |---:|---|---|---|---:|---|---|---|---|
-| 24 | Norse Rune-Chanter | Mage | Common | 1 | Playable | Rune Burst | TODO: final lore description. Current ability note: Chants a small burst of rune magic at the target. | TODO: Norse Worshiper Mage, common auto-battler sprite. |
-| 23 | Norse Shield-Bearer | Guardian | Common | 1 | Playable | Oath Ward | TODO: final lore description. Current ability note: Raises a sturdy shield as an early Norse frontline. | TODO: Norse Worshiper Guardian, common auto-battler sprite. |
+| 24 | Ashbone Carver | Mage | Common | 1 | Playable | Carved Doom | Carves a battle rune that erupts beneath clustered enemies. | Norse Worshiper Mage sprite complete. |
+| 23 | Fjord Huscarle | Guardian | Common | 1 | Playable | Shieldwall Brace | Locks into the shieldwall to gain a defensive shield. | Norse Worshiper Guardian sprite complete. |
 
 ## Norse / Wyrdbound
 

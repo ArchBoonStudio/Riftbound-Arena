@@ -146,27 +146,27 @@ const SHOP_RARITY_ODDS = [
 ];
 
 const CLASS_BASE = {
-  Guardian: { hp: 190, damage: 18, attackSpeed: 1120, range: 1, armor: 9, ability: 'shield', abilityName: 'Oath Ward', abilityDescription: 'Gains a shield when energy is full.' },
-  Ranger: { hp: 100, damage: 27, attackSpeed: 860, range: 3, armor: 2, ability: 'rapid', abilityName: 'Twin Shot', abilityDescription: 'Fires two quick strikes at the target.' },
-  Mage: { hp: 92, damage: 32, attackSpeed: 1200, range: 3, armor: 1, ability: 'aoe', abilityName: 'Mythic Burst', abilityDescription: 'Damages enemies near the target.' },
-  Healer: { hp: 118, damage: 15, attackSpeed: 1120, range: 2, armor: 3, ability: 'heal', abilityName: 'Sacred Mend', abilityDescription: 'Heals the lowest-health ally.' },
-  Assassin: { hp: 98, damage: 34, attackSpeed: 780, range: 1, armor: 2, ability: 'crit', abilityName: 'Fated Strike', abilityDescription: 'Deals a heavy critical strike.' },
-  Bruiser: { hp: 165, damage: 25, attackSpeed: 980, range: 1, armor: 5, ability: 'cleave', abilityName: 'Titan Breaker', abilityDescription: 'Hits the target and adjacent enemies.' }
+  Guardian: { hp: 190, damage: 18, attackSpeed: 1120, range: 1, armor: 9, ability: 'shield', abilityName: 'Oath Ward', abilityDescription: 'At full energy, gain 70 shield at 1 star. Shield strength increases with star level.' },
+  Ranger: { hp: 100, damage: 27, attackSpeed: 860, range: 3, armor: 2, ability: 'rapid', abilityName: 'Twin Shot', abilityDescription: 'Fire twice at the current target. Each shot deals 95% attack damage and can be dodged.' },
+  Mage: { hp: 92, damage: 32, attackSpeed: 1200, range: 3, armor: 1, ability: 'aoe', abilityName: 'Mythic Burst', abilityDescription: 'Blast the target and adjacent enemies for 155% attack damage. This spell cannot be dodged.' },
+  Healer: { hp: 118, damage: 15, attackSpeed: 1120, range: 2, armor: 3, ability: 'heal', abilityName: 'Sacred Mend', abilityDescription: 'Heal the most wounded nearby ally for 64 HP at 1 star. If no ally needs urgent healing, attack for 115% damage.' },
+  Assassin: { hp: 98, damage: 34, attackSpeed: 780, range: 1, armor: 2, ability: 'crit', abilityName: 'Fated Strike', abilityDescription: 'Strike the current target for 245% attack damage. The strike can be dodged.' },
+  Bruiser: { hp: 165, damage: 25, attackSpeed: 980, range: 1, armor: 5, ability: 'cleave', abilityName: 'Titan Breaker', abilityDescription: 'Cleave the target and adjacent enemies for 120% attack damage.' }
 };
 
 const SIGNATURE_ABILITY_PROFILES = {
-  Zeus: { ability: 'sig-storm-chain', name: 'Thunderbolt Dominion', description: 'Blasts the target and chains lightning through two additional enemies.' },
-  Hera: { ability: 'sig-queen-aegis', name: 'Queenly Aegis', description: 'Shields herself and the two most wounded allies with a royal ward.' },
-  Poseidon: { ability: 'sig-seaquake', name: 'Seaquake', description: 'Crashes through clustered enemies and delays their next actions.' },
-  Hades: { ability: 'sig-soul-drain', name: 'Underworld Bloom', description: 'Drains life from nearby enemies and restores himself from the damage dealt.' },
-  Odin: { ability: 'sig-rune-doom', name: 'Runes of Doom', description: 'Marks three enemies with damaging runes that weaken their attacks.' },
-  Thor: { ability: 'sig-thunder-crash', name: 'Mjolnir Crash', description: 'Smashes the target area with lightning and briefly disrupts every enemy struck.' },
-  Freyja: { ability: 'sig-falcon-dive', name: 'Falcon Dive', description: 'Dives onto the weakest valuable backliner and gains a protective battle ward.' },
-  Freyr: { ability: 'sig-golden-harvest', name: 'Golden Harvest', description: 'Restores the three most wounded allies and hastens their next actions.' },
-  Ra: { ability: 'sig-solar-flare', name: 'Solar Flare', description: 'Scorches every enemy and leaves the primary target burning.' },
-  Osiris: { ability: 'sig-osirian-return', name: 'Osirian Return', description: 'Revives the first fallen ally; otherwise delivers a powerful restorative judgment.' },
-  Isis: { ability: 'sig-winged-sanctuary', name: 'Winged Sanctuary', description: 'Shields all allies and heals the most wounded beneath her wings.' },
-  Horus: { ability: 'sig-sky-hunt', name: 'Eye of the Sky Hunt', description: 'Fires three hunting strikes into the weakest enemy, executing wounded prey.' },
+  Zeus: { ability: 'sig-storm-chain', name: 'Thunderbolt Dominion', description: 'Deal 180% damage to the target, then chain 105% damage to up to two nearby enemies. Cannot be dodged.' },
+  Hera: { ability: 'sig-queen-aegis', name: 'Queenly Aegis', description: 'Shield Hera and the two most wounded allies. Shield strength increases with star level.' },
+  Poseidon: { ability: 'sig-seaquake', name: 'Seaquake', description: 'Deal 155% damage to the target and adjacent enemies, delaying their next attacks.' },
+  Hades: { ability: 'sig-soul-drain', name: 'Underworld Bloom', description: 'Deal 145% damage to clustered enemies and heal Hades for 42% of damage dealt.' },
+  Odin: { ability: 'sig-rune-doom', name: 'Runes of Doom', description: 'Carve doom runes onto the three weakest enemies, dealing 115% damage and weakening their attacks.' },
+  Thor: { ability: 'sig-thunder-crash', name: 'Mjolnir Crash', description: 'Deal 165% damage to the target and adjacent enemies, delaying their next attacks.' },
+  Freyja: { ability: 'sig-falcon-dive', name: 'Falcon Dive', description: 'Dive onto a vulnerable enemy for 280% damage, then gain a shield equal to 16% max HP.' },
+  Freyr: { ability: 'sig-golden-harvest', name: 'Golden Harvest', description: 'Heal the three most wounded allies and accelerate each ally\'s next attack.' },
+  Ra: { ability: 'sig-solar-flare', name: 'Solar Flare', description: 'Deal 90% damage to every enemy and burn the primary target for 3 ticks.' },
+  Osiris: { ability: 'sig-osirian-return', name: 'Osirian Return', description: 'Revive the strongest fallen ally with 32% HP. If none have fallen, heavily heal the most wounded ally.' },
+  Isis: { ability: 'sig-winged-sanctuary', name: 'Winged Sanctuary', description: 'Shield every ally for 8% max HP and heal the most wounded ally.' },
+  Horus: { ability: 'sig-sky-hunt', name: 'Eye of the Sky Hunt', description: 'Fire three 82% damage shots into the weakest enemy. Shots deal 25% more damage below 35% HP.' },
   'The Dagda': { ability: 'sig-cauldron-feast', name: 'Cauldron of Plenty', description: 'Heals the entire warband and grants himself a vast cauldron ward.' },
   'The Morrigan': { ability: 'sig-fate-war', name: 'Fate of War', description: 'Strikes three weakened enemies with corrupting battle prophecy.' },
   Brigid: { ability: 'sig-sacred-flame', name: 'Sacred Flame', description: 'Heals two wounded allies while holy fire burns her enemy.' },
@@ -189,14 +189,21 @@ function divineAbilityProfile(pantheon, unitClass) {
   const name = PANTHEON_DIVINE_NAMES[pantheon]?.[unitClass];
   if (!name) return null;
   const descriptions = {
-    Guardian: 'Shields the caster and a wounded ally, then invokes a pantheon blessing.',
-    Ranger: 'Fires two empowered shots and invokes a pantheon blessing.',
-    Mage: 'Damages enemies around the target and invokes a pantheon blessing.',
-    Healer: 'Restores two wounded allies and invokes a pantheon blessing.',
-    Assassin: 'Strikes a vulnerable enemy and invokes a pantheon blessing.',
-    Bruiser: 'Cleaves clustered enemies and invokes a pantheon blessing.'
+    Guardian: 'Shield self and the most wounded ally, then trigger this champion\'s pantheon blessing.',
+    Ranger: 'Fire two 105% damage shots, then trigger this champion\'s pantheon blessing.',
+    Mage: 'Deal 170% damage to the target and adjacent enemies, then trigger this champion\'s pantheon blessing.',
+    Healer: 'Heal the two most wounded allies. If no ally is wounded, attack for 125% damage. Then trigger a pantheon blessing.',
+    Assassin: 'Strike a vulnerable enemy for 270% damage, then trigger this champion\'s pantheon blessing.',
+    Bruiser: 'Deal 135% damage to the target and adjacent enemies, then trigger this champion\'s pantheon blessing.'
   };
-  return { ability: `divine-${unitClass.toLowerCase()}`, name, description: descriptions[unitClass] };
+  const blessings = {
+    Hellenic: ' Hellenic blessing: gain 8 energy.',
+    Norse: ' Norse blessing: deal an additional 28% damage to the target.',
+    Egyptian: ' Egyptian blessing: gain a shield equal to 7% max HP.',
+    Celtic: ' Celtic blessing: restore 8% max HP when wounded.',
+    Arthurian: ' Arthurian blessing: shield the weakest ally for 5% max HP.'
+  };
+  return { ability: `divine-${unitClass.toLowerCase()}`, name, description: `${descriptions[unitClass]}${blessings[pantheon] || ''}` };
 }
 
 const DEFAULT_CLASS_BY_SOURCE = {
@@ -312,24 +319,24 @@ const CHAMPION_POOL = [
     { name: 'Thanatos', class: 'Assassin', rarity: 'Legendary', abilityName: "Death's Edge" }
   ] }),
   ...rosterGroup({ pantheon: 'Hellenic', sourceType: 'Worshiper', defaultRarity: 'Common', names: [
-    { name: 'Hellenic Temple Guard', class: 'Guardian', abilityName: 'Oath Ward', abilityDescription: 'Raises a modest shield as an early Hellenic frontline.' },
-    { name: 'Hellenic Oracle Acolyte', class: 'Mage', abilityName: 'Mythic Burst', abilityDescription: 'Unleashes a small oracle flame at clustered enemies.' }
+    { name: 'Aegis Hoplite', type: 'hellenic-temple-guard', class: 'Guardian', abilityName: 'Aegis Brace', abilityDescription: 'At full energy, brace behind the aegis and gain 70 shield at 1 star.' },
+    { name: 'Pythian Seer', type: 'hellenic-oracle-acolyte', class: 'Mage', abilityName: 'Delphic Flame', abilityDescription: 'Blast the target and adjacent enemies for 155% damage with an undodgeable oracle flame.' }
   ] }),
   ...rosterGroup({ pantheon: 'Norse', sourceType: 'Worshiper', defaultRarity: 'Common', names: [
-    { name: 'Norse Shield-Bearer', class: 'Guardian', abilityName: 'Oath Ward', abilityDescription: 'Raises a sturdy shield as an early Norse frontline.' },
-    { name: 'Norse Rune-Chanter', class: 'Mage', abilityName: 'Rune Burst', abilityDescription: 'Chants a small burst of rune magic at the target.' }
+    { name: 'Fjord Huscarle', type: 'norse-shield-bearer', class: 'Guardian', abilityName: 'Shieldwall Brace', abilityDescription: 'At full energy, lock into the shieldwall and gain 70 shield at 1 star.' },
+    { name: 'Ashbone Carver', type: 'norse-rune-chanter', class: 'Mage', abilityName: 'Carved Doom', abilityDescription: 'Carve a battle rune that erupts beneath the target and adjacent enemies for 155% undodgeable damage.' }
   ] }),
   ...rosterGroup({ pantheon: 'Egyptian', sourceType: 'Worshiper', defaultRarity: 'Common', names: [
-    { name: 'Egyptian Temple Sentinel', class: 'Guardian', abilityName: 'Oath Ward', abilityDescription: 'Raises a temple shield as an early Egyptian frontline.' },
-    { name: 'Egyptian Sun Acolyte', class: 'Healer', abilityName: 'Sacred Mend', abilityDescription: 'Heals the lowest-health ally with a small sun blessing.' }
+    { name: 'Sun-Gate Medjay', type: 'egyptian-temple-sentinel', class: 'Guardian', abilityName: 'Solar Bulwark', abilityDescription: 'At full energy, raise a sun-forged defense and gain 70 shield at 1 star.' },
+    { name: 'Dawn Priest', type: 'egyptian-sun-acolyte', class: 'Healer', abilityName: 'Dawn Benediction', abilityDescription: 'Heal the most wounded nearby ally for 64 HP at 1 star; attack for 115% damage if no ally needs healing.' }
   ] }),
   ...rosterGroup({ pantheon: 'Celtic', sourceType: 'Worshiper', defaultRarity: 'Common', names: [
-    { name: 'Celtic Grove Keeper', class: 'Guardian', abilityName: 'Oath Ward', abilityDescription: 'Raises a grove ward as an early Celtic frontline.' },
-    { name: 'Celtic Thornrunner', class: 'Assassin', abilityName: 'Fated Strike', abilityDescription: 'Dashes in for a quick thorned strike.' }
+    { name: 'Oakbound Warden', type: 'celtic-grove-keeper', class: 'Guardian', abilityName: 'Oakheart Ward', abilityDescription: 'At full energy, call up an oak ward and gain 70 shield at 1 star.' },
+    { name: 'Briarblade', type: 'celtic-thornrunner', class: 'Assassin', abilityName: 'Briar Ambush', abilityDescription: 'Lunge at the current target for 245% attack damage. The strike can be dodged.' }
   ] }),
   ...rosterGroup({ pantheon: 'Arthurian', sourceType: 'Worshiper', defaultRarity: 'Common', names: [
-    { name: 'Arthurian Squire', class: 'Guardian', abilityName: 'Oath Ward', abilityDescription: 'Raises a small oath shield as an early Arthurian frontline.' },
-    { name: 'Grail Pilgrim', class: 'Healer', abilityName: 'Sacred Mend', abilityDescription: 'Heals the lowest-health ally with a humble grail prayer.' }
+    { name: 'Camelot Squire', type: 'arthurian-squire', class: 'Guardian', abilityName: 'Oathbound Guard', abilityDescription: 'At full energy, uphold a knightly oath and gain 70 shield at 1 star.' },
+    { name: 'Grail Pilgrim', type: 'grail-pilgrim', class: 'Healer', abilityName: 'Pilgrim\'s Grace', abilityDescription: 'Heal the most wounded nearby ally for 64 HP at 1 star; attack for 115% damage if no ally needs healing.' }
   ] }),
   ...rosterGroup({ pantheon: 'Hellenic', sourceType: 'Heroic', defaultRarity: 'Rare', locked: true, names: [
     { name: 'Heracles', class: 'Bruiser', rarity: 'Epic' }, { name: 'Perseus', class: 'Assassin', rarity: 'Rare' },
@@ -601,6 +608,8 @@ const SETTINGS_KEY = 'riftbound-arena-settings-v1';
 const DEFAULT_SETTINGS = {
   combatLogDetail: 'all',
   showTooltips: true,
+  showUnitNames: true,
+  showClassLabels: true,
   damageNumbers: true,
   reducedMotion: false,
   confirmUpgradedSales: true,
@@ -700,6 +709,8 @@ const combatRecapEl = $('combatRecap');
 const settingCombatLogDetailEl = $('settingCombatLogDetail');
 const settingConfirmUpgradedSalesEl = $('settingConfirmUpgradedSales');
 const settingShowTooltipsEl = $('settingShowTooltips');
+const settingShowUnitNamesEl = $('settingShowUnitNames');
+const settingShowClassLabelsEl = $('settingShowClassLabels');
 const settingUiScaleEl = $('settingUiScale');
 const settingDamageNumbersEl = $('settingDamageNumbers');
 const settingGridOverlayEl = $('settingGridOverlay');
@@ -760,6 +771,8 @@ function renderSettingsControls() {
   if (settingCombatLogDetailEl) settingCombatLogDetailEl.value = settings.combatLogDetail || 'all';
   if (settingConfirmUpgradedSalesEl) settingConfirmUpgradedSalesEl.checked = Boolean(settings.confirmUpgradedSales);
   if (settingShowTooltipsEl) settingShowTooltipsEl.checked = Boolean(settings.showTooltips);
+  if (settingShowUnitNamesEl) settingShowUnitNamesEl.checked = settings.showUnitNames !== false;
+  if (settingShowClassLabelsEl) settingShowClassLabelsEl.checked = settings.showClassLabels !== false;
   if (settingUiScaleEl) settingUiScaleEl.value = settings.uiScale || 'normal';
   if (settingDamageNumbersEl) settingDamageNumbersEl.checked = Boolean(settings.damageNumbers);
   if (settingGridOverlayEl) settingGridOverlayEl.checked = Boolean(settings.gridOverlay);
@@ -2218,17 +2231,22 @@ function dropWarningFor(reason) {
 function moveUnitToBoard(unitId, x, y) {
   const key = posKey(x, y);
   const existing = state.board[key];
-  const fromBenchIndex = state.bench.findIndex(u => u?.id === unitId);
-  const fromBoardKey = Object.keys(state.board).find(k => state.board[k]?.id === unitId);
+  const fromBenchIndex = state.bench.findIndex(unit => unit?.id === unitId);
+  const fromBoardKey = Object.keys(state.board).find(boardKey => state.board[boardKey]?.id === unitId);
 
-  const deployingNewActive = fromBenchIndex >= 0 && !existing;
-  if (deployingNewActive && getActiveUnitCount() >= state.activeUnitCap) {
+  if (state.mode !== 'planning' || x < 0 || x >= 8 || y < 4 || y >= 6) return false;
+  if (fromBenchIndex >= 0 && existing) {
+    warnPlayer('That battlefield cell is already occupied. Choose an empty deployment cell.');
+    render();
+    return false;
+  }
+  if (fromBenchIndex >= 0 && getActiveUnitCount() >= state.activeUnitCap) {
     warnPlayer(`Active unit cap reached: ${state.activeUnitCap}/${state.activeUnitCap}. Bench units do not count, but you must free a battlefield slot before deploying another unit.`);
     render();
-    return;
+    return false;
   }
 
-  let unit;
+  let unit = null;
   if (fromBenchIndex >= 0) {
     unit = state.bench[fromBenchIndex];
     state.bench[fromBenchIndex] = null;
@@ -2236,16 +2254,15 @@ function moveUnitToBoard(unitId, x, y) {
     unit = state.board[fromBoardKey];
     delete state.board[fromBoardKey];
   }
-  if (!unit) return;
+  if (!unit) return false;
 
-  if (existing) {
-    if (fromBenchIndex >= 0) state.bench[fromBenchIndex] = existing;
-    else if (fromBoardKey) state.board[fromBoardKey] = existing;
-    else {
-      const benchSlot = firstEmptyBenchIndex();
-      if (benchSlot >= 0) state.bench[benchSlot] = existing;
-    }
+  if (existing && fromBoardKey) {
+    const [oldX, oldY] = fromBoardKey.split(',').map(Number);
+    existing.x = oldX;
+    existing.y = oldY;
+    state.board[fromBoardKey] = existing;
   }
+
   unit.x = x;
   unit.y = y;
   state.board[key] = unit;
@@ -2254,6 +2271,7 @@ function moveUnitToBoard(unitId, x, y) {
   showFeedback('');
   log(`${unit.name} deployed. Active units: ${getActiveUnitCount()}/${state.activeUnitCap}.`, 'special');
   render();
+  return true;
 }
 
 function moveUnitToBench(unitId, index) {
@@ -4092,6 +4110,8 @@ if (logFilterBtn) logFilterBtn.addEventListener('click', toggleLogFilter);
 if (settingCombatLogDetailEl) settingCombatLogDetailEl.addEventListener('change', () => updateSetting('combatLogDetail', settingCombatLogDetailEl.value));
 if (settingConfirmUpgradedSalesEl) settingConfirmUpgradedSalesEl.addEventListener('change', () => updateSetting('confirmUpgradedSales', settingConfirmUpgradedSalesEl.checked));
 if (settingShowTooltipsEl) settingShowTooltipsEl.addEventListener('change', () => updateSetting('showTooltips', settingShowTooltipsEl.checked));
+if (settingShowUnitNamesEl) settingShowUnitNamesEl.addEventListener('change', () => updateSetting('showUnitNames', settingShowUnitNamesEl.checked));
+if (settingShowClassLabelsEl) settingShowClassLabelsEl.addEventListener('change', () => updateSetting('showClassLabels', settingShowClassLabelsEl.checked));
 if (settingUiScaleEl) settingUiScaleEl.addEventListener('change', () => updateSetting('uiScale', settingUiScaleEl.value));
 if (settingDamageNumbersEl) settingDamageNumbersEl.addEventListener('change', () => updateSetting('damageNumbers', settingDamageNumbersEl.checked));
 if (settingGridOverlayEl) settingGridOverlayEl.addEventListener('change', () => updateSetting('gridOverlay', settingGridOverlayEl.checked));

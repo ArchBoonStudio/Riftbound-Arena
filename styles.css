@@ -854,6 +854,12 @@ body.hide-grid-overlay .tile {
   line-height: 1.35;
 }
 
+.wave-start-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+
 .unit-inspector {
   --inspector-accent: #b9c4d6;
   position: fixed;
@@ -1132,22 +1138,60 @@ body.hide-grid-overlay .tile {
   line-height: 1.45;
 }
 
-body[data-ui-scale="compact"] .panel,
-body[data-ui-scale="compact"] .info-box,
-body[data-ui-scale="compact"] .flow-section {
-  font-size: 0.94rem;
+.settings-status {
+  margin: 0 0 14px;
+  padding: 9px 12px;
+  border: 1px solid rgba(127, 242, 178, 0.2);
+  border-radius: 8px;
+  color: #bff7d6;
+  background: rgba(127, 242, 178, 0.06);
+  font-size: 12px;
+  font-weight: 800;
 }
 
-body[data-ui-scale="large"] .panel,
-body[data-ui-scale="large"] .info-box,
-body[data-ui-scale="large"] .flow-section {
-  font-size: 1.06rem;
-}
+body[data-ui-scale="compact"] { font-size: 14px; }
+body[data-ui-scale="compact"] .app-shell { padding-block: 16px; }
+body[data-ui-scale="compact"] .topbar { gap: 14px; margin-bottom: 14px; padding: 14px; }
+body[data-ui-scale="compact"] .main-grid,
+body[data-ui-scale="compact"] .side-column,
+body[data-ui-scale="compact"] .lower-main-column { gap: 10px; }
+body[data-ui-scale="compact"] .panel { padding: 13px; }
+body[data-ui-scale="compact"] .flow-section,
+body[data-ui-scale="compact"] .info-box { padding: 10px; }
+body[data-ui-scale="compact"] .panel-heading { margin-bottom: 10px; }
+body[data-ui-scale="compact"] .primary-btn,
+body[data-ui-scale="compact"] .ghost-btn { padding: 9px 12px; }
+body[data-ui-scale="compact"] .resource-card { min-height: 62px; padding: 9px 11px; }
+body[data-ui-scale="compact"] .resource-card strong { font-size: 17px; }
+body[data-ui-scale="compact"] .shop-list { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; }
+body[data-ui-scale="compact"] .unit-card { gap: 6px; padding: 9px; }
+body[data-ui-scale="compact"] .synergy-item { padding: 8px 9px; font-size: 12px; }
+body[data-ui-scale="compact"] .combat-log { min-height: 150px; max-height: 220px; padding: 9px; font-size: 12px; }
 
-body[data-ui-scale="large"] .resource-card strong,
-body[data-ui-scale="large"] .unit-name {
-  font-size: 1.08em;
-}
+body[data-ui-scale="large"] { font-size: 18px; }
+body[data-ui-scale="large"] .app-shell { width: min(1760px, calc(100% - 24px)); padding-block: 34px; }
+body[data-ui-scale="large"] .topbar { gap: 28px; margin-bottom: 26px; padding: 22px; }
+body[data-ui-scale="large"] .main-grid,
+body[data-ui-scale="large"] .side-column,
+body[data-ui-scale="large"] .lower-main-column { gap: 20px; }
+body[data-ui-scale="large"] .panel { padding: 22px; }
+body[data-ui-scale="large"] .flow-section,
+body[data-ui-scale="large"] .info-box { padding: 17px; }
+body[data-ui-scale="large"] .panel-heading { margin-bottom: 20px; }
+body[data-ui-scale="large"] h2 { font-size: 24px; }
+body[data-ui-scale="large"] h3 { font-size: 21px; }
+body[data-ui-scale="large"] .primary-btn,
+body[data-ui-scale="large"] .ghost-btn { padding: 14px 18px; font-size: 15px; }
+body[data-ui-scale="large"] .small { padding: 11px 14px; font-size: 14px; }
+body[data-ui-scale="large"] .resource-card { min-height: 88px; padding: 15px 17px; }
+body[data-ui-scale="large"] .resource-card span { font-size: 13px; }
+body[data-ui-scale="large"] .resource-card strong { font-size: 24px; }
+body[data-ui-scale="large"] .shop-list { grid-template-columns: repeat(auto-fit, minmax(245px, 1fr)); gap: 14px; }
+body[data-ui-scale="large"] .unit-card { gap: 10px; padding: 15px; }
+body[data-ui-scale="large"] .unit-name { font-size: 18px; }
+body[data-ui-scale="large"] .synergy-item { padding: 13px 15px; font-size: 15px; }
+body[data-ui-scale="large"] .synergy-inspector { font-size: 14px; }
+body[data-ui-scale="large"] .combat-log { min-height: 220px; max-height: 360px; padding: 15px; font-size: 15px; }
 
 body.reduced-motion *,
 body.reduced-motion *::before,
@@ -1883,5 +1927,549 @@ h3 {
 @media (max-width: 1120px) {
   .topbar > div:first-child {
     min-width: 0;
+  }
+}
+
+/* Fixed desktop dashboard: the arena, shop, synergies, and live log share one viewport. */
+@media (min-width: 1000px) and (min-height: 700px) {
+  html,
+  body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .app-shell {
+    width: calc(100% - 16px);
+    height: 100dvh;
+    padding: 8px 0;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .topbar,
+  body[data-ui-scale="compact"] .topbar,
+  body[data-ui-scale="large"] .topbar {
+    min-height: 58px;
+    margin: 0;
+    padding: 8px 10px;
+    gap: 12px;
+    align-items: center;
+    flex-direction: row;
+  }
+
+  .topbar > div:first-child {
+    min-width: 190px;
+    padding-left: 10px;
+  }
+
+  .topbar h1 { font-size: 25px; }
+  .topbar .eyebrow { margin-bottom: 2px; font-size: 8px; }
+
+  .resource-row {
+    flex: 1;
+    grid-template-columns: repeat(6, minmax(78px, 1fr));
+    gap: 7px;
+  }
+
+  .resource-card,
+  body[data-ui-scale="compact"] .resource-card,
+  body[data-ui-scale="large"] .resource-card {
+    min-height: 44px;
+    padding: 6px 9px;
+    border-radius: 9px;
+  }
+
+  .resource-card span,
+  body[data-ui-scale="large"] .resource-card span { margin-bottom: 0; font-size: 9px; }
+  .resource-card strong,
+  body[data-ui-scale="compact"] .resource-card strong,
+  body[data-ui-scale="large"] .resource-card strong { font-size: 15px; }
+
+  .main-grid {
+    min-height: 0;
+    height: 100%;
+    gap: 0;
+  }
+
+  .arena-panel,
+  body[data-ui-scale="compact"] .arena-panel,
+  body[data-ui-scale="large"] .arena-panel {
+    min-height: 0;
+    height: 100%;
+    padding: 8px;
+    border-radius: 12px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(360px, 31vw, 470px);
+    grid-template-rows: auto 104px minmax(0, 1fr) 190px;
+    gap: 8px;
+    overflow: hidden;
+  }
+
+  .arena-panel > .panel-heading {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    min-height: 48px;
+    margin: 0;
+    padding: 6px 8px;
+    gap: 10px;
+  }
+
+  .arena-panel > .panel-heading h2 { font-size: 17px; }
+  .arena-panel > .panel-heading .panel-note { display: none; }
+  .arena-panel > .panel-heading .eyebrow { display: none; }
+  .arena-panel > .panel-heading .button-row { justify-content: flex-end; gap: 5px; }
+  .arena-panel > .panel-heading .primary-btn,
+  .arena-panel > .panel-heading .ghost-btn,
+  body[data-ui-scale="large"] .arena-panel > .panel-heading .primary-btn,
+  body[data-ui-scale="large"] .arena-panel > .panel-heading .ghost-btn {
+    padding: 7px 10px;
+    border-radius: 7px;
+    font-size: 11px;
+  }
+
+  .battle-info-grid {
+    grid-column: 2;
+    grid-row: 2;
+    min-height: 0;
+    margin: 0;
+    gap: 6px;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+  }
+
+  .battle-info-grid .info-box,
+  body[data-ui-scale="compact"] .battle-info-grid .info-box,
+  body[data-ui-scale="large"] .battle-info-grid .info-box {
+    min-width: 0;
+    min-height: 0;
+    overflow: auto;
+    padding: 7px;
+    border-radius: 8px;
+  }
+
+  .battle-info-grid .panel-heading { margin: 0 0 4px; padding: 0 0 3px; }
+  .battle-info-grid .panel-heading .eyebrow { display: none; }
+  .battle-info-grid h3 { font-size: 12px; }
+  .preview-summary { padding: 6px 7px; border-radius: 7px; }
+  .preview-summary strong { margin-bottom: 3px; font-size: 11px; }
+  .preview-summary p { margin-top: 3px; font-size: 9px; line-height: 1.2; }
+  .preview-stat-row { gap: 3px; }
+  .preview-stat-row span { padding: 2px 4px; font-size: 8px; }
+  .preview-chip-list { display: none; }
+  .relic-list { gap: 4px; }
+  .relic-item { padding: 5px; border-radius: 6px; }
+  .relic-item strong { margin: 0; font-size: 9px; }
+  .relic-item span { display: none; }
+
+  .phaser-board-wrapper {
+    grid-column: 1;
+    grid-row: 2 / 4;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    padding: 5px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    container-type: size;
+  }
+
+  .phaser-battlefield {
+    width: min(100%, calc(100cqh * 1.453846));
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 9px;
+    aspect-ratio: 1512 / 1040;
+  }
+
+  .planning-tools-row {
+    grid-column: 1;
+    grid-row: 2 / 4;
+    align-self: end;
+    justify-self: end;
+    z-index: 5;
+    margin: 0 10px 8px 0;
+    pointer-events: none;
+  }
+
+  .planning-tools-row .sell-zone {
+    width: 180px;
+    min-height: 38px;
+    padding: 4px 8px;
+    border-radius: 7px;
+    pointer-events: auto;
+  }
+
+  .planning-tools-row .sell-zone strong { font-size: 10px; }
+  .planning-tools-row .sell-zone span { display: none; }
+
+  .feedback-banner {
+    position: absolute;
+    left: 18px;
+    top: 66px;
+    z-index: 30;
+    max-width: min(620px, 52vw);
+    margin: 0;
+    padding: 7px 10px;
+    font-size: 11px;
+  }
+
+  .combat-recap:not(.hidden) {
+    position: absolute;
+    z-index: 31;
+    left: 24px;
+    bottom: 208px;
+    width: min(620px, 54vw);
+    max-height: 44vh;
+    overflow: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.68);
+  }
+
+  .bench-section { display: none; }
+  .lower-layout,
+  .lower-main-column,
+  .side-column { display: contents; }
+
+  .shop-section,
+  body[data-ui-scale="compact"] .shop-section,
+  body[data-ui-scale="large"] .shop-section {
+    grid-column: 1;
+    grid-row: 4;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    margin: 0;
+    padding: 7px;
+    border-radius: 9px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .shop-section .panel-heading { flex: 0 0 auto; margin: 0 0 5px; padding: 0 0 4px; }
+  .shop-section .panel-heading .eyebrow { display: none; }
+  .shop-section h2 { font-size: 13px; }
+  .shop-controls { gap: 4px; padding: 3px; border-radius: 6px; }
+  .shop-controls .small,
+  body[data-ui-scale="large"] .shop-controls .small { padding: 5px 7px; font-size: 9px; }
+  .shop-gold,
+  .shop-lock-state { min-height: 24px; padding-inline: 6px; font-size: 9px; }
+
+  .shop-list,
+  body[data-ui-scale="compact"] .shop-list,
+  body[data-ui-scale="large"] .shop-list {
+    flex: 1;
+    min-height: 0;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 5px;
+    overflow: hidden;
+  }
+
+  .shop-list .unit-card,
+  body[data-ui-scale="compact"] .shop-list .unit-card,
+  body[data-ui-scale="large"] .shop-list .unit-card {
+    min-width: 0;
+    height: 100%;
+    padding: 6px;
+    gap: 3px;
+    border-radius: 7px;
+    overflow: hidden;
+  }
+
+  .shop-list .unit-name,
+  body[data-ui-scale="large"] .shop-list .unit-name { font-size: 10px; line-height: 1.05; }
+  .shop-list .stars { font-size: 9px; }
+  .shop-list .unit-card-header { align-items: flex-start; gap: 3px; }
+  .shop-list .unit-meta { font-size: 8px; line-height: 1.15; }
+  .shop-list .tag,
+  .shop-list .pill { padding: 2px 4px; font-size: 7px; }
+  .shop-list .ability-line {
+    min-height: 25px;
+    max-height: 25px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  .shop-list .stat-grid { gap: 2px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .shop-list .buy-btn,
+  body[data-ui-scale="large"] .shop-list .buy-btn { margin-top: auto; padding: 4px 6px; font-size: 9px; }
+
+  .side-column .flow-section,
+  body[data-ui-scale="compact"] .side-column .flow-section,
+  body[data-ui-scale="large"] .side-column .flow-section {
+    grid-column: 2;
+    grid-row: 3;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    margin: 0;
+    padding: 7px;
+    border-radius: 9px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .side-column .panel-heading { margin: 0 0 5px; padding: 0 0 4px; }
+  .side-column .panel-heading .eyebrow { display: none; }
+  .side-column h2 { font-size: 13px; }
+  .synergy-list { min-height: 0; overflow: auto; gap: 4px; padding-right: 3px; }
+  .synergy-item,
+  body[data-ui-scale="compact"] .synergy-item,
+  body[data-ui-scale="large"] .synergy-item { padding: 6px 7px; font-size: 10px; border-radius: 6px; }
+  .synergy-title span { font-size: 8px; }
+  .synergy-text { font-size: 8px; line-height: 1.2; }
+  .synergy-progress { height: 4px; }
+  .synergy-count { font-size: 11px; }
+  .synergy-count small { font-size: 7px; }
+
+  .lower-main-column .combat-log-panel,
+  .combat-log-panel {
+    grid-column: 2;
+    grid-row: 4;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    margin: 0;
+    border-radius: 9px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .combat-log-header { flex: 0 0 auto; padding: 6px 8px; }
+  .combat-log-header .eyebrow { display: none; }
+  .combat-log-header h3 { font-size: 12px; }
+  .log-actions { gap: 4px; }
+  .log-actions .small,
+  body[data-ui-scale="large"] .log-actions .small { padding: 4px 6px; font-size: 8px; }
+  .combat-log,
+  body[data-ui-scale="compact"] .combat-log,
+  body[data-ui-scale="large"] .combat-log {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+    padding: 6px 8px;
+    font-size: 10px;
+    line-height: 1.25;
+  }
+  .log-line { grid-template-columns: 58px 1fr; gap: 5px; margin-bottom: 2px; padding: 3px 0; }
+  .log-marker { font-size: 7px; }
+}
+
+@media (min-width: 1000px) and (min-height: 700px) {
+  .arena-panel,
+  body[data-ui-scale="compact"] .arena-panel,
+  body[data-ui-scale="large"] .arena-panel {
+    grid-template-rows: auto minmax(0, 1fr) 190px;
+  }
+
+  .battle-info-grid { display: contents; }
+
+  .battle-info-grid .info-box,
+  body[data-ui-scale="compact"] .battle-info-grid .info-box,
+  body[data-ui-scale="large"] .battle-info-grid .info-box {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: start;
+    z-index: 12;
+    min-height: 0;
+    margin-top: 12px;
+    padding: 8px 10px;
+    overflow: hidden;
+    border-color: rgba(242, 201, 107, 0.32);
+    background:
+      linear-gradient(180deg, rgba(18, 25, 44, 0.9), rgba(7, 11, 21, 0.78)),
+      rgba(5, 8, 16, 0.78);
+    box-shadow: 0 12px 34px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.08);
+    backdrop-filter: blur(8px);
+    pointer-events: none;
+    transition: opacity 160ms ease, transform 160ms ease, visibility 160ms ease;
+  }
+
+  .battle-info-grid .info-box:first-child {
+    justify-self: center;
+    width: clamp(280px, 48%, 440px);
+  }
+
+  .battle-info-grid .info-box:nth-child(2) {
+    justify-self: start;
+    width: clamp(150px, 22%, 210px);
+    max-height: 88px;
+    margin-left: 12px;
+    border-color: rgba(199, 140, 255, 0.28);
+  }
+
+  .battle-info-grid .info-box:first-child .panel-heading {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .battle-info-grid .info-box:first-child .preview-summary { text-align: center; }
+  .battle-info-grid .info-box:first-child .preview-stat-row { justify-content: center; }
+
+  .arena-panel.battle-running .battle-info-grid .info-box:first-child {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+  }
+
+  .phaser-board-wrapper {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .planning-tools-row {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .shop-section,
+  body[data-ui-scale="compact"] .shop-section,
+  body[data-ui-scale="large"] .shop-section {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  .side-column .flow-section,
+  body[data-ui-scale="compact"] .side-column .flow-section,
+  body[data-ui-scale="large"] .side-column .flow-section {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .lower-main-column .combat-log-panel,
+  .combat-log-panel {
+    grid-column: 2;
+    grid-row: 3;
+  }
+
+  .combat-recap:not(.hidden) { bottom: 208px; }
+}
+
+@media (min-width: 1000px) and (min-height: 700px) {
+  .battle-info-grid .info-box.wave-overlay,
+  body[data-ui-scale="compact"] .battle-info-grid .info-box.wave-overlay,
+  body[data-ui-scale="large"] .battle-info-grid .info-box.wave-overlay {
+    align-self: start;
+    width: clamp(390px, 62%, 680px);
+    max-height: calc(100% - 24px);
+    padding: 9px 12px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow: auto;
+    pointer-events: auto;
+  }
+
+  .wave-overlay > .panel-heading { flex: 0 0 auto; }
+  .wave-overlay .enemy-preview { flex: 0 0 auto; }
+
+  .wave-start-row {
+    position: relative;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    margin: 1px -4px;
+  }
+
+  .wave-start-row::before,
+  .wave-start-row::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(242, 201, 107, 0.48));
+  }
+
+  .wave-start-row::after { transform: scaleX(-1); }
+
+  .wave-start-row .primary-btn,
+  body[data-ui-scale="large"] .wave-start-row .primary-btn {
+    min-width: 148px;
+    margin: 0 10px;
+    padding: 7px 16px;
+    font-size: 11px;
+    pointer-events: auto;
+  }
+
+  .wave-overlay .combat-recap.wave-recap:not(.hidden),
+  body[data-ui-scale="compact"] .wave-overlay .combat-recap.wave-recap:not(.hidden),
+  body[data-ui-scale="large"] .wave-overlay .combat-recap.wave-recap:not(.hidden) {
+    position: static;
+    inset: auto;
+    z-index: auto;
+    flex: 0 0 auto;
+    width: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 7px 8px;
+    overflow: visible;
+    border-radius: 7px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+    background: rgba(4, 8, 16, 0.62);
+  }
+
+  .wave-recap .recap-header {
+    min-height: 0;
+    margin-bottom: 5px;
+    padding-bottom: 4px;
+  }
+
+  .wave-recap .recap-header .eyebrow { display: none; }
+  .wave-recap .recap-header h3 { font-size: 10px; line-height: 1.15; }
+  .wave-recap .recap-header .small { padding: 3px 6px; font-size: 8px; }
+
+  .wave-recap .recap-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  .wave-recap .recap-grid div { min-width: 0; padding: 4px 5px; }
+  .wave-recap .recap-grid span { font-size: 7px; }
+  .wave-recap .recap-grid strong {
+    margin-top: 1px;
+    overflow: hidden;
+    font-size: 8px;
+    line-height: 1.15;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .wave-recap .recap-footer {
+    margin-top: 4px;
+    padding-top: 4px;
+    font-size: 8px;
+  }
+
+  .wave-recap .recap-footer p { display: none; }
+
+  .lower-main-column .combat-log-panel,
+  .combat-log-panel {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
+    height: 244px;
+    max-height: 44%;
+  }
+
+  .combat-log,
+  body[data-ui-scale="compact"] .combat-log,
+  body[data-ui-scale="large"] .combat-log {
+    overflow-y: auto;
+  }
+
+  .side-column .flow-section,
+  body[data-ui-scale="compact"] .side-column .flow-section,
+  body[data-ui-scale="large"] .side-column .flow-section {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: stretch;
+    height: auto;
+    margin-top: 252px;
   }
 }

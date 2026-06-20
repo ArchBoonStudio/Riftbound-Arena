@@ -32,7 +32,6 @@
             <p class="panel-note">Active unit cap: 10 deployed units. Every unit shows HP and energy bars in battle.</p>
           </div>
           <div class="button-row">
-            <button id="startBattleBtn" class="primary-btn">Start Battle</button>
             <button id="saveBtn" class="ghost-btn">Save</button>
             <button id="loadBtn" class="ghost-btn">Load</button>
             <button id="archiveBtn" class="ghost-btn">Archive</button>
@@ -41,7 +40,7 @@
           </div>
         </div>
         <div class="battle-info-grid">
-          <section class="info-box">
+          <section class="info-box wave-overlay">
             <div class="panel-heading compact">
               <div>
                 <p class="eyebrow">Next Wave</p>
@@ -49,6 +48,10 @@
               </div>
             </div>
             <div id="enemyPreview" class="enemy-preview"></div>
+            <div class="wave-start-row">
+              <button id="startBattleBtn" class="primary-btn">Start Battle</button>
+            </div>
+            <section id="combatRecap" class="combat-recap wave-recap hidden" aria-live="polite"></section>
           </section>
           <section class="info-box">
             <div class="panel-heading compact">
@@ -70,8 +73,6 @@
           </div>
         </div>
         <div id="feedbackBanner" class="feedback-banner hidden" role="status" aria-live="polite"></div>
-        <section id="combatRecap" class="combat-recap hidden" aria-live="polite"></section>
-
         <section class="flow-section bench-section">
           <div class="panel-heading compact">
             <div>
@@ -153,6 +154,7 @@
           </div>
           <button id="closeSettingsBtn" class="ghost-btn small" type="button">Close</button>
         </div>
+        <p id="settingsStatus" class="settings-status" role="status" aria-live="polite">Changes save automatically on this device.</p>
 
         <div class="settings-grid">
           <section class="settings-group">
@@ -217,7 +219,7 @@
 
           <section class="settings-group">
             <h3>System</h3>
-            <button id="fullscreenBtn" class="ghost-btn small" type="button">Toggle Fullscreen</button>
+            <button id="fullscreenBtn" class="ghost-btn small" type="button" aria-pressed="false">Enter Fullscreen</button>
             <button id="resetSettingsBtn" class="ghost-btn small" type="button">Reset Settings</button>
             <button id="resetSaveBtn" class="ghost-btn small danger" type="button">Reset Save Data</button>
             <p class="settings-note">Riftbound Arena v0.11.9 desktop build, browser prototype v0.9.</p>

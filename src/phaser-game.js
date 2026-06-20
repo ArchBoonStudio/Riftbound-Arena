@@ -440,9 +440,9 @@
         this.gridLayer.add(tile);
       } else if (showOverlay) {
         const tileGuide = this.add.graphics();
-        tileGuide.fillStyle(fill, isEnemy || isPlayer ? 0.012 : 0.004);
+        tileGuide.fillStyle(fill, isEnemy || isPlayer ? 0.1 : 0.035);
         tileGuide.fillRoundedRect(origin.x, origin.y, TILE_W, TILE_H, 10);
-        tileGuide.lineStyle(1, edge, isEnemy || isPlayer ? 0.055 : 0.018);
+        tileGuide.lineStyle(2, edge, isEnemy || isPlayer ? 0.32 : 0.12);
         tileGuide.strokeRoundedRect(origin.x, origin.y, TILE_W, TILE_H, 10);
         this.gridLayer.add(tileGuide);
       }
@@ -824,7 +824,22 @@
 
     startPlaceholderIdle(view, unit) {
       const rarityColor = rarityColors[unit.rarity] || rarityColors.Common;
-      view.aura.setAlpha(0.72);
+      this.tweens.killTweensOf(view.aura);
+      if (view.rarityHalo) this.tweens.killTweensOf(view.rarityHalo);
+      view.aura.setScale(1).setAlpha(0.72);
+      if (view.rarityHalo) view.rarityHalo.setAngle(0);
+
+      const usesRarityHalo = unit.rarity === 'Legendary' || unit.rarity === 'Mythic' || unit.unitClass === 'Boss';
+      if (usesRarityHalo && !view.rarityHalo) {
+        const halo = this.add.circle(0, -8, TOKEN_RADIUS + 20, rarityColor, 0)
+          .setStrokeStyle(2, rarityColor, 0.46);
+        halo.setDepth(-3);
+        view.root.addAt(halo, 1);
+        view.rarityHalo = halo;
+      }
+      if (view.rarityHalo) view.rarityHalo.setVisible(usesRarityHalo);
+      if (phaserSettings.reducedMotion) return;
+
       this.tweens.add({
         targets: view.aura,
         scaleX: 1.12,
@@ -835,20 +850,21 @@
         repeat: -1,
         ease: 'Sine.easeInOut'
       });
-      if (unit.rarity === 'Legendary' || unit.rarity === 'Mythic' || unit.unitClass === 'Boss') {
-        const halo = this.add.circle(0, -8, TOKEN_RADIUS + 20, rarityColor, 0)
-          .setStrokeStyle(2, rarityColor, 0.46);
-        halo.setDepth(-3);
-        view.root.addAt(halo, 1);
-        view.rarityHalo = halo;
+      if (view.rarityHalo && usesRarityHalo) {
         this.tweens.add({
-          targets: halo,
+          targets: view.rarityHalo,
           angle: 360,
           duration: unit.unitClass === 'Boss' ? 2400 : 4200,
           repeat: -1,
           ease: 'Linear'
         });
       }
+    }
+
+    applyMotionPreference() {
+      [...this.unitViews.values(), ...this.benchViews.values()].forEach(view => {
+        if (view?.unit) this.startPlaceholderIdle(view, view.unit);
+      });
     }
 
     redrawPlaceholder(view, unit, rarityColor, classColor, fillColor, alive) {
@@ -2069,11 +2085,13 @@
 
   function setPhaserSettings(nextSettings = {}) {
     const previousGridOverlay = phaserSettings.gridOverlay;
+    const previousReducedMotion = phaserSettings.reducedMotion;
     phaserSettings = { ...phaserSettings, ...nextSettings };
     if (boardScene && previousGridOverlay !== phaserSettings.gridOverlay) {
       boardScene.drawGrid();
     }
     if (boardScene?.latestState) boardScene.refresh(boardScene.latestState);
+    if (boardScene && previousReducedMotion !== phaserSettings.reducedMotion) boardScene.applyMotionPreference();
     if (!phaserSettings.showTooltips) boardScene?.hideTooltip();
   }
 

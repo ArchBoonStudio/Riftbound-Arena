@@ -717,6 +717,7 @@ const settingGridOverlayEl = $('settingGridOverlay');
 const settingReducedMotionEl = $('settingReducedMotion');
 const settingMasterVolumeEl = $('settingMasterVolume');
 const fullscreenBtn = $('fullscreenBtn');
+const settingsStatusEl = $('settingsStatus');
 const resetSettingsBtn = $('resetSettingsBtn');
 const resetSaveBtn = $('resetSaveBtn');
 const unitInspectorEl = $('unitInspector');
@@ -724,6 +725,17 @@ const unitInspectorContentEl = $('unitInspectorContent');
 const closeUnitInspectorBtn = $('closeUnitInspectorBtn');
 
 const IMPORTANT_LOG_TYPES = new Set(['round', 'special', 'warning', 'boss', 'revive', 'death', 'victory', 'defeat']);
+const SETTING_LABELS = {
+  combatLogDetail: 'Combat log detail',
+  confirmUpgradedSales: 'Sale confirmations',
+  showTooltips: 'Unit tooltips',
+  showUnitNames: 'Unit names',
+  showClassLabels: 'Class labels',
+  uiScale: 'Interface size',
+  damageNumbers: 'Combat numbers',
+  gridOverlay: 'Board grid overlay',
+  reducedMotion: 'Reduced motion'
+};
 
 function loadSettings() {
   if (typeof localStorage === 'undefined') return { ...DEFAULT_SETTINGS };
@@ -731,13 +743,16 @@ function loadSettings() {
     const raw = localStorage.getItem(SETTINGS_KEY);
     if (!raw) return { ...DEFAULT_SETTINGS };
     const parsed = JSON.parse(raw);
-    return {
+    const loaded = {
       ...DEFAULT_SETTINGS,
       ...parsed,
       combatLogDetail: parsed.combatLogDetail === 'important' ? 'important' : 'all',
       uiScale: ['compact', 'normal', 'large'].includes(parsed.uiScale) ? parsed.uiScale : DEFAULT_SETTINGS.uiScale,
       masterVolume: Math.max(0, Math.min(100, Number(parsed.masterVolume ?? DEFAULT_SETTINGS.masterVolume)))
     };
+    ['showTooltips', 'showUnitNames', 'showClassLabels', 'damageNumbers', 'reducedMotion', 'confirmUpgradedSales', 'gridOverlay']
+      .forEach(key => { loaded[key] = typeof parsed[key] === 'boolean' ? parsed[key] : DEFAULT_SETTINGS[key]; });
+    return loaded;
   } catch {
     return { ...DEFAULT_SETTINGS };
   }
@@ -762,7 +777,8 @@ function updateSetting(key, value) {
   state.settings = { ...state.settings, [key]: value };
   saveSettings();
   applySettings();
-  render();
+  if (['showTooltips', 'showUnitNames', 'showClassLabels', 'uiScale'].includes(key)) render();
+  if (settingsStatusEl) settingsStatusEl.textContent = `${SETTING_LABELS[key] || 'Setting'} updated and saved.`;
   if (key === 'combatLogDetail') log(`Combat log set to ${value === 'important' ? 'Important Only' : 'Show All'}.`, 'special');
 }
 
@@ -783,6 +799,8 @@ function renderSettingsControls() {
 function openSettingsWindow() {
   if (!settingsWindowEl) return;
   renderSettingsControls();
+  syncFullscreenControl();
+  if (settingsStatusEl) settingsStatusEl.textContent = 'Changes save automatically on this device.';
   settingsWindowEl.classList.remove('hidden');
   closeSettingsBtn?.focus();
 }
@@ -797,6 +815,7 @@ function resetSettings() {
   saveSettings();
   applySettings();
   render();
+  if (settingsStatusEl) settingsStatusEl.textContent = 'Default settings restored and saved.';
   log('Settings reset to defaults.', 'special');
   showFeedback('Settings reset.');
 }
@@ -812,11 +831,22 @@ function resetSaveData() {
   showFeedback('Local save data cleared.');
 }
 
-function toggleFullscreen() {
-  if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen?.().catch(() => warnPlayer('Fullscreen is unavailable in this window.'));
-  } else {
-    document.exitFullscreen?.();
+function syncFullscreenControl() {
+  if (!fullscreenBtn) return;
+  const active = Boolean(document.fullscreenElement);
+  fullscreenBtn.textContent = active ? 'Exit Fullscreen' : 'Enter Fullscreen';
+  fullscreenBtn.setAttribute('aria-pressed', String(active));
+}
+
+async function toggleFullscreen() {
+  try {
+    if (!document.fullscreenElement) await document.documentElement.requestFullscreen?.();
+    else await document.exitFullscreen?.();
+    syncFullscreenControl();
+    if (settingsStatusEl) settingsStatusEl.textContent = document.fullscreenElement ? 'Fullscreen enabled.' : 'Windowed mode enabled.';
+  } catch {
+    warnPlayer('Fullscreen is unavailable in this window.');
+    if (settingsStatusEl) settingsStatusEl.textContent = 'Fullscreen could not be changed in this window.';
   }
 }
 
@@ -1222,6 +1252,7 @@ function restoreUnit(snapshot) {
 }
 
 function render() {
+  battlefieldEl.closest?.('.arena-panel')?.classList.toggle('battle-running', state.mode !== 'planning');
   $('roundText').textContent = state.round === state.secretRound ? 'Secret 21' : `${state.round} / ${state.maxRound}`;
   updateTimerDisplay();
   $('goldText').textContent = state.gold;
@@ -1391,6 +1422,7 @@ function renderShop() {
     const shouldGlow = ownedUnits.length > 0 && !hasThreeStar;
     const card = document.createElement('div');
     card.className = `unit-card rarity-${item.rarity.toLowerCase()} ${shouldGlow ? 'owned-unit' : ''} ${hasThreeStar ? 'maxed-unit' : ''}`;
+    card.title = `${item.name} - ${item.pantheon} / ${item.sourceType} / ${item.class}\n${item.abilityName}: ${item.abilityDescription}\nHP ${item.hp} | DMG ${item.damage} | RNG ${item.range} | SPD ${speedLabel(item.attackSpeed || item.speed)} | ARM ${item.armor || 0} | EN ${item.energyMax}`;
     card.innerHTML = `
       <div class="unit-card-header">
         <div>
@@ -3671,7 +3703,7 @@ function renderCombatRecap() {
     return;
   }
   const won = recap.result === 'Victory';
-  combatRecapEl.className = `combat-recap ${won ? 'victory' : 'defeat'} ${recap.trickster ? 'trickster' : ''}`;
+  combatRecapEl.className = `combat-recap wave-recap ${won ? 'victory' : 'defeat'} ${recap.trickster ? 'trickster' : ''}`;
   combatRecapEl.innerHTML = `
     <div class="recap-header">
       <div>
@@ -4117,6 +4149,7 @@ if (settingDamageNumbersEl) settingDamageNumbersEl.addEventListener('change', ()
 if (settingGridOverlayEl) settingGridOverlayEl.addEventListener('change', () => updateSetting('gridOverlay', settingGridOverlayEl.checked));
 if (settingReducedMotionEl) settingReducedMotionEl.addEventListener('change', () => updateSetting('reducedMotion', settingReducedMotionEl.checked));
 if (fullscreenBtn) fullscreenBtn.addEventListener('click', toggleFullscreen);
+document.addEventListener('fullscreenchange', syncFullscreenControl);
 if (resetSettingsBtn) resetSettingsBtn.addEventListener('click', resetSettings);
 if (resetSaveBtn) resetSaveBtn.addEventListener('click', resetSaveData);
 

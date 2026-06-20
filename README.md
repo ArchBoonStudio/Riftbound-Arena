@@ -86,6 +86,10 @@ Choose one of three random Common champions to start a new run, buy more mythic 
 - Use **Show All / Important Only** to filter the combat log.
 - Use the Champion Codex filters to browse the roster by pantheon.
 
+### Viewport Dashboard
+
+At the supported desktop minimum of 1280 x 800, the game uses a fixed one-screen dashboard instead of a vertically scrolling page. The Phaser arena remains visible on the left and all five shop offers sit beneath it. During planning, one connected overlay places the next-wave preview over the enemy half, the Start Battle button at its center, and the latest combat recap over the neutral rows; the overlay fades away when combat starts. The right rail places a compact, scrollable combat log above the expanding synergy list, keeping recent actions and active bonuses visible without moving the arena off screen. Smaller browser windows continue using the responsive fallback layout.
+
 ## Champion System
 
 The game uses a mythic champion pool built around pantheons, source types, classes, and rarities. The normal shop pool has been reduced so gods and major Arthurian powers are the main collectible champions.
@@ -181,7 +185,7 @@ For production planning, see `UNIT_PRODUCTION_LIST.md` for every playable, enemy
 
 ## Settings
 
-The Settings window stores preferences in localStorage separately from run saves. Current settings include combat log detail, upgraded-unit sale confirmations, unit tooltips, battlefield/bench name labels, class labels, UI size, damage/healing/shield popups, board grid overlay, reduced motion, fullscreen toggle, reset settings, and reset save data. Names and class labels can be hidden independently; pantheon emblems remain on tokens for faction recognition. Audio controls are reserved for a future sound pass.
+The Settings window stores preferences in localStorage separately from run saves and applies changes immediately. Current settings include combat log detail, upgraded-unit sale confirmations, unit tooltips, battlefield/bench name labels, class labels, interface density, damage/healing/shield popups, board grid overlay, reduced motion, fullscreen mode, reset settings, and reset save data. Compact, Normal, and Large now adjust panel spacing, controls, cards, shop columns, synergy rows, and combat-log sizing. Reduced Motion also stops Phaser token aura and rarity-halo animation immediately. Names and class labels can be hidden independently; pantheon emblems remain on tokens for faction recognition. Audio controls remain visibly disabled until the sound pass is implemented.
 
 ## Sprite Folders
 

@@ -71,7 +71,7 @@ const COMBAT_TICK_MS = 420;
 const OVERTIME_TICK_MS = Math.max(90, Math.round(COMBAT_TICK_MS / 4));
 const HEALER_MIN_MISSING_HP_PCT = 0.1;
 const NORMAL_ENEMY_SCALE_PER_ROUND = 0.13;
-const BOSS_ENEMY_SCALE_PER_ROUND = 0.08;
+const BOSS_ENEMY_SCALE_PER_ROUND = 0.1;
 const FIRST_TRICKSTER_SCALE = 0.78;
 const FIRST_TRICKSTER_DEFEAT_DAMAGE_CAP = 8;
 const OWNED_UPGRADE_SHOP_WEIGHT = 1.75;
@@ -154,6 +154,51 @@ const CLASS_BASE = {
   Bruiser: { hp: 165, damage: 25, attackSpeed: 980, range: 1, armor: 5, ability: 'cleave', abilityName: 'Titan Breaker', abilityDescription: 'Hits the target and adjacent enemies.' }
 };
 
+const SIGNATURE_ABILITY_PROFILES = {
+  Zeus: { ability: 'sig-storm-chain', name: 'Thunderbolt Dominion', description: 'Blasts the target and chains lightning through two additional enemies.' },
+  Hera: { ability: 'sig-queen-aegis', name: 'Queenly Aegis', description: 'Shields herself and the two most wounded allies with a royal ward.' },
+  Poseidon: { ability: 'sig-seaquake', name: 'Seaquake', description: 'Crashes through clustered enemies and delays their next actions.' },
+  Hades: { ability: 'sig-soul-drain', name: 'Underworld Bloom', description: 'Drains life from nearby enemies and restores himself from the damage dealt.' },
+  Odin: { ability: 'sig-rune-doom', name: 'Runes of Doom', description: 'Marks three enemies with damaging runes that weaken their attacks.' },
+  Thor: { ability: 'sig-thunder-crash', name: 'Mjolnir Crash', description: 'Smashes the target area with lightning and briefly disrupts every enemy struck.' },
+  Freyja: { ability: 'sig-falcon-dive', name: 'Falcon Dive', description: 'Dives onto the weakest valuable backliner and gains a protective battle ward.' },
+  Freyr: { ability: 'sig-golden-harvest', name: 'Golden Harvest', description: 'Restores the three most wounded allies and hastens their next actions.' },
+  Ra: { ability: 'sig-solar-flare', name: 'Solar Flare', description: 'Scorches every enemy and leaves the primary target burning.' },
+  Osiris: { ability: 'sig-osirian-return', name: 'Osirian Return', description: 'Revives the first fallen ally; otherwise delivers a powerful restorative judgment.' },
+  Isis: { ability: 'sig-winged-sanctuary', name: 'Winged Sanctuary', description: 'Shields all allies and heals the most wounded beneath her wings.' },
+  Horus: { ability: 'sig-sky-hunt', name: 'Eye of the Sky Hunt', description: 'Fires three hunting strikes into the weakest enemy, executing wounded prey.' },
+  'The Dagda': { ability: 'sig-cauldron-feast', name: 'Cauldron of Plenty', description: 'Heals the entire warband and grants himself a vast cauldron ward.' },
+  'The Morrigan': { ability: 'sig-fate-war', name: 'Fate of War', description: 'Strikes three weakened enemies with corrupting battle prophecy.' },
+  Brigid: { ability: 'sig-sacred-flame', name: 'Sacred Flame', description: 'Heals two wounded allies while holy fire burns her enemy.' },
+  Lugh: { ability: 'sig-many-skilled', name: 'Many-Skilled Volley', description: 'Launches a radiant strike at up to three different enemies.' },
+  'Arthur Pendragon': { ability: 'sig-excalibur-oath', name: 'Excalibur Oath', description: 'Strikes with Excalibur and raises an oath shield across the whole formation.' },
+  Merlin: { ability: 'sig-time-rift', name: 'Time-Rift Invocation', description: 'Detonates a temporal rift that damages and delays clustered enemies.' },
+  'Morgan le Fay': { ability: 'sig-thorned-hex', name: 'Thorned Avalon Hex', description: 'Curses clustered enemies with damage and lingering corruption.' },
+  'Nimue / Viviane': { ability: 'sig-lake-renewal', name: 'Renewal of the Lake', description: 'Restores the weakest ally and shields the three most wounded allies.' }
+};
+
+const PANTHEON_DIVINE_NAMES = {
+  Hellenic: { Guardian: 'Olympian Ward', Ranger: 'Laurel Volley', Mage: 'Olympian Burst', Healer: 'Ambrosial Grace', Assassin: 'Fated Ambush', Bruiser: 'Titanic Rebuke' },
+  Norse: { Guardian: 'Rune Ward', Ranger: 'Storm Volley', Mage: 'Rune Tempest', Healer: 'Golden Apple Grace', Assassin: 'Raven Ambush', Bruiser: 'Saga Breaker' },
+  Egyptian: { Guardian: 'Sun-Disk Ward', Ranger: 'Solar Volley', Mage: 'Sun Temple Burst', Healer: 'Restoration Rite', Assassin: 'Judgment Strike', Bruiser: 'Desert Breaker' },
+  Celtic: { Guardian: 'Grove Ward', Ranger: 'Wild Hunt Volley', Mage: 'Ogham Burst', Healer: 'Sacred Well Grace', Assassin: 'Thorn Ambush', Bruiser: 'Wildwood Breaker' },
+  Arthurian: { Guardian: 'Oath Ward', Ranger: 'Round Table Volley', Mage: 'Avalon Burst', Healer: 'Grail Grace', Assassin: 'Betrayer Strike', Bruiser: 'Pendragon Cleave' }
+};
+
+function divineAbilityProfile(pantheon, unitClass) {
+  const name = PANTHEON_DIVINE_NAMES[pantheon]?.[unitClass];
+  if (!name) return null;
+  const descriptions = {
+    Guardian: 'Shields the caster and a wounded ally, then invokes a pantheon blessing.',
+    Ranger: 'Fires two empowered shots and invokes a pantheon blessing.',
+    Mage: 'Damages enemies around the target and invokes a pantheon blessing.',
+    Healer: 'Restores two wounded allies and invokes a pantheon blessing.',
+    Assassin: 'Strikes a vulnerable enemy and invokes a pantheon blessing.',
+    Bruiser: 'Cleaves clustered enemies and invokes a pantheon blessing.'
+  };
+  return { ability: `divine-${unitClass.toLowerCase()}`, name, description: descriptions[unitClass] };
+}
+
 const DEFAULT_CLASS_BY_SOURCE = {
   Empyrean: 'Mage',
   Heroic: 'Bruiser',
@@ -184,6 +229,10 @@ function championSlug(name) {
 function makeChampion(config) {
   const rarity = config.rarity || 'Uncommon';
   const base = CLASS_BASE[config.class] || CLASS_BASE[DEFAULT_CLASS_BY_SOURCE[config.sourceType]] || CLASS_BASE.Bruiser;
+  const signatureAbility = SIGNATURE_ABILITY_PROFILES[config.name];
+  const divineAbility = config.sourceType === 'Empyrean' && !signatureAbility
+    ? divineAbilityProfile(config.pantheon, config.class)
+    : null;
   const rarityStats = RARITY_CONFIG[rarity] || RARITY_CONFIG.Uncommon;
   const attackSpeed = config.attackSpeed || Math.max(520, Math.round(base.attackSpeed * rarityStats.speed));
   const tags = [...new Set([config.pantheon, config.sourceType, config.class, rarity, ...(config.tags || [])])];
@@ -211,10 +260,10 @@ function makeChampion(config) {
     range: config.range || base.range,
     armor: config.armor ?? Math.round(base.armor * rarityStats.stat),
     energyMax: config.energyMax || 100,
-    ability: config.ability || base.ability,
-    abilityName: config.abilityName || base.abilityName,
-    abilityDescription: config.abilityDescription || base.abilityDescription,
-    abilityText: config.abilityDescription || base.abilityDescription,
+    ability: signatureAbility?.ability || config.ability || divineAbility?.ability || base.ability,
+    abilityName: signatureAbility?.name || config.abilityName || divineAbility?.name || base.abilityName,
+    abilityDescription: signatureAbility?.description || config.abilityDescription || divineAbility?.description || base.abilityDescription,
+    abilityText: signatureAbility?.description || config.abilityDescription || divineAbility?.description || base.abilityDescription,
     tags,
     status,
     enemyOnly: status === 'Enemy Only',
@@ -474,9 +523,9 @@ const ENEMY_LAYOUTS = {
   14: [9, 7, 5, 6, 8],
   15: [13],
   16: [8, 7, 6, 5, 2, 1, 4],
-  17: [7, 5, 5, 4, 4, 3, 2],
+  17: [7, 5, 5, 4, 3, 2],
   18: [7, 5, 8, 6, 2, 3],
-  19: [9, 8, 7, 6, 4, 3, 2],
+  19: [9, 8, 7, 6],
   20: [14],
   21: [17, 10, 11, 12, 13, 14, 15, 16]
 };
@@ -568,7 +617,17 @@ const RELICS = [
   { id: 'fae-briar', name: 'Fae Briar', text: 'Fae and Celtic units gain dodge chance.', synergyKeys: ['Fae', 'Celtic'] },
   { id: 'black-grail', name: 'Black Grail', text: 'Wyrdbound units apply stronger corruption.', synergyKeys: ['Wyrdbound'] },
   { id: 'sun-forged-spear', name: 'Sun-Forged Spear', text: 'Rangers gain attack speed and bonus damage.', synergyKeys: ['Ranger'] },
-  { id: 'wyrd-iron-crown', name: 'Wyrd-Iron Crown', text: 'Bruisers gain max HP and armor.', synergyKeys: ['Bruiser'] }
+  { id: 'wyrd-iron-crown', name: 'Wyrd-Iron Crown', text: 'Bruisers gain max HP and armor.', synergyKeys: ['Bruiser'] },
+  { id: 'olympian-laurel', name: 'Olympian Laurel', text: 'Hellenic and Empyrean units begin with energy and gain ability power.', synergyKeys: ['Hellenic', 'Empyrean'] },
+  { id: 'raven-war-banner', name: 'Raven War Banner', text: 'Norse, Heroic, and Assassin units gain critical strike power.', synergyKeys: ['Norse', 'Heroic', 'Assassin'] },
+  { id: 'scarab-heart', name: 'Scarab Heart', text: 'Egyptian and Guardian units gain max HP and a battle-start shield.', synergyKeys: ['Egyptian', 'Guardian'] },
+  { id: 'cauldron-ember', name: 'Cauldron Ember', text: 'Celtic and Healer units periodically restore a small amount of health.', synergyKeys: ['Celtic', 'Healer'] },
+  { id: 'excalibur-scabbard', name: 'Excalibur Scabbard', text: 'Arthurian units deal more damage while shielded and gain armor.', synergyKeys: ['Arthurian'] },
+  { id: 'pilgrim-lantern', name: "Pilgrim's Lantern", text: 'Worshipers gain max HP and begin battle with energy.', synergyKeys: ['Worshiper'] },
+  { id: 'moonthread-quiver', name: 'Moonthread Quiver', text: 'Ranger and Fae units gain attack speed and dodge chance.', synergyKeys: ['Ranger', 'Fae'] },
+  { id: 'scale-of-judgment', name: 'Scale of Judgment', text: 'Sacred units and Healers create stronger healing shields.', synergyKeys: ['Sacred', 'Healer'] },
+  { id: 'spirit-war-drum', name: 'Spirit War Drum', text: 'Spirit units generate energy faster and share a little energy with allies.', synergyKeys: ['Spirit'] },
+  { id: 'bloodied-torque', name: 'Bloodied Torque', text: 'Bruisers and Assassins gain damage as their health falls.', synergyKeys: ['Bruiser', 'Assassin'] }
 ];
 
 const state = {
@@ -2387,7 +2446,9 @@ function spawnLayoutEnemies(round) {
     const base = ENEMY_LIBRARY[idx];
     const isMegaBossRound = round === state.secretRound;
     const isBossUnit = base.unitClass === 'Boss' || base.class === 'Boss';
-    const normalScale = 1 + (Math.min(round, state.maxRound) - 1) * NORMAL_ENEMY_SCALE_PER_ROUND;
+    const normalScale = round === 14
+      ? 2.52
+      : 1 + (Math.min(round, state.maxRound) - 1) * NORMAL_ENEMY_SCALE_PER_ROUND;
     const bossScale = isMegaBossRound ? 1 : 1 + (Math.min(round, state.maxRound) - 1) * BOSS_ENEMY_SCALE_PER_ROUND;
     const scale = isBossUnit ? bossScale : normalScale;
     const unit = makeUnit({
@@ -2397,6 +2458,7 @@ function spawnLayoutEnemies(round) {
       class: isBossUnit ? 'Boss' : base.class,
       unitClass: isBossUnit ? 'Boss' : base.unitClass
     }, 'enemy');
+    if (isBossUnit) applyBossCombatPackage(unit, round, isMegaBossRound);
     unit.x = ENEMY_SLOTS[i]?.[0] ?? 3;
     unit.y = ENEMY_SLOTS[i]?.[1] ?? 0;
     return unit;
@@ -2441,6 +2503,8 @@ function spawnTricksterEnemies(round) {
 
 function tricksterScaleForRound(round) {
   if (round === TRICKSTER_ROUNDS[0]) return FIRST_TRICKSTER_SCALE;
+  if (round === 13) return 1.32;
+  if (round === 18) return 1.45;
   return 0.75 + Math.min(round, state.maxRound) * 0.05;
 }
 
@@ -2643,7 +2707,68 @@ function applyRelicBonuses(player) {
       unit.hp += bonus;
       unit.armor += 4;
     }
+    if (hasRelic('olympian-laurel') && (unit.pantheon === 'Hellenic' || unit.sourceType === 'Empyrean')) {
+      unit.abilityDamageMult += 0.12;
+      unit.mana = Math.min(unit.energyMax || 100, (unit.mana || 0) + 15);
+    }
+    if (hasRelic('raven-war-banner') && (unit.pantheon === 'Norse' || unit.sourceType === 'Heroic' || unit.unitClass === 'Assassin')) {
+      unit.critChance += 0.08;
+      unit.critDamageMult += 0.18;
+    }
+    if (hasRelic('scarab-heart') && (unit.pantheon === 'Egyptian' || unit.unitClass === 'Guardian')) {
+      const bonus = Math.round(unit.maxHp * 0.1);
+      unit.maxHp += bonus;
+      unit.hp += bonus;
+      unit.shield += Math.round(unit.maxHp * 0.06);
+    }
+    if (hasRelic('cauldron-ember') && (unit.pantheon === 'Celtic' || unit.unitClass === 'Healer')) unit.wildRegen = Math.max(unit.wildRegen, 3);
+    if (hasRelic('excalibur-scabbard') && unit.pantheon === 'Arthurian') {
+      unit.armor += 5;
+      unit.shieldedDamageMult += 0.12;
+    }
+    if (hasRelic('pilgrim-lantern') && unit.sourceType === 'Worshiper') {
+      const bonus = Math.round(unit.maxHp * 0.14);
+      unit.maxHp += bonus;
+      unit.hp += bonus;
+      unit.mana = Math.min(unit.energyMax || 100, (unit.mana || 0) + 20);
+    }
+    if (hasRelic('moonthread-quiver') && (unit.unitClass === 'Ranger' || unit.sourceType === 'Fae')) {
+      unit.speed = Math.round(unit.speed * 0.92);
+      unit.dodgeChance += 0.05;
+    }
+    if (hasRelic('scale-of-judgment') && (unit.sourceType === 'Sacred' || unit.unitClass === 'Healer')) {
+      unit.healMult += 0.12;
+      unit.healShieldOnHealed = Math.max(unit.healShieldOnHealed, 0.12);
+    }
+    if (hasRelic('spirit-war-drum') && unit.sourceType === 'Spirit') {
+      unit.manaGainMult += 0.16;
+      unit.spiritTeamEnergy = true;
+    }
+    if (hasRelic('bloodied-torque') && (unit.unitClass === 'Bruiser' || unit.unitClass === 'Assassin')) {
+      unit.bruiserMissingHpDamageMult = Math.max(unit.bruiserMissingHpDamageMult, 0.2);
+    }
   });
+}
+
+function applyBossCombatPackage(unit, round, isMegaBossRound) {
+  if (isMegaBossRound) {
+    unit.maxHp = Math.round(unit.maxHp * 0.9);
+    unit.hp = unit.maxHp;
+    unit.damage = Math.round(unit.damage * 0.9);
+    return;
+  }
+  if (round === 20) {
+    unit.manaGainMult = 1.05;
+    unit.energyMax = 95;
+    unit.speed = Math.max(480, Math.round(unit.speed * 0.96));
+    return;
+  }
+  const lateBoss = round >= 15;
+  unit.damageReduction = lateBoss ? 0.18 : 0.12;
+  unit.manaGainMult = lateBoss ? 1.25 : 1.15;
+  unit.energyMax = lateBoss ? 78 : 85;
+  unit.speed = Math.max(480, Math.round(unit.speed * (lateBoss ? 0.85 : 0.9)));
+  unit.shield = Math.round(unit.maxHp * (lateBoss ? 0.1 : 0.05));
 }
 
 function combatTick() {
@@ -2726,11 +2851,40 @@ function chooseTarget(unit) {
   const enemies = state.combatUnits.filter(u => u.side !== unit.side && u.alive);
   if (!enemies.length) return null;
   if (unit.unitClass === 'Assassin') {
-    const ranged = enemies.filter(u => u.range >= 2);
-    if (ranged.length) return ranged.sort((a, b) => a.hp - b.hp)[0];
+    const classValue = { Healer: 120, Mage: 105, Ranger: 90, Assassin: 55, Bruiser: 20, Guardian: 0, Boss: 80 };
+    return enemies.slice().sort((a, b) => {
+      const score = enemy => (classValue[enemy.unitClass] || 0) + (1 - enemy.hp / enemy.maxHp) * 70
+        + (enemy.range >= 2 ? 35 : 0) - distance(unit, enemy) * 3;
+      return score(b) - score(a);
+    })[0];
   }
-  enemies.sort((a, b) => distance(unit, a) - distance(unit, b));
-  return enemies[0];
+  if (unit.unitClass === 'Mage') {
+    return enemies.slice().sort((a, b) => {
+      const score = enemy => enemies.filter(other => distance(other, enemy) <= 1).length * 45
+        + (1 - enemy.hp / enemy.maxHp) * 35 - distance(unit, enemy) * 4;
+      return score(b) - score(a);
+    })[0];
+  }
+  if (unit.unitClass === 'Ranger') {
+    return enemies.slice().sort((a, b) => {
+      const score = enemy => (1 - enemy.hp / enemy.maxHp) * 90 + (distance(unit, enemy) <= unit.range ? 45 : 0)
+        + (enemy.unitClass === 'Assassin' || enemy.unitClass === 'Mage' ? 20 : 0) - distance(unit, enemy) * 5;
+      return score(b) - score(a);
+    })[0];
+  }
+  if (unit.unitClass === 'Guardian') {
+    const allies = state.combatUnits.filter(other => other.side === unit.side && other.alive && other.id !== unit.id);
+    const protectedAlly = allies.filter(ally => ['Healer', 'Mage', 'Ranger'].includes(ally.unitClass))
+      .sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp))[0]
+      || allies.sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp))[0];
+    if (protectedAlly) {
+      return enemies.slice().sort((a, b) => {
+        const threat = enemy => distance(enemy, protectedAlly) * 5 + distance(unit, enemy);
+        return threat(a) - threat(b);
+      })[0];
+    }
+  }
+  return enemies.slice().sort((a, b) => distance(unit, a) - distance(unit, b))[0];
 }
 
 function applyOpeningAssassinJumps() {
@@ -2901,6 +3055,166 @@ function chooseHealTarget(caster) {
     .sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp))[0] || null;
 }
 
+function abilityEnemies(caster) { return state.combatUnits.filter(unit => unit.side !== caster.side && unit.alive); }
+function abilityAllies(caster) { return state.combatUnits.filter(unit => unit.side === caster.side && unit.alive); }
+function lowestHealthUnits(units, count) {
+  return units.slice().sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp)).slice(0, count);
+}
+function playCastEffect(caster, target, effectType = caster.ability) {
+  if (window.playAbilityEffect) window.playAbilityEffect(caster.id, caster.abilityName, target?.id || caster.id, effectType);
+}
+function shieldUnit(source, target, amount, label = source.name) {
+  const shieldGain = Math.max(1, Math.round(amount * source.shieldMult));
+  target.shield += shieldGain;
+  recordShielding(source, shieldGain);
+  if (window.playShieldPopup) window.playShieldPopup(target.id, `+${shieldGain}`);
+  else popDamage(target, `+${shieldGain}`);
+  log(`${label} grants ${target.name} ${shieldGain} shield.`, 'shield');
+}
+
+function applyPantheonAbilityRider(caster, target) {
+  if (caster.pantheon === 'Hellenic') caster.mana = Math.min(caster.energyMax || 100, (caster.mana || 0) + 8);
+  else if (caster.pantheon === 'Norse' && target?.alive) applyDamage(target, caster.damage * 0.28 * caster.abilityDamageMult, { attacker: caster, canDodge: false });
+  else if (caster.pantheon === 'Egyptian') shieldUnit(caster, caster, caster.maxHp * 0.05, 'Egyptian judgment');
+  else if (caster.pantheon === 'Celtic' && caster.hp < caster.maxHp) healUnit(caster, caster.maxHp * 0.06 * caster.healMult, 'Celtic wild magic', true, caster);
+  else if (caster.pantheon === 'Arthurian') {
+    const ally = lowestHealthUnits(abilityAllies(caster), 1)[0] || caster;
+    shieldUnit(caster, ally, ally.maxHp * 0.05, 'Arthurian oath');
+  }
+}
+
+function castDivineAbility(caster, target) {
+  if (!caster.ability.startsWith('divine-')) return false;
+  playCastEffect(caster, target);
+  const kind = caster.ability.slice(7);
+  const enemies = abilityEnemies(caster);
+  const allies = abilityAllies(caster);
+  if (kind === 'guardian') {
+    shieldUnit(caster, caster, 60 + caster.star * 16);
+    const ally = lowestHealthUnits(allies.filter(unit => unit.id !== caster.id), 1)[0];
+    if (ally) shieldUnit(caster, ally, 38 + caster.star * 10);
+  } else if (kind === 'ranger') {
+    applyDamage(target, caster.damage * 1.05 * caster.abilityDamageMult, { attacker: caster, canDodge: true });
+    if (target.alive) applyDamage(target, caster.damage * 1.05 * caster.abilityDamageMult, { attacker: caster, canDodge: true });
+  } else if (kind === 'mage') {
+    enemies.filter(enemy => distance(enemy, target) <= 1).forEach(enemy => applyDamage(enemy, caster.damage * 1.7 * caster.abilityDamageMult, { attacker: caster, canDodge: false }));
+  } else if (kind === 'healer') {
+    const wounded = lowestHealthUnits(allies.filter(ally => ally.hp < ally.maxHp), 2);
+    if (wounded.length) wounded.forEach(ally => healUnit(ally, (46 + caster.star * 11) * caster.healMult, caster.name, false, caster));
+    else applyDamage(target, caster.damage * 1.25 * caster.abilityDamageMult, { attacker: caster, canDodge: true });
+  } else if (kind === 'assassin') applyDamage(target, caster.damage * 2.7 * caster.abilityDamageMult, { attacker: caster, canDodge: true });
+  else if (kind === 'bruiser') enemies.filter(enemy => distance(enemy, target) <= 1).forEach(enemy => applyDamage(enemy, caster.damage * 1.35 * caster.abilityDamageMult, { attacker: caster, canDodge: true }));
+  applyPantheonAbilityRider(caster, target);
+  return true;
+}
+
+function reviveAlly(caster, ally, hpPct) {
+  if (occupied(ally.x, ally.y, ally.id)) {
+    const openCell = Array.from({ length: 48 }, (_, index) => ({ x: index % 8, y: Math.floor(index / 8) }))
+      .filter(cell => !occupied(cell.x, cell.y, ally.id)).sort((a, b) => distance(a, caster) - distance(b, caster))[0];
+    if (openCell) { ally.x = openCell.x; ally.y = openCell.y; }
+  }
+  ally.alive = true;
+  ally.hp = Math.max(1, Math.round(ally.maxHp * hpPct));
+  ally.shield = 0;
+  ally.statuses = [];
+  ally.attackTimer = Math.max(300, ally.speed * 0.5);
+  recordHealing(caster, ally.hp);
+  popDamage(ally, 'Revive');
+  log(`${caster.name} returns ${ally.name} to battle with ${ally.hp} HP.`, 'revive');
+}
+
+function castSignatureAbility(caster, target) {
+  if (!caster.ability.startsWith('sig-')) return false;
+  playCastEffect(caster, target);
+  const enemies = abilityEnemies(caster);
+  const allies = abilityAllies(caster);
+  switch (caster.ability) {
+    case 'sig-storm-chain':
+      [target, ...enemies.filter(enemy => enemy.id !== target.id).sort((a, b) => distance(a, target) - distance(b, target)).slice(0, 2)]
+        .forEach((enemy, index) => applyDamage(enemy, caster.damage * (index ? 1.05 : 1.8) * caster.abilityDamageMult, { attacker: caster, canDodge: false }));
+      break;
+    case 'sig-queen-aegis':
+      [caster, ...lowestHealthUnits(allies.filter(ally => ally.id !== caster.id), 2)].forEach(ally => shieldUnit(caster, ally, 72 + caster.star * 18, 'Queenly Aegis'));
+      break;
+    case 'sig-seaquake':
+    case 'sig-thunder-crash':
+    case 'sig-time-rift':
+      enemies.filter(enemy => distance(enemy, target) <= 1).forEach(enemy => {
+        const mult = caster.ability === 'sig-seaquake' ? 1.55 : caster.ability === 'sig-thunder-crash' ? 1.65 : 1.5;
+        applyDamage(enemy, caster.damage * mult * caster.abilityDamageMult, { attacker: caster, canDodge: false });
+        enemy.attackTimer += caster.ability === 'sig-time-rift' ? 850 : 680;
+      });
+      break;
+    case 'sig-soul-drain': {
+      let drained = 0;
+      enemies.filter(enemy => distance(enemy, target) <= 1).forEach(enemy => { drained += applyDamage(enemy, caster.damage * 1.45 * caster.abilityDamageMult, { attacker: caster, canDodge: false }); });
+      if (drained > 0) healUnit(caster, drained * 0.42, caster.name, false, caster);
+      break;
+    }
+    case 'sig-rune-doom':
+      lowestHealthUnits(enemies, 3).forEach(enemy => { applyDamage(enemy, caster.damage * 1.15 * caster.abilityDamageMult, { attacker: caster, canDodge: false }); enemy.weakened = true; });
+      break;
+    case 'sig-falcon-dive': {
+      const prey = chooseTarget(caster) || target;
+      applyDamage(prey, caster.damage * 2.8 * caster.abilityDamageMult, { attacker: caster, canDodge: true });
+      shieldUnit(caster, caster, caster.maxHp * 0.16, 'Valkyrie ward');
+      break;
+    }
+    case 'sig-golden-harvest':
+      lowestHealthUnits(allies.filter(ally => ally.hp < ally.maxHp), 3).forEach(ally => { healUnit(ally, (42 + caster.star * 10) * caster.healMult, caster.name, false, caster); ally.attackTimer = Math.max(0, ally.attackTimer - 420); });
+      break;
+    case 'sig-solar-flare':
+      enemies.forEach(enemy => applyDamage(enemy, caster.damage * 0.9 * caster.abilityDamageMult, { attacker: caster, canDodge: false }));
+      if (target.alive) applyBurn(target, Math.max(6, Math.round(caster.damage * 0.28)), 3, caster.name);
+      break;
+    case 'sig-osirian-return': {
+      const fallen = state.combatUnits.filter(unit => unit.side === caster.side && !unit.alive).sort((a, b) => b.maxHp - a.maxHp)[0];
+      if (fallen) reviveAlly(caster, fallen, 0.32);
+      else healUnit(lowestHealthUnits(allies, 1)[0] || caster, (82 + caster.star * 18) * caster.healMult, caster.name, false, caster);
+      break;
+    }
+    case 'sig-winged-sanctuary':
+      allies.forEach(ally => shieldUnit(caster, ally, ally.maxHp * 0.08, 'Winged Sanctuary'));
+      healUnit(lowestHealthUnits(allies, 1)[0] || caster, (68 + caster.star * 14) * caster.healMult, caster.name, false, caster);
+      break;
+    case 'sig-sky-hunt': {
+      const prey = lowestHealthUnits(enemies, 1)[0] || target;
+      for (let shot = 0; shot < 3 && prey.alive; shot += 1) applyDamage(prey, caster.damage * 0.82 * (prey.hp / prey.maxHp < 0.35 ? 1.25 : 1) * caster.abilityDamageMult, { attacker: caster, canDodge: shot === 0 });
+      break;
+    }
+    case 'sig-cauldron-feast':
+      allies.forEach(ally => healUnit(ally, (30 + caster.star * 8) * caster.healMult, caster.name, true, caster));
+      shieldUnit(caster, caster, caster.maxHp * 0.24, 'Cauldron of Plenty');
+      break;
+    case 'sig-fate-war':
+      lowestHealthUnits(enemies, 3).forEach(enemy => { applyDamage(enemy, caster.damage * 1.2 * caster.abilityDamageMult, { attacker: caster, canDodge: false }); if (enemy.alive) applyCorruption(enemy, Math.max(5, Math.round(caster.damage * 0.16)), 2, caster.name); });
+      break;
+    case 'sig-sacred-flame':
+      lowestHealthUnits(allies.filter(ally => ally.hp < ally.maxHp), 2).forEach(ally => healUnit(ally, (54 + caster.star * 12) * caster.healMult, caster.name, false, caster));
+      if (target.alive) applyBurn(target, Math.max(7, Math.round(caster.damage * 0.32)), 3, caster.name);
+      break;
+    case 'sig-many-skilled':
+      lowestHealthUnits(enemies, 3).forEach(enemy => applyDamage(enemy, caster.damage * 1.15 * caster.abilityDamageMult, { attacker: caster, canDodge: true }));
+      break;
+    case 'sig-excalibur-oath':
+      applyDamage(target, caster.damage * 1.9 * caster.abilityDamageMult, { attacker: caster, canDodge: false });
+      allies.forEach(ally => shieldUnit(caster, ally, ally.maxHp * 0.07, 'Excalibur Oath'));
+      break;
+    case 'sig-thorned-hex':
+      enemies.filter(enemy => distance(enemy, target) <= 1).forEach(enemy => { applyDamage(enemy, caster.damage * 1.35 * caster.abilityDamageMult, { attacker: caster, canDodge: false }); if (enemy.alive) applyCorruption(enemy, Math.max(6, Math.round(caster.damage * 0.2)), 3, caster.name); });
+      break;
+    case 'sig-lake-renewal': {
+      const wounded = lowestHealthUnits(allies, 3);
+      healUnit(wounded[0] || caster, (80 + caster.star * 16) * caster.healMult, caster.name, false, caster);
+      wounded.forEach(ally => shieldUnit(caster, ally, ally.maxHp * 0.09, 'Renewal of the Lake'));
+      break;
+    }
+    default: return false;
+  }
+  return true;
+}
+
 function castAbility(caster, target) {
   if (!caster.alive || !target?.alive) return;
   log(`${caster.name} uses ${caster.abilityName}.`, 'special');
@@ -2908,7 +3222,9 @@ function castAbility(caster, target) {
   if (caster.side === 'enemy' && unitClassName(caster) === 'Boss' && window.playBossAbilityWarning) {
     window.playBossAbilityWarning(caster.id, caster.abilityName, target.id, caster.ability);
   }
-  switch (caster.ability) {
+  if (castSignatureAbility(caster, target) || castDivineAbility(caster, target)) {
+    // Custom abilities share the normal post-cast energy handling below.
+  } else switch (caster.ability) {
     case 'shield': {
       if (window.playAbilityEffect) window.playAbilityEffect(caster.id, caster.abilityName, caster.id, caster.ability);
       const shieldGain = Math.round((56 + caster.star * 14) * caster.abilityDamageMult * caster.shieldMult);

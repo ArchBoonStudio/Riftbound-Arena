@@ -174,7 +174,17 @@ function simRelicChoice(choices) {
     'Fae Briar': (pantheon === 'Celtic' ? 10 : 0),
     'Black Grail': owned.filter(unit => unit.sourceType === 'Wyrdbound').length * 5,
     'Sun-Forged Spear': (classes.Ranger || 0) * 5,
-    'Wyrd-Iron Crown': (classes.Bruiser || 0) * 5
+    'Wyrd-Iron Crown': (classes.Bruiser || 0) * 5,
+    'Olympian Laurel': (pantheon === 'Hellenic' ? 10 : 0) + owned.filter(unit => unit.sourceType === 'Empyrean').length,
+    'Raven War Banner': (pantheon === 'Norse' ? 10 : 0) + (classes.Assassin || 0) * 3,
+    'Scarab Heart': (pantheon === 'Egyptian' ? 10 : 0) + (classes.Guardian || 0) * 3,
+    'Cauldron Ember': (pantheon === 'Celtic' ? 10 : 0) + (classes.Healer || 0) * 3,
+    'Excalibur Scabbard': pantheon === 'Arthurian' ? 12 : 0,
+    "Pilgrim's Lantern": owned.filter(unit => unit.sourceType === 'Worshiper').length * 4,
+    'Moonthread Quiver': (classes.Ranger || 0) * 4 + owned.filter(unit => unit.sourceType === 'Fae').length * 3,
+    'Scale of Judgment': (classes.Healer || 0) * 4 + owned.filter(unit => unit.sourceType === 'Sacred').length * 3,
+    'Spirit War Drum': owned.filter(unit => unit.sourceType === 'Spirit').length * 5,
+    'Bloodied Torque': (classes.Bruiser || 0) * 3 + (classes.Assassin || 0) * 3
   };
   return choices.slice().sort((a, b) => (scores[b.label] || 0) - (scores[a.label] || 0))[0] || choices[0];
 }

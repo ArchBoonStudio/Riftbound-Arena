@@ -92,6 +92,8 @@ The game uses a mythic champion pool built around pantheons, source types, class
 
 Champion fields include name, pantheon, source type, class, rarity, cost, HP, damage, attack speed, range, armor, energy maximum, ability, and tags.
 
+The first four major powers listed for each pantheon are signature champions with fully distinct combat abilities. Other Empyrean champions use upgraded class abilities shaped by their pantheon, while Common Worshipers intentionally retain the simpler starter ability kit. This keeps headline gods mechanically memorable without making early units overly complicated.
+
 The shop only pulls `Playable` units. Major Empyrean gods and Arthurian powers remain playable, while most older heroic, sacred, spirit, fae, and bloodline filler units are now `Locked` for future unlocks or production planning. Wyrdbound monsters and horrors are mostly `Enemy Only` or `Boss Only`.
 
 Each pantheon also has two Common `Worshiper` units. These weaker early units help players start pantheon synergies before finding gods, but they are not meant to outshine higher-rarity champions.
@@ -161,9 +163,11 @@ After normal victories, the game awards gold. Boss victories at rounds 5, 10, 15
 - Run HP healing
 - New relics
 
-Sacred Arsenal offers reserve one choice for a synergy currently active on the deployed board. The other choice remains random. If no matching unclaimed relic is available, both choices safely fall back to the normal random pool. Bench units do not influence the matched item.
+The Sacred Arsenal contains 18 relics. Offers reserve one choice for a synergy currently active on the deployed board, while the other choice remains random. If no matching unclaimed relic is available, both choices safely fall back to the normal random pool. Bench units do not influence the matched item.
 
 Relics are persistent for the run and apply battle bonuses such as stronger shields, better healing, ability power, dodge, corruption, haste, or extra bruiser durability.
+
+Combat targeting is role-aware. Assassins prioritize healers and valuable backliners, Rangers finish vulnerable targets, Mages seek clustered enemies, and Guardians move toward threats pressuring fragile allies. All units continue using eight-direction pathfinding around occupied cells.
 
 ## Trickster Mirrors
 

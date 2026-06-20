@@ -232,9 +232,9 @@ There are three synergy layers:
 Pantheon synergies:
 
 - Hellenic 2/4/6: ability power, faster energy tempo, then energy after casting.
-- Norse 2/4/6: attack damage, armor, then attack speed while wounded.
-- Egyptian 2/4/6: stronger healing and shielding, battle-start shields, then first Egyptian revive.
-- Celtic 2/4/6: dodge, periodic healing, then energy when dodging.
+- Norse 2/4/6: measured attack damage, armor, then attack speed while wounded.
+- Egyptian 2/4/6: stronger healing and shielding, shield-driven energy and damage, then judgment damage plus the first Egyptian revive.
+- Celtic 2/4/6: dodge, periodic healing and energy tempo, then Wild Hunt damage, haste, and energy when dodging.
 - Arthurian 2/4/6: armor, oath shields, then bonus damage while shielded.
 
 Class synergies:

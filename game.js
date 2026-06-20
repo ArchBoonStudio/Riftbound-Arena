@@ -550,15 +550,15 @@ const SYNERGIES = [
   { key: 'Hellenic', category: 'Pantheon', threshold: 2, text: 'Hellenic units gain +10% ability power.' },
   { key: 'Hellenic', category: 'Pantheon', threshold: 4, text: 'Hellenic units gain +20% ability power and generate energy slightly faster.' },
   { key: 'Hellenic', category: 'Pantheon', threshold: 6, text: 'Hellenic units gain a small burst of energy after casting.' },
-  { key: 'Norse', category: 'Pantheon', threshold: 2, text: 'Norse units gain +10% attack damage.' },
-  { key: 'Norse', category: 'Pantheon', threshold: 4, text: 'Norse units gain +15% attack damage and +10 armor.' },
+  { key: 'Norse', category: 'Pantheon', threshold: 2, text: 'Norse units gain +8% attack damage.' },
+  { key: 'Norse', category: 'Pantheon', threshold: 4, text: 'Norse units gain +12% attack damage and +8 armor.' },
   { key: 'Norse', category: 'Pantheon', threshold: 6, text: 'Norse units attack faster while below 50% HP.' },
-  { key: 'Egyptian', category: 'Pantheon', threshold: 2, text: 'Egyptian healing and shielding effects are increased by 10%.' },
-  { key: 'Egyptian', category: 'Pantheon', threshold: 4, text: 'Egyptian units gain a small battle-start shield.' },
-  { key: 'Egyptian', category: 'Pantheon', threshold: 6, text: 'The first Egyptian unit to fall each battle revives once with partial HP.' },
-  { key: 'Celtic', category: 'Pantheon', threshold: 2, text: 'Celtic units gain +8% dodge chance.' },
-  { key: 'Celtic', category: 'Pantheon', threshold: 4, text: 'Celtic units gain dodge and small periodic healing.' },
-  { key: 'Celtic', category: 'Pantheon', threshold: 6, text: 'Celtic units gain energy when they dodge.' },
+  { key: 'Egyptian', category: 'Pantheon', threshold: 2, text: 'Egyptian healing and shielding effects are increased by 15%.' },
+  { key: 'Egyptian', category: 'Pantheon', threshold: 4, text: 'Egyptian units gain a battle-start shield, faster energy, and bonus damage while shielded.' },
+  { key: 'Egyptian', category: 'Pantheon', threshold: 6, text: 'Egyptian units gain judgment damage; the first to fall revives with partial HP and renewed energy.' },
+  { key: 'Celtic', category: 'Pantheon', threshold: 2, text: 'Celtic units gain +10% dodge chance.' },
+  { key: 'Celtic', category: 'Pantheon', threshold: 4, text: 'Celtic units gain dodge, periodic healing, and faster energy.' },
+  { key: 'Celtic', category: 'Pantheon', threshold: 6, text: 'Celtic units gain Wild Hunt damage, haste, and a large burst of energy when they dodge.' },
   { key: 'Arthurian', category: 'Pantheon', threshold: 2, text: 'Arthurian units gain +10 armor.' },
   { key: 'Arthurian', category: 'Pantheon', threshold: 4, text: 'Arthurian units gain a battle-start oath shield.' },
   { key: 'Arthurian', category: 'Pantheon', threshold: 6, text: 'Arthurian units deal bonus damage while shielded.' },
@@ -612,16 +612,16 @@ const DEFAULT_SETTINGS = {
 const RELICS = [
   { id: 'aegis-shard', name: 'Aegis Shard', text: 'Guardians, Arthurian units, and Worshipers start battle with a stronger shield.', synergyKeys: ['Guardian', 'Arthurian', 'Worshiper'] },
   { id: 'thunder-seed', name: 'Thunder Seed', text: 'Mages, Empyrean, Hellenic, and Spirit units gain ability power and energy tempo.', synergyKeys: ['Mage', 'Empyrean', 'Hellenic', 'Spirit'] },
-  { id: 'valkyrie-horn', name: 'Valkyrie Horn', text: 'Heroic, Norse, and Assassin units gain attack damage.', synergyKeys: ['Heroic', 'Norse', 'Assassin'] },
+  { id: 'valkyrie-horn', name: 'Valkyrie Horn', text: 'Heroic, Norse, and Assassin units gain modest attack damage.', synergyKeys: ['Heroic', 'Norse', 'Assassin'] },
   { id: 'ankh-of-return', name: 'Ankh of Return', text: 'Healers, Egyptian units, and Sacred units gain healing and shielding power.', synergyKeys: ['Healer', 'Egyptian', 'Sacred'] },
-  { id: 'fae-briar', name: 'Fae Briar', text: 'Fae and Celtic units gain dodge chance.', synergyKeys: ['Fae', 'Celtic'] },
+  { id: 'fae-briar', name: 'Fae Briar', text: 'Fae and Celtic units gain dodge chance and energy when they evade.', synergyKeys: ['Fae', 'Celtic'] },
   { id: 'black-grail', name: 'Black Grail', text: 'Wyrdbound units apply stronger corruption.', synergyKeys: ['Wyrdbound'] },
   { id: 'sun-forged-spear', name: 'Sun-Forged Spear', text: 'Rangers gain attack speed and bonus damage.', synergyKeys: ['Ranger'] },
   { id: 'wyrd-iron-crown', name: 'Wyrd-Iron Crown', text: 'Bruisers gain max HP and armor.', synergyKeys: ['Bruiser'] },
   { id: 'olympian-laurel', name: 'Olympian Laurel', text: 'Hellenic and Empyrean units begin with energy and gain ability power.', synergyKeys: ['Hellenic', 'Empyrean'] },
-  { id: 'raven-war-banner', name: 'Raven War Banner', text: 'Norse, Heroic, and Assassin units gain critical strike power.', synergyKeys: ['Norse', 'Heroic', 'Assassin'] },
-  { id: 'scarab-heart', name: 'Scarab Heart', text: 'Egyptian and Guardian units gain max HP and a battle-start shield.', synergyKeys: ['Egyptian', 'Guardian'] },
-  { id: 'cauldron-ember', name: 'Cauldron Ember', text: 'Celtic and Healer units periodically restore a small amount of health.', synergyKeys: ['Celtic', 'Healer'] },
+  { id: 'raven-war-banner', name: 'Raven War Banner', text: 'Norse, Heroic, and Assassin units gain modest critical strike power.', synergyKeys: ['Norse', 'Heroic', 'Assassin'] },
+  { id: 'scarab-heart', name: 'Scarab Heart', text: 'Egyptian and Guardian units gain max HP and a battle-start shield; Egyptian units deal more damage while shielded.', synergyKeys: ['Egyptian', 'Guardian'] },
+  { id: 'cauldron-ember', name: 'Cauldron Ember', text: 'Celtic and Healer units periodically restore health; Celtic units also gain haste.', synergyKeys: ['Celtic', 'Healer'] },
   { id: 'excalibur-scabbard', name: 'Excalibur Scabbard', text: 'Arthurian units deal more damage while shielded and gain armor.', synergyKeys: ['Arthurian'] },
   { id: 'pilgrim-lantern', name: "Pilgrim's Lantern", text: 'Worshipers gain max HP and begin battle with energy.', synergyKeys: ['Worshiper'] },
   { id: 'moonthread-quiver', name: 'Moonthread Quiver', text: 'Ranger and Fae units gain attack speed and dodge chance.', synergyKeys: ['Ranger', 'Fae'] },
@@ -2647,31 +2647,43 @@ function applySynergyBonuses(units) {
   const norseTier = tier('Norse');
   player.filter(u => u.pantheon === 'Norse').forEach(u => {
     if (norseTier >= 4) {
-      u.damageMultiplier += 0.15;
-      u.armor += 10;
+      u.damageMultiplier += 0.12;
+      u.armor += 8;
     } else if (norseTier >= 2) {
-      u.damageMultiplier += 0.1;
+      u.damageMultiplier += 0.08;
     }
-    if (norseTier >= 6) u.lowHpSpeedMult = 0.75;
+    if (norseTier >= 6) u.lowHpSpeedMult = 0.82;
   });
 
   const egyptianTier = tier('Egyptian');
   player.filter(u => u.pantheon === 'Egyptian').forEach(u => {
     if (egyptianTier >= 2) {
-      u.healMult += 0.1;
-      u.shieldMult += 0.1;
+      u.healMult += 0.15;
+      u.shieldMult += 0.15;
     }
-    if (egyptianTier >= 4) addShield(u, 0.08);
-    if (egyptianTier >= 6) u.canDeathResist = true;
+    if (egyptianTier >= 4) {
+      addShield(u, 0.1);
+      u.manaGainMult += 0.1;
+      u.shieldedDamageMult += 0.14;
+    }
+    if (egyptianTier >= 6) {
+      u.canDeathResist = true;
+      u.damageMultiplier += 0.08;
+    }
   });
 
   const celticTier = tier('Celtic');
   player.filter(u => u.pantheon === 'Celtic').forEach(u => {
-    if (celticTier >= 2) u.dodgeChance += celticTier >= 4 ? 0.1 : 0.08;
-    if (celticTier >= 4) u.wildRegen = 4;
-    if (celticTier >= 6) {
+    if (celticTier >= 2) u.dodgeChance += celticTier >= 4 ? 0.12 : 0.1;
+    if (celticTier >= 4) {
       u.wildRegen = 5;
-      u.dodgeEnergyGain = Math.max(u.dodgeEnergyGain, 10);
+      u.manaGainMult += 0.1;
+    }
+    if (celticTier >= 6) {
+      u.wildRegen = 6;
+      u.speed = Math.round(u.speed * 0.92);
+      u.dodgeEnergyGain = Math.max(u.dodgeEnergyGain, 14);
+      u.damageMultiplier += 0.1;
     }
   });
 
@@ -2792,7 +2804,7 @@ function applyRelicBonuses(player) {
       if (unit.sourceType === 'Spirit') unit.manaGainMult += 0.08;
     }
     if (hasRelic('valkyrie-horn') && (unit.sourceType === 'Heroic' || unit.pantheon === 'Norse' || unit.unitClass === 'Assassin')) {
-      unit.damageMultiplier += 0.18;
+      unit.damageMultiplier += 0.12;
     }
     if (hasRelic('ankh-of-return') && (unit.unitClass === 'Healer' || unit.pantheon === 'Egyptian' || unit.sourceType === 'Sacred')) {
       unit.healMult += 0.25;
@@ -2800,6 +2812,7 @@ function applyRelicBonuses(player) {
     }
     if (hasRelic('fae-briar') && (unit.sourceType === 'Fae' || unit.pantheon === 'Celtic')) {
       unit.dodgeChance += 0.1;
+      unit.dodgeEnergyGain = Math.max(unit.dodgeEnergyGain, 7);
     }
     if (hasRelic('black-grail') && unit.sourceType === 'Wyrdbound') {
       unit.corruptOnHit = true;
@@ -2820,16 +2833,20 @@ function applyRelicBonuses(player) {
       unit.mana = Math.min(unit.energyMax || 100, (unit.mana || 0) + 15);
     }
     if (hasRelic('raven-war-banner') && (unit.pantheon === 'Norse' || unit.sourceType === 'Heroic' || unit.unitClass === 'Assassin')) {
-      unit.critChance += 0.08;
-      unit.critDamageMult += 0.18;
+      unit.critChance += 0.06;
+      unit.critDamageMult += 0.12;
     }
     if (hasRelic('scarab-heart') && (unit.pantheon === 'Egyptian' || unit.unitClass === 'Guardian')) {
       const bonus = Math.round(unit.maxHp * 0.1);
       unit.maxHp += bonus;
       unit.hp += bonus;
       unit.shield += Math.round(unit.maxHp * 0.06);
+      if (unit.pantheon === 'Egyptian') unit.shieldedDamageMult += 0.12;
     }
-    if (hasRelic('cauldron-ember') && (unit.pantheon === 'Celtic' || unit.unitClass === 'Healer')) unit.wildRegen = Math.max(unit.wildRegen, 3);
+    if (hasRelic('cauldron-ember') && (unit.pantheon === 'Celtic' || unit.unitClass === 'Healer')) {
+      unit.wildRegen = Math.max(unit.wildRegen, 4);
+      if (unit.pantheon === 'Celtic') unit.speed = Math.round(unit.speed * 0.94);
+    }
     if (hasRelic('excalibur-scabbard') && unit.pantheon === 'Arthurian') {
       unit.armor += 5;
       unit.shieldedDamageMult += 0.12;
@@ -3183,8 +3200,8 @@ function shieldUnit(source, target, amount, label = source.name) {
 function applyPantheonAbilityRider(caster, target) {
   if (caster.pantheon === 'Hellenic') caster.mana = Math.min(caster.energyMax || 100, (caster.mana || 0) + 8);
   else if (caster.pantheon === 'Norse' && target?.alive) applyDamage(target, caster.damage * 0.28 * caster.abilityDamageMult, { attacker: caster, canDodge: false });
-  else if (caster.pantheon === 'Egyptian') shieldUnit(caster, caster, caster.maxHp * 0.05, 'Egyptian judgment');
-  else if (caster.pantheon === 'Celtic' && caster.hp < caster.maxHp) healUnit(caster, caster.maxHp * 0.06 * caster.healMult, 'Celtic wild magic', true, caster);
+  else if (caster.pantheon === 'Egyptian') shieldUnit(caster, caster, caster.maxHp * 0.07, 'Egyptian judgment');
+  else if (caster.pantheon === 'Celtic' && caster.hp < caster.maxHp) healUnit(caster, caster.maxHp * 0.08 * caster.healMult, 'Celtic wild magic', true, caster);
   else if (caster.pantheon === 'Arthurian') {
     const ally = lowestHealthUnits(abilityAllies(caster), 1)[0] || caster;
     shieldUnit(caster, ally, ally.maxHp * 0.05, 'Arthurian oath');
@@ -3446,6 +3463,7 @@ function handleDeath(target) {
     target.hasRevived = true;
     target.canDeathResist = false;
     target.hp = Math.max(1, Math.round(target.maxHp * 0.25));
+    target.mana = Math.min(target.energyMax || 100, (target.mana || 0) + 35);
     target.shield = 0;
     target.statuses = [];
     target.alive = true;

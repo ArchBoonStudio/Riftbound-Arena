@@ -1422,6 +1422,9 @@ function renderShop() {
     const shouldGlow = ownedUnits.length > 0 && !hasThreeStar;
     const card = document.createElement('div');
     card.className = `unit-card rarity-${item.rarity.toLowerCase()} ${shouldGlow ? 'owned-unit' : ''} ${hasThreeStar ? 'maxed-unit' : ''}`;
+    card.tabIndex = 0;
+    card.setAttribute('role', 'button');
+    card.setAttribute('aria-label', `Buy ${item.name} for ${item.cost} gold`);
     card.title = `${item.name} - ${item.pantheon} / ${item.sourceType} / ${item.class}\n${item.abilityName}: ${item.abilityDescription}\nHP ${item.hp} | DMG ${item.damage} | RNG ${item.range} | SPD ${speedLabel(item.attackSpeed || item.speed)} | ARM ${item.armor || 0} | EN ${item.energyMax}`;
     card.innerHTML = `
       <div class="unit-card-header">
@@ -1442,9 +1445,15 @@ function renderShop() {
         <span class="pill">EN ${item.energyMax}</span>
         <span class="pill">${hasThreeStar ? 'Maxed' : `Owned ${owned}/3`}</span>
       </div>
-      <button class="primary-btn small buy-btn">Buy</button>
+      <span class="primary-btn small buy-btn" aria-hidden="true">Buy</span>
     `;
-    card.querySelector('button').addEventListener('click', () => buyUnit(item));
+    const buyFromCard = () => buyUnit(item);
+    card.addEventListener('click', buyFromCard);
+    card.addEventListener('keydown', event => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      buyFromCard();
+    });
     shopEl.appendChild(card);
   });
 }

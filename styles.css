@@ -2351,6 +2351,43 @@ h3 {
 }
 
 @media (min-width: 1000px) and (min-height: 700px) {
+  .arena-panel,
+  body[data-ui-scale="compact"] .arena-panel,
+  body[data-ui-scale="large"] .arena-panel {
+    grid-template-columns: minmax(0, 1fr) clamp(390px, 25vw, 440px);
+    grid-template-rows: auto minmax(0, 1fr) 150px;
+  }
+
+  .phaser-board-wrapper {
+    padding-inline: 2px;
+  }
+
+  .shop-list .unit-card,
+  body[data-ui-scale="compact"] .shop-list .unit-card,
+  body[data-ui-scale="large"] .shop-list .unit-card {
+    cursor: pointer;
+  }
+
+  .shop-list .unit-card:hover,
+  .shop-list .unit-card:focus-visible {
+    border-color: rgba(242, 201, 107, 0.72);
+    box-shadow: 0 0 0 2px rgba(242, 201, 107, 0.12), 0 8px 22px rgba(0,0,0,0.34);
+    outline: none;
+  }
+
+  .shop-list .stat-grid {
+    display: flex;
+    min-height: 16px;
+  }
+
+  .shop-list .stat-grid .pill:not(.cost-pill) { display: none; }
+
+  .shop-list .buy-btn,
+  body[data-ui-scale="large"] .shop-list .buy-btn {
+    min-height: 22px;
+    flex: 0 0 auto;
+  }
+
   .battle-info-grid .info-box.wave-overlay,
   body[data-ui-scale="compact"] .battle-info-grid .info-box.wave-overlay,
   body[data-ui-scale="large"] .battle-info-grid .info-box.wave-overlay {
@@ -2472,4 +2509,28 @@ h3 {
     height: auto;
     margin-top: 252px;
   }
+
+  .side-column .synergy-list {
+    flex: 1 1 auto;
+  }
+
+  .synergy-relic-footer {
+    flex: 0 0 auto;
+    margin: 6px -7px -7px;
+    padding: 7px;
+    border-top: 1px solid rgba(199, 140, 255, 0.25);
+    background: linear-gradient(180deg, rgba(199, 140, 255, 0.045), rgba(0,0,0,0.16));
+  }
+
+  .synergy-relic-footer .panel-heading {
+    margin: 0 0 4px;
+    padding: 0;
+  }
+
+  .synergy-relic-footer .panel-heading .eyebrow { display: none; }
+  .synergy-relic-footer h3 { font-size: 11px; }
+  .synergy-relic-footer .relic-list { max-height: 66px; overflow-y: auto; }
+  .synergy-relic-footer .relic-item { padding: 4px 6px; }
+  .synergy-relic-footer .relic-item strong { font-size: 9px; }
+  .synergy-relic-footer .empty-note { padding: 3px 0; font-size: 9px; }
 }

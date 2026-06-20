@@ -660,6 +660,8 @@ const state = {
   relics: [],
   starterChosen: false,
   selectedUnitId: null,
+  inspectedUnitId: null,
+  inspectedUnitPortrait: '',
   draggedUnitId: null,
   inspectedSynergyKey: '',
   selectedSynergyKey: '',
@@ -706,6 +708,9 @@ const settingMasterVolumeEl = $('settingMasterVolume');
 const fullscreenBtn = $('fullscreenBtn');
 const resetSettingsBtn = $('resetSettingsBtn');
 const resetSaveBtn = $('resetSaveBtn');
+const unitInspectorEl = $('unitInspector');
+const unitInspectorContentEl = $('unitInspectorContent');
+const closeUnitInspectorBtn = $('closeUnitInspectorBtn');
 
 const IMPORTANT_LOG_TYPES = new Set(['round', 'special', 'warning', 'boss', 'revive', 'death', 'victory', 'defeat']);
 
@@ -822,6 +827,8 @@ function init() {
   state.relics = [];
   state.starterChosen = false;
   state.selectedUnitId = null;
+  state.inspectedUnitId = null;
+  state.inspectedUnitPortrait = '';
   state.draggedUnitId = null;
   state.inspectedSynergyKey = '';
   state.selectedSynergyKey = '';
@@ -1229,7 +1236,104 @@ function render() {
   renderCombatRecap();
   renderRelics();
   renderCodex();
+  renderUnitInspector();
   applyCurrentSynergyHighlight();
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+function findInspectableUnit(unitId) {
+  if (!unitId) return null;
+  if (state.mode === 'battle') {
+    const combatUnit = state.combatUnits.find(unit => unit?.id === unitId);
+    if (combatUnit) return combatUnit;
+  }
+  return findOwnedUnit(unitId) || state.combatUnits.find(unit => unit?.id === unitId) || null;
+}
+
+function renderUnitInspector() {
+  if (!unitInspectorEl || !unitInspectorContentEl) return;
+  const unit = findInspectableUnit(state.inspectedUnitId);
+  if (!unit) {
+    unitInspectorEl.classList.add('hidden');
+    return;
+  }
+
+  const hp = Math.max(0, Math.round(unit.hp || 0));
+  const maxHp = Math.max(1, Math.round(unit.maxHp || 1));
+  const energy = Math.max(0, Math.round(unit.mana || 0));
+  const energyMax = Math.max(1, Math.round(unit.energyMax || 100));
+  const hpPct = Math.max(0, Math.min(100, (hp / maxHp) * 100));
+  const energyPct = Math.max(0, Math.min(100, (energy / energyMax) * 100));
+  const portrait = state.inspectedUnitPortrait || '';
+  const statuses = (unit.statuses || []).map(status => status.type).filter(Boolean);
+  if ((unit.shield || 0) > 0) statuses.unshift(`Shield ${Math.round(unit.shield)}`);
+  if (unit.alive === false) statuses.unshift('Defeated');
+  const stars = '★'.repeat(Math.max(1, unit.star || 1));
+  const attackRate = unit.speed ? `${(1000 / unit.speed).toFixed(2)}/s` : '—';
+  const sellLine = unit.side === 'player' && state.mode === 'planning'
+    ? `<span class="unit-inspector-sell">Sell value ${sellValueFor(unit)}g</span>`
+    : '';
+
+  unitInspectorEl.dataset.rarity = String(unit.rarity || 'Common').toLowerCase();
+  unitInspectorContentEl.innerHTML = `
+    <div class="unit-inspector-portrait ${portrait ? 'has-art' : 'fallback'}">
+      ${portrait ? `<img src="${portrait}" alt="${escapeHtml(unit.name)} portrait" />` : `<span>${escapeHtml(unit.icon || '◆')}</span>`}
+      <div class="unit-inspector-stars" aria-label="${unit.star || 1} stars">${stars}</div>
+      <div class="unit-inspector-rarity">${escapeHtml(unit.rarity || 'Common')}</div>
+    </div>
+    <div class="unit-inspector-tags">
+      <span>${escapeHtml(unit.pantheon || 'Unknown')}</span>
+      <span>${escapeHtml(unit.sourceType || 'Unknown')}</span>
+      <span>${escapeHtml(unit.unitClass || unit.class || 'Unit')}</span>
+    </div>
+    <div class="unit-inspector-title-row">
+      <div>
+        <p>${unit.side === 'enemy' ? 'Enemy Combatant' : 'Champion Dossier'}</p>
+        <h2 id="unitInspectorName">${escapeHtml(unit.name)}</h2>
+      </div>
+      <strong>${Math.max(0, unit.cost || 0)}g</strong>
+    </div>
+    <div class="unit-inspector-vitals">
+      <div class="unit-inspector-bar hp"><i style="width:${hpPct}%"></i><b>HP ${hp} / ${maxHp}</b></div>
+      <div class="unit-inspector-bar energy"><i style="width:${energyPct}%"></i><b>Energy ${energy} / ${energyMax}</b></div>
+    </div>
+    <div class="unit-inspector-stats">
+      <div><span>Damage</span><strong>${Math.round(unit.damage || 0)}</strong></div>
+      <div><span>Armor</span><strong>${Math.round(unit.armor || 0)}</strong></div>
+      <div><span>Range</span><strong>${unit.range || 1}</strong></div>
+      <div><span>Attack Rate</span><strong>${attackRate}</strong></div>
+    </div>
+    <section class="unit-inspector-ability">
+      <div class="ability-glyph">✦</div>
+      <div><span>Ability</span><h3>${escapeHtml(unit.abilityName || 'Strike')}</h3><p>${escapeHtml(unit.abilityText || unit.abilityDescription || 'Basic attack pattern.')}</p></div>
+    </section>
+    <div class="unit-inspector-footer">
+      <span>${statuses.length ? escapeHtml(statuses.join(' · ')) : 'No active effects'}</span>
+      ${sellLine}
+    </div>
+  `;
+  unitInspectorEl.classList.remove('hidden');
+}
+
+function inspectUnit(unitId, portraitPath = '') {
+  if (!findInspectableUnit(unitId)) return;
+  state.inspectedUnitId = unitId;
+  state.inspectedUnitPortrait = portraitPath;
+  renderUnitInspector();
+}
+
+function closeUnitInspector() {
+  state.inspectedUnitId = null;
+  state.inspectedUnitPortrait = '';
+  unitInspectorEl?.classList.add('hidden');
 }
 
 function renderBattlefield() {
@@ -1735,6 +1839,10 @@ function renderUnitToken(unit, draggable = false) {
   const selected = unit.id === state.selectedUnitId;
   token.className = `unit-token rarity-${String(unit.rarity || 'Common').toLowerCase()} ${unit.side === 'enemy' ? 'enemy' : ''} ${unit.alive === false ? 'dead' : ''} ${selected ? 'selected' : ''}`;
   token.dataset.unitId = unit.id;
+  token.addEventListener('click', (event) => {
+    event.stopPropagation();
+    inspectUnit(unit.id);
+  });
   if (state.settings.showTooltips) {
     token.title = `${unit.name} ${starLabel(unit.star)}\n${unit.pantheon} • ${unit.sourceType} • ${unit.unitClass} • ${unit.rarity}\nHP ${Math.max(0, Math.round(unit.hp))}/${unit.maxHp} | Energy ${Math.round(unit.mana || 0)}/${unit.energyMax} | DMG ${unit.damage} | RNG ${unit.range} | SPD ${speedLabel(unit.speed)} | ARM ${unit.armor}\n${unit.abilityName}: ${unit.abilityText}${unit.side === 'player' && state.mode === 'planning' ? '\nDrag to deploy. Double-click to sell.' : ''}`;
   }
@@ -1838,9 +1946,9 @@ function handlePhaserCellClick(x, y) {
   showFeedback('Drag units onto blue Phaser deployment cells, or click a deployed unit then a destination cell.');
 }
 
-function handlePhaserUnitClick(unitId) {
-  if (state.mode !== 'planning') return;
-  if (isOnBoard(unitId)) selectPlacementUnit(unitId);
+function handlePhaserUnitClick(unitId, _x, _y, portraitPath = '') {
+  inspectUnit(unitId, portraitPath);
+  if (state.mode === 'planning' && isOnBoard(unitId)) selectPlacementUnit(unitId);
 }
 
 function handlePhaserBoardUnitDragStart(unitId) {
@@ -3850,6 +3958,8 @@ function loadRun() {
   state.combatUnits = [];
   state.battleFlags = {};
   state.selectedUnitId = null;
+  state.inspectedUnitId = null;
+  state.inspectedUnitPortrait = '';
   state.draggedUnitId = null;
   state.inspectedSynergyKey = '';
   state.selectedSynergyKey = '';
@@ -3940,6 +4050,7 @@ if (archiveBtn) archiveBtn.addEventListener('click', openCodexWindow);
 if (closeCodexBtn) closeCodexBtn.addEventListener('click', closeCodexWindow);
 if (settingsBtn) settingsBtn.addEventListener('click', openSettingsWindow);
 if (closeSettingsBtn) closeSettingsBtn.addEventListener('click', closeSettingsWindow);
+if (closeUnitInspectorBtn) closeUnitInspectorBtn.addEventListener('click', closeUnitInspector);
 if (codexWindowEl) {
   codexWindowEl.addEventListener('click', (event) => {
     if (event.target === codexWindowEl) closeCodexWindow();
@@ -3953,6 +4064,7 @@ if (settingsWindowEl) {
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && codexWindowEl && !codexWindowEl.classList.contains('hidden')) closeCodexWindow();
   if (event.key === 'Escape' && settingsWindowEl && !settingsWindowEl.classList.contains('hidden')) closeSettingsWindow();
+  if (event.key === 'Escape' && unitInspectorEl && !unitInspectorEl.classList.contains('hidden')) closeUnitInspector();
 });
 $('resetBtn').addEventListener('click', init);
 $('rerollBtn').addEventListener('click', () => rollShop(false));

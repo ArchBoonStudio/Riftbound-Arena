@@ -218,6 +218,11 @@
       </div>
     </div>
 
+    <aside id="unitInspector" class="unit-inspector hidden" role="dialog" aria-modal="false" aria-labelledby="unitInspectorName">
+      <button id="closeUnitInspectorBtn" class="unit-inspector-close" type="button" aria-label="Close unit details">&times;</button>
+      <div id="unitInspectorContent"></div>
+    </aside>
+
     <div id="modal" class="modal hidden">
       <div class="modal-card">
         <h2 id="modalTitle">Victory</h2>
@@ -229,11 +234,11 @@
   </div>
 
   <script src="lib/phaser.min.js"></script>
-  <script src="src/phaser-game.js?v=boss-presentation-1"></script>
+  <script src="src/phaser-game.js?v=unit-inspector-1"></script>
   <script src="src/data.js"></script>
   <script src="src/state.js"></script>
   <script src="src/combat.js"></script>
   <script src="src/ui.js"></script>
-  <script src="game.js?v=settings-1"></script>
+  <script src="game.js?v=unit-inspector-1"></script>
 </body>
 </html>

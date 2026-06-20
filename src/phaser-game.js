@@ -753,7 +753,10 @@
       view.hitZone = this.add.zone(center.x, center.y, hitW, hitH)
         .setOrigin(0.5)
         .setInteractive({ useHandCursor: true });
-      view.hitZone.on('pointerdown', () => callbacks.onUnitClick?.(unit.id, unit.x, unit.y));
+      view.hitZone.on('pointerup', () => {
+        if (view.dragging) return;
+        callbacks.onUnitClick?.(view.unit?.id, view.unit?.x, view.unit?.y, spriteInfoFor(view.unit)?.path || '', view.area);
+      });
       view.hitZone.on('pointerover', () => {
         view.hovered = true;
         this.updateHoverSelection(view);

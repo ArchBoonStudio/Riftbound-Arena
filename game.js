@@ -723,6 +723,10 @@ const resetSaveBtn = $('resetSaveBtn');
 const unitInspectorEl = $('unitInspector');
 const unitInspectorContentEl = $('unitInspectorContent');
 const closeUnitInspectorBtn = $('closeUnitInspectorBtn');
+const welcomeScreenEl = $('welcomeScreen');
+const welcomeNewRunBtn = $('welcomeNewRunBtn');
+const welcomeContinueBtn = $('welcomeContinueBtn');
+const appShellEl = document.querySelector('.app-shell');
 
 const IMPORTANT_LOG_TYPES = new Set(['round', 'special', 'warning', 'boss', 'revive', 'death', 'victory', 'defeat']);
 const SETTING_LABELS = {
@@ -850,7 +854,7 @@ async function toggleFullscreen() {
   }
 }
 
-function init() {
+function init(options = {}) {
   state.round = 1;
   state.gold = 10;
   state.playerHp = 20;
@@ -888,7 +892,41 @@ function init() {
   log('Tip: 3 copies of the same 1★ unit combine into a 2★ unit. 3 copies of a 2★ unit combine into a 3★ unit.', 'special');
   log('Preview each enemy wave, build pantheon/source synergies, and save your run during planning.', 'special');
   render();
-  showStarterChoices();
+  if (!options.deferStarterChoice) showStarterChoices();
+}
+
+function validSavedRunExists() {
+  if (typeof localStorage === 'undefined') return false;
+  const raw = localStorage.getItem(SAVE_KEY);
+  if (!raw) return false;
+  try {
+    const payload = JSON.parse(raw);
+    return Boolean(payload && typeof payload === 'object');
+  } catch {
+    return false;
+  }
+}
+
+function setWelcomeVisible(visible) {
+  if (!welcomeScreenEl) return;
+  welcomeScreenEl.classList.toggle('hidden', !visible);
+  document.body.classList.toggle('welcome-active', visible);
+  if (appShellEl) appShellEl.inert = visible;
+  if (visible) {
+    welcomeContinueBtn?.classList.toggle('hidden', !validSavedRunExists());
+    window.requestAnimationFrame(() => welcomeNewRunBtn?.focus());
+  }
+}
+
+function beginNewRunFromWelcome() {
+  setWelcomeVisible(false);
+  init();
+}
+
+function continueRunFromWelcome() {
+  if (!validSavedRunExists()) return beginNewRunFromWelcome();
+  setWelcomeVisible(false);
+  loadRun();
 }
 
 function makeUnit(template, side = 'player') {
@@ -4151,7 +4189,7 @@ $('modalBtn').addEventListener('click', () => $('modal').classList.add('hidden')
 $('startBattleBtn').addEventListener('click', () => {
   if (state.runComplete) {
     $('modal').classList.add('hidden');
-    init();
+    setWelcomeVisible(true);
     return;
   }
   startBattle();
@@ -4178,7 +4216,7 @@ document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && settingsWindowEl && !settingsWindowEl.classList.contains('hidden')) closeSettingsWindow();
   if (event.key === 'Escape' && unitInspectorEl && !unitInspectorEl.classList.contains('hidden')) closeUnitInspector();
 });
-$('resetBtn').addEventListener('click', init);
+$('resetBtn').addEventListener('click', () => setWelcomeVisible(true));
 $('rerollBtn').addEventListener('click', () => rollShop(false));
 if (shopLockBtn) shopLockBtn.addEventListener('click', toggleShopLock);
 $('clearLogBtn').addEventListener('click', () => { logEl.innerHTML = ''; log('Combat log cleared.', 'special'); });
@@ -4196,6 +4234,8 @@ if (fullscreenBtn) fullscreenBtn.addEventListener('click', toggleFullscreen);
 document.addEventListener('fullscreenchange', syncFullscreenControl);
 if (resetSettingsBtn) resetSettingsBtn.addEventListener('click', resetSettings);
 if (resetSaveBtn) resetSaveBtn.addEventListener('click', resetSaveData);
+if (welcomeNewRunBtn) welcomeNewRunBtn.addEventListener('click', beginNewRunFromWelcome);
+if (welcomeContinueBtn) welcomeContinueBtn.addEventListener('click', continueRunFromWelcome);
 
 state.settings = loadSettings();
 
@@ -4224,4 +4264,5 @@ if (window.initPhaserBoard) {
 attachPhaserDropHandlers();
 attachSellZoneHandlers();
 
-init();
+init({ deferStarterChoice: true });
+setWelcomeVisible(true);

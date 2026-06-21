@@ -8,6 +8,8 @@ Open `index.html` directly in a modern browser. There is no install step, server
 
 Phaser is loaded locally from `lib/phaser.min.js`, so the game does not need the network at runtime.
 
+The game opens on a full-screen Riftbound Arena welcome scene. Choose **Begin New Run** to enter the three-champion starter draft, or **Continue Saved Run** when a valid local save is available.
+
 ## Desktop Build
 
 The browser version still runs by opening `index.html` directly.
@@ -88,7 +90,7 @@ Choose one of three random Common champions to start a new run, buy more mythic 
 
 ### Viewport Dashboard
 
-At the supported desktop minimum of 1280 x 800, the game uses a fixed one-screen dashboard instead of a vertically scrolling page. The Phaser arena uses a widened 1900 x 1040 presentation canvas to fill more horizontal space while keeping unit tokens and interaction hitboxes correctly proportioned. Five enlarged, fully clickable shop offers sit beneath it in a responsive-height shop band. During planning, one connected overlay places the next-wave preview over the enemy half, the Start Battle button at its center, and the latest combat recap over the neutral rows; the overlay fades away when combat starts. The right rail places a compact, scrollable combat log above the expanding synergy list, with Sacred Arsenal attached to the bottom of the synergy panel. This keeps recent actions, active bonuses, and relics visible without moving the arena off screen. Smaller browser windows continue using the responsive fallback layout.
+At the supported desktop minimum of 1280 x 800, the game uses a fixed one-screen dashboard instead of a vertically scrolling page. The Phaser arena uses a wide 2200 x 1040 presentation canvas so it fills the available battlefield panel even with the enlarged shop beneath it, while unit tokens and interaction hitboxes remain correctly proportioned. Five enlarged, fully clickable shop offers sit beneath it in a responsive-height shop band. During planning, one connected overlay places the next-wave preview over the enemy half, the Start Battle button at its center, and the latest combat recap over the neutral rows; the overlay fades away when combat starts. The right rail places a compact, scrollable combat log above the expanding synergy list, with Sacred Arsenal attached to the bottom of the synergy panel. This keeps recent actions, active bonuses, and relics visible without moving the arena off screen. Smaller browser windows continue using the responsive fallback layout.
 
 ## Champion System
 

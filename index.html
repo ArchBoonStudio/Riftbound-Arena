@@ -7,6 +7,18 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <section id="welcomeScreen" class="welcome-screen" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
+    <div class="welcome-content">
+      <p class="welcome-kicker">A Mythic Auto Battler</p>
+      <h1 id="welcomeTitle">Riftbound Arena</h1>
+      <p class="welcome-tagline">Choose your champions. Bind a pantheon. Survive the rift.</p>
+      <div class="welcome-actions">
+        <button id="welcomeNewRunBtn" class="primary-btn welcome-primary" type="button">Begin New Run</button>
+        <button id="welcomeContinueBtn" class="ghost-btn welcome-secondary hidden" type="button">Continue Saved Run</button>
+      </div>
+      <p class="welcome-mark">Arch Boon Studio</p>
+    </div>
+  </section>
   <div class="app-shell">
     <header class="topbar">
       <div>

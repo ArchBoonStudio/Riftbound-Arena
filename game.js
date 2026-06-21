@@ -469,46 +469,86 @@ function enemyFromChampion(name, overrides = {}) {
 }
 
 const ENEMY_LIBRARY = [
-  enemyFromChampion('The Unweighed Dead', { hp: 82, damage: 12, armor: 1, range: 1 }),
-  enemyFromChampion('Draugr', { hp: 118, damage: 16, armor: 3, range: 1 }),
-  enemyFromChampion('Redcap lines', { hp: 92, damage: 22, armor: 1, range: 1, class: 'Assassin', unitClass: 'Assassin' }),
-  enemyFromChampion('Tomb-cursed kings', { hp: 148, damage: 18, armor: 6, range: 1 }),
-  enemyFromChampion('The Fomorians', { hp: 190, damage: 26, armor: 6, range: 1 }),
-  enemyFromChampion('Fire Giants', { hp: 170, damage: 30, armor: 4, range: 1 }),
-  enemyFromChampion('False Merlins', { hp: 118, damage: 31, armor: 2, range: 3, class: 'Mage', unitClass: 'Mage' }),
-  enemyFromChampion('Typhon', { hp: 260, damage: 34, armor: 10, range: 1 }),
-  enemyFromChampion('Mordred', { hp: 150, damage: 38, armor: 4, range: 1, class: 'Assassin', unitClass: 'Assassin' }),
-  enemyFromChampion('Apep', { hp: 360, damage: 42, armor: 10, range: 3, class: 'Mage', unitClass: 'Mage' }),
-  enemyFromChampion('Chaos', { hp: 980, damage: 58, armor: 16, range: 3, class: 'Boss', unitClass: 'Boss', ability: 'aoe', abilityName: 'Primeval Unmaking' }),
-  enemyFromChampion('Ymir', { hp: 520, damage: 38, armor: 13, range: 1, class: 'Boss', unitClass: 'Boss', ability: 'cleave', abilityName: 'World-Frost Breaker' }),
-  enemyFromChampion('Balor', { hp: 620, damage: 48, armor: 10, range: 3, class: 'Boss', unitClass: 'Boss', ability: 'aoe', abilityName: 'Baleful Eye' }),
-  enemyFromChampion('Apep', { name: 'Apep, Sunless Serpent', hp: 760, damage: 56, armor: 14, range: 3, class: 'Boss', unitClass: 'Boss', ability: 'aoe', abilityName: 'Solar Devouring' }),
-  enemyFromChampion('The Dragon Beneath Britain', { hp: 1120, damage: 66, armor: 20, range: 1, class: 'Boss', unitClass: 'Boss', ability: 'cleave', abilityName: 'Britain-Shaking Coil' }),
-  enemyFromChampion('Typhon', { name: 'Typhon, World-Breaker', hp: 900, damage: 62, armor: 18, range: 1, class: 'Boss', unitClass: 'Boss', ability: 'cleave', abilityName: 'Storm of Monsters' }),
-  enemyFromChampion('The Wounded Kingdom', { hp: 860, damage: 52, armor: 15, range: 3, class: 'Boss', unitClass: 'Boss', ability: 'aoe', abilityName: 'Unhealed Land' }),
-  enemyFromChampion('The Kingdom That Never Healed', { hp: 1550, damage: 76, armor: 24, range: 3, class: 'Boss', unitClass: 'Boss', ability: 'aoe', abilityName: 'Crown of Every Ruin' })
+  enemyFromChampion('The Unweighed Dead', {
+    name: 'Unweighed Husk', hp: 82, damage: 12, armor: 1, range: 1, class: 'Bruiser', unitClass: 'Bruiser',
+    ability: 'enemy-grave-hunger', abilityName: 'Grave Hunger', abilityDescription: 'Bite for 125% damage and heal for part of the damage dealt.',
+    enemyRole: 'Sustaining swarm', threatText: 'Unweighed Husks recover health when Grave Hunger connects.'
+  }),
+  enemyFromChampion('Draugr', {
+    name: 'Grave-Oath Draugr', hp: 118, damage: 16, armor: 3, range: 1, class: 'Guardian', unitClass: 'Guardian',
+    ability: 'enemy-deathless-march', abilityName: 'Deathless March', abilityDescription: 'Raise a grave shield on itself and the most wounded ally.',
+    enemyRole: 'Shielding frontline', threatText: 'Grave-Oath Draugr protect wounded allies with recurring shields.'
+  }),
+  enemyFromChampion('Redcap lines', {
+    name: 'Redcap Bloodknife', hp: 92, damage: 22, armor: 1, range: 1, class: 'Assassin', unitClass: 'Assassin',
+    ability: 'enemy-crimson-leap', abilityName: 'Crimson Leap', abilityDescription: 'Leap onto a priority target for 190% damage and leave a short bleed-like burn.',
+    enemyRole: 'Backline killer', threatText: 'Redcap Bloodknives leap into the backline and leave a damaging wound.'
+  }),
+  enemyFromChampion('Tomb-cursed kings', {
+    name: 'Sepulcher Pharaoh', hp: 148, damage: 18, armor: 6, range: 2, class: 'Healer', unitClass: 'Healer',
+    ability: 'enemy-burial-edict', abilityName: 'Burial Edict', abilityDescription: 'Ward the two most wounded allies with funerary shields.',
+    enemyRole: 'Funerary support', threatText: 'Sepulcher Pharaohs prolong waves by shielding the most wounded enemies.'
+  }),
+  enemyFromChampion('The Fomorians', {
+    name: 'Fomorian Riftbreaker', hp: 190, damage: 26, armor: 6, range: 1, class: 'Bruiser', unitClass: 'Bruiser',
+    ability: 'enemy-riftbreaker', abilityName: 'Crooked Earth', abilityDescription: 'Smash the target area for 120% damage and delay every unit struck.',
+    enemyRole: 'Formation disruptor', threatText: 'Fomorian Riftbreakers slow clustered units with Crooked Earth.'
+  }),
+  enemyFromChampion('Fire Giants', {
+    name: 'Muspel Flameblood', hp: 170, damage: 30, armor: 4, range: 1, class: 'Bruiser', unitClass: 'Bruiser',
+    ability: 'enemy-cinderwake', abilityName: 'Cinderwake', abilityDescription: 'Scorch the target area for 135% damage and ignite survivors.',
+    enemyRole: 'Burning brawler', threatText: 'Muspel Flamebloods punish tightly packed teams with spreading fire.'
+  }),
+  enemyFromChampion('False Merlins', {
+    name: 'Hollow Court Magus', hp: 118, damage: 31, armor: 2, range: 3, class: 'Mage', unitClass: 'Mage',
+    ability: 'enemy-stolen-sigil', abilityName: 'Stolen Sigil', abilityDescription: 'Strike a small cluster with stolen magic and drain their energy.',
+    enemyRole: 'Energy disruptor', threatText: 'Hollow Court Magi drain energy from clustered champions before they can cast.'
+  }),
+  enemyFromChampion('Typhon', {
+    name: 'Typhon-Blood Ravager', hp: 260, damage: 34, armor: 10, range: 1, class: 'Bruiser', unitClass: 'Bruiser',
+    ability: 'enemy-many-mawed', abilityName: 'Many-Mawed Frenzy', abilityDescription: 'Maul nearby enemies for 125% damage and heal from the carnage.',
+    enemyRole: 'Elite sustain bruiser', threatText: 'Typhon-Blood Ravagers become difficult to finish while surrounded.'
+  }),
+  enemyFromChampion('Mordred', {
+    name: 'Mordred, Black Heir', hp: 150, damage: 38, armor: 4, range: 1, class: 'Assassin', unitClass: 'Assassin',
+    ability: 'enemy-betrayers-stroke', abilityName: "Betrayer's Stroke", abilityDescription: 'Deliver a 220% strike that deals additional true damage to shielded targets.',
+    enemyRole: 'Shield executioner', threatText: "Mordred's strike is especially lethal against shield-reliant champions."
+  }),
+  enemyFromChampion('Apep', {
+    name: 'Sunless Coil', hp: 360, damage: 42, armor: 10, range: 3, class: 'Mage', unitClass: 'Mage',
+    ability: 'enemy-sunless-coil', abilityName: 'Swallow the Dawn', abilityDescription: 'Damage every opposing unit, drain energy, and spread corruption.',
+    enemyRole: 'Army-wide corrupter', threatText: 'Sunless Coils pressure the entire squad with corruption and energy loss.'
+  }),
+  enemyFromChampion('Chaos', { hp: 980, damage: 58, armor: 16, range: 3, class: 'Boss', unitClass: 'Boss', ability: 'boss-primeval-unmaking', abilityName: 'Primeval Unmaking', abilityDescription: 'Rend the whole enemy team and seed every survivor with corruption.', enemyRole: 'Battlefield annihilator', threatText: 'Chaos attacks the whole formation and leaves corruption behind.' }),
+  enemyFromChampion('Ymir', { hp: 520, damage: 38, armor: 13, range: 1, class: 'Boss', unitClass: 'Boss', ability: 'boss-world-frost', abilityName: 'World-Frost Breaker', abilityDescription: 'Crush a cluster and freeze its attack timing.', enemyRole: 'Frozen colossus', threatText: 'Ymir delays clustered champions with world-frost impacts.' }),
+  enemyFromChampion('Balor', { hp: 620, damage: 48, armor: 10, range: 3, class: 'Boss', unitClass: 'Boss', ability: 'boss-baleful-eye', abilityName: 'Baleful Eye', abilityDescription: 'Incinerate a target and scorch every champion beside it.', enemyRole: 'Backline destroyer', threatText: 'Balor marks one champion for extreme damage and burns nearby allies.' }),
+  enemyFromChampion('Apep', { name: 'Apep, Sunless Serpent', hp: 760, damage: 56, armor: 14, range: 3, class: 'Boss', unitClass: 'Boss', ability: 'boss-solar-devouring', abilityName: 'Solar Devouring', abilityDescription: 'Corrupt the entire enemy team and restore health from the damage.', enemyRole: 'Corrupting world-serpent', threatText: 'Apep corrupts the whole squad and feeds on the damage dealt.' }),
+  enemyFromChampion('The Dragon Beneath Britain', { hp: 1120, damage: 66, armor: 20, range: 1, class: 'Boss', unitClass: 'Boss', ability: 'boss-britain-coil', abilityName: 'Britain-Shaking Coil', abilityDescription: 'Crush a wide cluster and ignite every surviving champion.', enemyRole: 'Armored area destroyer', threatText: 'The Dragon is heavily armored and turns clustered formations into kindling.' }),
+  enemyFromChampion('Typhon', { name: 'Typhon, World-Breaker', hp: 900, damage: 62, armor: 18, range: 1, class: 'Boss', unitClass: 'Boss', ability: 'boss-monster-storm', abilityName: 'Storm of Monsters', abilityDescription: 'Ravage the whole team, then maul the primary target again.', enemyRole: 'Relentless raid boss', threatText: 'Typhon combines army-wide pressure with a brutal focused maul.' }),
+  enemyFromChampion('The Wounded Kingdom', { hp: 860, damage: 52, armor: 15, range: 3, class: 'Boss', unitClass: 'Boss', ability: 'boss-unhealed-land', abilityName: 'Unhealed Land', abilityDescription: 'Harm every opposing champion and reclaim health from their wounds.', enemyRole: 'Draining cursed realm', threatText: 'The Wounded Kingdom drains life from every champion at once.' }),
+  enemyFromChampion('The Kingdom That Never Healed', { hp: 1550, damage: 76, armor: 24, range: 3, class: 'Boss', unitClass: 'Boss', ability: 'boss-crown-every-ruin', abilityName: 'Crown of Every Ruin', abilityDescription: 'Unleash team-wide ruin, corruption, and a renewed crown shield.', enemyRole: 'Secret mega boss', threatText: 'The final kingdom combines team-wide ruin, corruption, and recurring protection.' })
 ];
 
 const WAVE_NAMES = {
-  1: 'Restless Dead',
-  2: 'Draugr Muster',
-  3: 'Redcap Ambush',
+  1: 'The Unweighed Procession',
+  2: 'Oaths Beneath the Barrow',
+  3: 'The Redcap Toll',
   4: 'Trickster Mirror: First Reflection',
   5: 'Mini Boss: Ymir Stirs',
-  6: 'Fire Giant Push',
-  7: 'False Merlin Coven',
+  6: 'Cinders of Muspelheim',
+  7: 'The Hollow Court',
   8: 'Trickster Mirror: Borrowed Blades',
-  9: "Mordred's Betrayers",
+  9: 'The Black Heir Rides',
   10: 'Mini Boss: Balor at the Black Tower',
-  11: 'Sunless Deadfall',
-  12: 'Giants at the Rift',
+  11: 'The Sunless Procession',
+  12: 'Riftbreakers at the Gate',
   13: 'Trickster Mirror: Stolen Formation',
-  14: 'Serpent Moon',
+  14: 'When the Sun Goes Missing',
   15: 'Mini Boss: Apep Uncoils',
-  16: 'Betrayer Warband',
-  17: 'Titan Road',
+  16: 'The Betrayer Court',
+  17: 'The Many-Mawed Road',
   18: 'Trickster Mirror: Last Echo',
-  19: 'The Wounded Kingdom Rises',
+  19: 'Heralds of the Wounded Kingdom',
   20: 'Boss: The Dragon Beneath Britain',
   21: 'Secret Mega Boss: The Kingdom That Never Healed'
 };
@@ -540,8 +580,7 @@ const ENEMY_LAYOUTS = {
 const ENEMY_SLOTS = [[0,0],[7,0],[1,0],[6,0],[2,1],[5,1],[3,1],[4,1]];
 
 const SINGULAR_ENEMY_NAMES = new Set([
-  'Mordred',
-  'Typhon',
+  'Mordred, Black Heir',
   'Typhon, World-Breaker',
   'Apep',
   'Apep, Sunless Serpent',
@@ -954,6 +993,8 @@ function makeUnit(template, side = 'player') {
     abilityName: template.abilityName || 'Strike',
     abilityDescription: template.abilityDescription || template.abilityText || 'Basic attack pattern.',
     abilityText: template.abilityDescription || template.abilityText || 'Basic attack pattern.',
+    enemyRole: template.enemyRole || '',
+    threatText: template.threatText || '',
     x: 0,
     y: 0,
     hp: 1,
@@ -1764,9 +1805,11 @@ function threatTextForPreview(units, kind) {
   if (kind === 'boss') {
     const boss = units.find(unit => unitClassName(unit) === 'Boss') || units[0];
     return boss
-      ? `${boss.name} brings ${boss.abilityName || 'a boss power'}, high pressure, and punishing combat stats.`
+      ? (boss.threatText || `${boss.name} brings ${boss.abilityName || 'a boss power'}, high pressure, and punishing combat stats.`)
       : 'Boss round warning: expect a high-health threat with heavy pressure.';
   }
+  const specificThreats = [...new Set(units.map(unit => unit.threatText).filter(Boolean))];
+  if (specificThreats.length) return specificThreats.slice(0, 2).join(' ');
   const classes = new Set(units.map(unitClassName));
   if (classes.has('Assassin') && classes.has('Mage')) return 'Assassins and mages pressure your backline.';
   if (classes.has('Healer')) return 'Sustain can drag the fight out; focus damage matters.';
@@ -1871,7 +1914,7 @@ function renderEnemyPreview() {
     return `
       <div class="preview-chip rarity-${String(unitPreview.rarity || 'Rare').toLowerCase()}">
         <strong>${name}${countText}</strong>
-        <span>${unitPreview.pantheon} / ${unitPreview.sourceType} / ${unitPreview.unitClass || unitPreview.class}</span>
+        <span>${unitPreview.enemyRole || `${unitPreview.pantheon} / ${unitPreview.sourceType} / ${unitPreview.unitClass || unitPreview.class}`}</span>
       </div>
     `;
   }).join('');
@@ -3463,6 +3506,150 @@ function castSignatureAbility(caster, target) {
   return true;
 }
 
+function castEnemyAbility(caster, target) {
+  if (caster.side !== 'enemy' || (!caster.ability.startsWith('enemy-') && !caster.ability.startsWith('boss-'))) return false;
+  const enemies = abilityEnemies(caster);
+  const allies = abilityAllies(caster);
+  const cluster = () => enemies.filter(enemy => distance(enemy, target) <= 1);
+  const deal = (unit, multiplier, options = {}) => applyDamage(unit, caster.damage * multiplier * caster.abilityDamageMult, {
+    attacker: caster,
+    canDodge: options.canDodge ?? false,
+    trueDamage: options.trueDamage || false,
+    attackType: caster.abilityName
+  });
+
+  switch (caster.ability) {
+    case 'enemy-grave-hunger': {
+      playCastEffect(caster, target, 'bruiser');
+      const drained = deal(target, 1.25, { canDodge: true });
+      if (drained > 0) healUnit(caster, drained * 0.35, caster.abilityName, false, caster);
+      break;
+    }
+    case 'enemy-deathless-march': {
+      playCastEffect(caster, caster, 'shield');
+      shieldUnit(caster, caster, caster.maxHp * 0.2, caster.abilityName);
+      const wardTarget = lowestHealthUnits(allies.filter(ally => ally.id !== caster.id), 1)[0];
+      if (wardTarget) shieldUnit(caster, wardTarget, wardTarget.maxHp * 0.12, caster.abilityName);
+      break;
+    }
+    case 'enemy-crimson-leap':
+      playCastEffect(caster, target, 'crit');
+      deal(target, 1.9, { canDodge: true });
+      if (target.alive) applyBurn(target, Math.max(4, Math.round(caster.damage * 0.18)), 2, caster.abilityName);
+      break;
+    case 'enemy-burial-edict':
+      playCastEffect(caster, caster, 'shield');
+      lowestHealthUnits(allies, 2).forEach(ally => shieldUnit(caster, ally, ally.maxHp * 0.13, caster.abilityName));
+      break;
+    case 'enemy-riftbreaker':
+      playCastEffect(caster, target, 'cleave');
+      cluster().forEach(enemy => {
+        deal(enemy, 1.2, { canDodge: true });
+        if (enemy.alive) enemy.attackTimer += 420;
+      });
+      break;
+    case 'enemy-cinderwake':
+      playCastEffect(caster, target, 'aoe');
+      cluster().forEach(enemy => {
+        deal(enemy, 1.35);
+        if (enemy.alive) applyBurn(enemy, Math.max(5, Math.round(caster.damage * 0.2)), 3, caster.abilityName);
+      });
+      break;
+    case 'enemy-stolen-sigil':
+      playCastEffect(caster, target, 'mage');
+      cluster().slice(0, 3).forEach(enemy => {
+        deal(enemy, 1.35);
+        if (enemy.alive) enemy.mana = Math.max(0, enemy.mana - 25);
+      });
+      break;
+    case 'enemy-many-mawed': {
+      playCastEffect(caster, target, 'cleave');
+      let feast = 0;
+      cluster().forEach(enemy => { feast += deal(enemy, 1.25, { canDodge: true }); });
+      if (feast > 0) healUnit(caster, feast * 0.2, caster.abilityName, false, caster);
+      break;
+    }
+    case 'enemy-betrayers-stroke': {
+      playCastEffect(caster, target, 'crit');
+      const punishedShield = target.shield > 0;
+      deal(target, 2.2, { canDodge: true });
+      if (punishedShield && target.alive) deal(target, 0.55, { trueDamage: true });
+      break;
+    }
+    case 'enemy-sunless-coil':
+      playCastEffect(caster, target, 'aoe');
+      enemies.forEach(enemy => {
+        deal(enemy, 0.62);
+        if (enemy.alive) {
+          enemy.mana = Math.max(0, enemy.mana - 15);
+          applyCorruption(enemy, Math.max(5, Math.round(caster.damage * 0.14)), 3, caster.abilityName);
+        }
+      });
+      break;
+    case 'boss-primeval-unmaking':
+      playCastEffect(caster, target, 'aoe');
+      enemies.forEach(enemy => {
+        deal(enemy, 0.82);
+        if (enemy.alive) applyCorruption(enemy, Math.max(8, Math.round(caster.damage * 0.16)), 3, caster.abilityName);
+      });
+      break;
+    case 'boss-world-frost':
+      playCastEffect(caster, target, 'cleave');
+      cluster().forEach(enemy => {
+        deal(enemy, 1.35);
+        if (enemy.alive) enemy.attackTimer += 700;
+      });
+      break;
+    case 'boss-baleful-eye':
+      playCastEffect(caster, target, 'mage');
+      cluster().forEach(enemy => {
+        deal(enemy, enemy.id === target.id ? 1.9 : 0.95);
+        if (enemy.alive) applyBurn(enemy, Math.max(7, Math.round(caster.damage * 0.18)), 3, caster.abilityName);
+      });
+      break;
+    case 'boss-solar-devouring': {
+      playCastEffect(caster, target, 'aoe');
+      let devoured = 0;
+      enemies.forEach(enemy => {
+        devoured += deal(enemy, 0.68);
+        if (enemy.alive) applyCorruption(enemy, Math.max(8, Math.round(caster.damage * 0.15)), 3, caster.abilityName);
+      });
+      if (devoured > 0) healUnit(caster, devoured * 0.16, caster.abilityName, false, caster);
+      break;
+    }
+    case 'boss-britain-coil':
+      playCastEffect(caster, target, 'cleave');
+      cluster().forEach(enemy => {
+        deal(enemy, 1.45);
+        if (enemy.alive) applyBurn(enemy, Math.max(9, Math.round(caster.damage * 0.16)), 3, caster.abilityName);
+      });
+      break;
+    case 'boss-monster-storm':
+      playCastEffect(caster, target, 'aoe');
+      enemies.forEach(enemy => deal(enemy, 0.58));
+      if (target.alive) deal(target, 1.25, { canDodge: true });
+      break;
+    case 'boss-unhealed-land': {
+      playCastEffect(caster, target, 'aoe');
+      let reclaimed = 0;
+      enemies.forEach(enemy => { reclaimed += deal(enemy, 0.65); });
+      if (reclaimed > 0) healUnit(caster, reclaimed * 0.18, caster.abilityName, false, caster);
+      break;
+    }
+    case 'boss-crown-every-ruin':
+      playCastEffect(caster, target, 'aoe');
+      enemies.forEach(enemy => {
+        deal(enemy, 0.72);
+        if (enemy.alive) applyCorruption(enemy, Math.max(10, Math.round(caster.damage * 0.14)), 3, caster.abilityName);
+      });
+      shieldUnit(caster, caster, caster.maxHp * 0.08, caster.abilityName);
+      break;
+    default:
+      return false;
+  }
+  return true;
+}
+
 function castAbility(caster, target) {
   if (!caster.alive || !target?.alive) return;
   log(`${caster.name} uses ${caster.abilityName}.`, 'special');
@@ -3470,7 +3657,7 @@ function castAbility(caster, target) {
   if (caster.side === 'enemy' && unitClassName(caster) === 'Boss' && window.playBossAbilityWarning) {
     window.playBossAbilityWarning(caster.id, caster.abilityName, target.id, caster.ability);
   }
-  if (castSignatureAbility(caster, target) || castDivineAbility(caster, target)) {
+  if (castEnemyAbility(caster, target) || castSignatureAbility(caster, target) || castDivineAbility(caster, target)) {
     // Custom abilities share the normal post-cast energy handling below.
   } else switch (caster.ability) {
     case 'shield': {

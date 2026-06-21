@@ -159,7 +159,13 @@ Round gold starts at 4 gold. It gains +1 when each higher rarity tier becomes av
 
 ## Enemy Preview
 
-The **Next Wave** panel shows the current round's enemy lineup before combat starts. Boss rounds are called out at rounds 5, 10, 15, 20, and secret round 21. Trickster rounds preview the saved player formation they will mirror when a prior board snapshot is available.
+The **Next Wave** panel shows the current round's enemy lineup, combat role, and wave-specific threat before combat starts. Boss rounds are called out at rounds 5, 10, 15, 20, and secret round 21. Trickster rounds preview the saved player formation they will mirror when a prior board snapshot is available.
+
+## Enemy Roles
+
+Normal enemies now use named battlefield archetypes with distinct full-energy actions. Early enemies teach sustain, shielding, and backline pressure; later waves add attack delays, burning areas, energy drain, corruption, and shield punishment. The main archetypes are Unweighed Husks, Grave-Oath Draugr, Redcap Bloodknives, Sepulcher Pharaohs, Fomorian Riftbreakers, Muspel Flamebloods, Hollow Court Magi, Typhon-Blood Ravagers, Mordred the Black Heir, and Sunless Coils.
+
+Bosses have encounter-specific signatures instead of sharing generic area attacks. Their preview warning describes the mechanic to prepare for, while the boss intro and ability warning still use the existing Phaser presentation.
 
 ## Relics and Rewards
 

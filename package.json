@@ -1,7 +1,7 @@
 {
   "name": "riftbound-arena",
   "productName": "Riftbound Arena",
-  "version": "0.11.14",
+  "version": "0.11.15",
   "description": "Mythic fantasy auto battler prototype",
   "main": "main.js",
   "author": "VonScott Bair",

@@ -90,6 +90,7 @@ function createSandbox(seed) {
     localStorage,
     confirm: () => true,
     addEventListener() {},
+    requestAnimationFrame(callback) { callback(); return 0; },
     innerHeight: 1000,
     RIFTBOUND_PHASER_READY: false
   };
@@ -306,7 +307,9 @@ function simResolveFight() {
       : playerHp >= enemyHp;
     endBattle(playerWon);
   }
-  const won = state.runComplete || state.round > attemptedRound;
+  const won = state.runComplete
+    ? state.playerHp > 0 && attemptedRound === state.secretRound
+    : state.round > attemptedRound;
   return {
     round: attemptedRound,
     won,
@@ -359,7 +362,7 @@ function simulateRuns(runCount) {
     }
     results.push({
       run,
-      cleared: state.runComplete,
+      cleared: state.runComplete && state.playerHp > 0 && state.round === state.secretRound,
       maxRoundReached,
       finalRound: state.round,
       finalHp: state.playerHp,

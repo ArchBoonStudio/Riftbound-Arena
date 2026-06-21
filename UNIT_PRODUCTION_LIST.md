@@ -16,6 +16,25 @@ The player-facing shop now focuses on all major Empyrean gods and Arthurian powe
 
 Current combat notes: Healer abilities heal allies only when a living ally is missing at least 10% HP. If no ally needs that much healing, the Healer uses the cast offensively. Several playable gods and Arthurian powers were reassigned to improve class distribution across pantheons.
 
+## Active Enemy Wave Identities
+
+The broad myth-source entries remain in `CHAMPION_POOL`, while normal encounters use the following specific combat identities. Use the encounter name for battlefield labels, enemy sprites, and final encounter lore.
+
+| Encounter Enemy | Production Source | Combat Role | Signature Ability |
+|---|---|---|---|
+| Unweighed Husk | The Unweighed Dead | Sustaining swarm | Grave Hunger: damages a target and heals the Husk. |
+| Grave-Oath Draugr | Draugr | Shielding frontline | Deathless March: shields itself and a wounded ally. |
+| Redcap Bloodknife | Redcap lines | Backline killer | Crimson Leap: heavy strike followed by a damaging wound. |
+| Sepulcher Pharaoh | Tomb-cursed kings | Funerary support | Burial Edict: shields the two most wounded allies. |
+| Fomorian Riftbreaker | The Fomorians | Formation disruptor | Crooked Earth: area damage that delays attacks. |
+| Muspel Flameblood | Fire Giants | Burning brawler | Cinderwake: area damage that ignites survivors. |
+| Hollow Court Magus | False Merlins | Energy disruptor | Stolen Sigil: cluster damage and energy drain. |
+| Typhon-Blood Ravager | Typhon | Elite sustain bruiser | Many-Mawed Frenzy: area maul that restores health. |
+| Mordred, Black Heir | Mordred | Shield executioner | Betrayer's Stroke: heavy damage with a shielded-target rider. |
+| Sunless Coil | Apep | Army-wide corrupter | Swallow the Dawn: team damage, energy drain, and corruption. |
+
+Bosses retain their mythic names and now have encounter-specific signature mechanics. Their production descriptions should emphasize their previewed threat: Ymir delays attacks, Balor burns a marked cluster, Apep corrupts and drains, the Dragon crushes clustered formations, Typhon combines team pressure with a focused maul, and the final Kingdom renews its shield while spreading ruin.
+
 ### Status Counts
 
 - Playable: 107

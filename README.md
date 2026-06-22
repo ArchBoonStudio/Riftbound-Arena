@@ -140,10 +140,12 @@ With the reduced shop pool, Common rolls are mostly Worshipers. This keeps early
 Current shop rarity pacing:
 
 - Round 1: Common / Uncommon only.
-- Rounds 2-3: Rare champions begin appearing.
-- Rounds 4-5: Epic champions begin appearing.
-- Rounds 6-8: Legendary champions begin appearing at low odds.
-- Rounds 9-11: Mythic champions can appear, but remain rare.
+- Rounds 2-7: Rare champions appear and gradually become the primary shop tier. Epic, Legendary, and Mythic champions cannot appear.
+- Rounds 8-11: Epic champions unlock and rise from 8% to 38% per shop slot. Legendary and Mythic champions cannot appear.
+- Rounds 12-14: Legendary champions unlock and rise from 4% to 11% per shop slot. Mythic champions cannot appear.
+- Rounds 15-16: Mythic champions unlock at 2%, then rise to 4% per shop slot.
+- Rounds 17-19: Mythic chance is 6% per shop slot.
+- Rounds 20-21: Mythic chance reaches its permanent maximum of 10% per shop slot.
 
 ## Starting Draft
 
@@ -226,6 +228,8 @@ Sprites are not required yet. The Phaser board uses dark fantasy placeholder tok
 ## Active Unit Cap
 
 You can deploy up to 10 active player units. Bench units do not count toward this cap. Attempting to deploy an 11th active unit is stopped with a warning.
+
+Enemy teams also have a hard cap of 10 units. Normal waves, boss encounters, secret round 21, and Trickster Mirror formations are all capped before spawning. Later encounters gain difficulty through stronger stats, scaling, and abilities rather than exceeding the player's maximum team size.
 
 ## Star Upgrades
 

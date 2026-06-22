@@ -62,6 +62,7 @@ const LEGACY_UNIT_LIBRARY = [
 ];
 
 const PLAYER_UNIT_CAP = 10;
+const ENEMY_UNIT_CAP = 10;
 const BENCH_CAP = 8;
 const BOARD_SNAPSHOT_LIMIT = 8;
 const TRICKSTER_ROUNDS = [4, 8, 13, 18];
@@ -71,7 +72,7 @@ const COMBAT_TICK_MS = 420;
 const OVERTIME_TICK_MS = Math.max(90, Math.round(COMBAT_TICK_MS / 4));
 const HEALER_MIN_MISSING_HP_PCT = 0.1;
 const NORMAL_ENEMY_SCALE_PER_ROUND = 0.13;
-const BOSS_ENEMY_SCALE_PER_ROUND = 0.1;
+const BOSS_ENEMY_SCALE_PER_ROUND = 0.075;
 const FIRST_TRICKSTER_SCALE = 0.78;
 const FIRST_TRICKSTER_DEFEAT_DAMAGE_CAP = 8;
 const OWNED_UPGRADE_SHOP_WEIGHT = 1.75;
@@ -132,17 +133,21 @@ const SHOP_RARITY_ODDS = [
   { round: 1, odds: { Common: 82, Uncommon: 18 } },
   { round: 2, odds: { Common: 68, Uncommon: 28, Rare: 4 } },
   { round: 3, odds: { Common: 56, Uncommon: 34, Rare: 10 } },
-  { round: 4, odds: { Common: 44, Uncommon: 36, Rare: 17, Epic: 3 } },
-  { round: 5, odds: { Common: 34, Uncommon: 35, Rare: 24, Epic: 7 } },
-  { round: 6, odds: { Common: 26, Uncommon: 32, Rare: 29, Epic: 12, Legendary: 1 } },
-  { round: 7, odds: { Common: 18, Uncommon: 29, Rare: 32, Epic: 18, Legendary: 3 } },
-  { round: 8, odds: { Common: 12, Uncommon: 24, Rare: 34, Epic: 24, Legendary: 6 } },
-  { round: 9, odds: { Common: 8, Uncommon: 18, Rare: 34, Epic: 29, Legendary: 10, Mythic: 1 } },
-  { round: 10, odds: { Common: 5, Uncommon: 14, Rare: 31, Epic: 32, Legendary: 15, Mythic: 3 } },
-  { round: 11, odds: { Common: 3, Uncommon: 10, Rare: 27, Epic: 34, Legendary: 20, Mythic: 6 } },
-  { round: 14, odds: { Common: 2, Uncommon: 8, Rare: 24, Epic: 35, Legendary: 23, Mythic: 8 } },
-  { round: 17, odds: { Common: 1, Uncommon: 6, Rare: 20, Epic: 35, Legendary: 27, Mythic: 11 } },
-  { round: 20, odds: { Common: 1, Uncommon: 4, Rare: 16, Epic: 34, Legendary: 30, Mythic: 15 } }
+  { round: 4, odds: { Common: 46, Uncommon: 36, Rare: 18 } },
+  { round: 5, odds: { Common: 38, Uncommon: 36, Rare: 26 } },
+  { round: 6, odds: { Common: 30, Uncommon: 34, Rare: 36 } },
+  { round: 7, odds: { Common: 24, Uncommon: 32, Rare: 44 } },
+  { round: 8, odds: { Common: 18, Uncommon: 29, Rare: 45, Epic: 8 } },
+  { round: 9, odds: { Common: 13, Uncommon: 24, Rare: 45, Epic: 18 } },
+  { round: 10, odds: { Common: 9, Uncommon: 20, Rare: 43, Epic: 28 } },
+  { round: 11, odds: { Common: 6, Uncommon: 16, Rare: 40, Epic: 38 } },
+  { round: 12, odds: { Common: 4, Uncommon: 12, Rare: 34, Epic: 46, Legendary: 4 } },
+  { round: 13, odds: { Common: 3, Uncommon: 10, Rare: 31, Epic: 49, Legendary: 7 } },
+  { round: 14, odds: { Common: 2, Uncommon: 8, Rare: 28, Epic: 51, Legendary: 11 } },
+  { round: 15, odds: { Common: 2, Uncommon: 7, Rare: 25, Epic: 49, Legendary: 15, Mythic: 2 } },
+  { round: 16, odds: { Common: 1, Uncommon: 7, Rare: 23, Epic: 46, Legendary: 19, Mythic: 4 } },
+  { round: 17, odds: { Common: 1, Uncommon: 6, Rare: 20, Epic: 43, Legendary: 24, Mythic: 6 } },
+  { round: 20, odds: { Common: 1, Uncommon: 4, Rare: 17, Epic: 38, Legendary: 30, Mythic: 10 } }
 ];
 
 const CLASS_BASE = {
@@ -521,7 +526,7 @@ const ENEMY_LIBRARY = [
   }),
   enemyFromChampion('Chaos', { hp: 980, damage: 58, armor: 16, range: 3, class: 'Boss', unitClass: 'Boss', ability: 'boss-primeval-unmaking', abilityName: 'Primeval Unmaking', abilityDescription: 'Rend the whole enemy team and seed every survivor with corruption.', enemyRole: 'Battlefield annihilator', threatText: 'Chaos attacks the whole formation and leaves corruption behind.' }),
   enemyFromChampion('Ymir', { hp: 520, damage: 38, armor: 13, range: 1, class: 'Boss', unitClass: 'Boss', ability: 'boss-world-frost', abilityName: 'World-Frost Breaker', abilityDescription: 'Crush a cluster and freeze its attack timing.', enemyRole: 'Frozen colossus', threatText: 'Ymir delays clustered champions with world-frost impacts.' }),
-  enemyFromChampion('Balor', { hp: 620, damage: 48, armor: 10, range: 3, class: 'Boss', unitClass: 'Boss', ability: 'boss-baleful-eye', abilityName: 'Baleful Eye', abilityDescription: 'Incinerate a target and scorch every champion beside it.', enemyRole: 'Backline destroyer', threatText: 'Balor marks one champion for extreme damage and burns nearby allies.' }),
+  enemyFromChampion('Balor', { hp: 800, damage: 58, armor: 12, range: 3, class: 'Boss', unitClass: 'Boss', ability: 'boss-baleful-eye', abilityName: 'Baleful Eye', abilityDescription: 'Incinerate a target and scorch every champion beside it.', enemyRole: 'Backline destroyer', threatText: 'Balor marks one champion for extreme damage and burns nearby allies.' }),
   enemyFromChampion('Apep', { name: 'Apep, Sunless Serpent', hp: 760, damage: 56, armor: 14, range: 3, class: 'Boss', unitClass: 'Boss', ability: 'boss-solar-devouring', abilityName: 'Solar Devouring', abilityDescription: 'Corrupt the entire enemy team and restore health from the damage.', enemyRole: 'Corrupting world-serpent', threatText: 'Apep corrupts the whole squad and feeds on the damage dealt.' }),
   enemyFromChampion('The Dragon Beneath Britain', { hp: 1120, damage: 66, armor: 20, range: 1, class: 'Boss', unitClass: 'Boss', ability: 'boss-britain-coil', abilityName: 'Britain-Shaking Coil', abilityDescription: 'Crush a wide cluster and ignite every surviving champion.', enemyRole: 'Armored area destroyer', threatText: 'The Dragon is heavily armored and turns clustered formations into kindling.' }),
   enemyFromChampion('Typhon', { name: 'Typhon, World-Breaker', hp: 900, damage: 62, armor: 18, range: 1, class: 'Boss', unitClass: 'Boss', ability: 'boss-monster-storm', abilityName: 'Storm of Monsters', abilityDescription: 'Ravage the whole team, then maul the primary target again.', enemyRole: 'Relentless raid boss', threatText: 'Typhon combines army-wide pressure with a brutal focused maul.' }),
@@ -559,25 +564,25 @@ const ENEMY_LAYOUTS = {
   3: [2, 0, 2, 1],
   4: [3, 2, 0, 1],
   5: [11],
-  6: [5, 5, 2, 0, 1],
-  7: [6, 3, 6, 2, 4],
+  6: [5, 5, 2, 0, 1, 4, 3],
+  7: [6, 3, 6, 2, 4, 1, 5],
   8: [7, 1, 7, 2, 5, 3],
-  9: [8, 6, 2, 5, 4, 3],
+  9: [8, 6, 2, 1, 4, 5],
   10: [12],
   11: [9, 3, 0, 1, 2, 6],
-  12: [5, 5, 4, 4, 1, 3],
+  12: [5, 5, 4, 4, 1, 3, 2],
   13: [6, 6, 8, 2, 3, 0],
-  14: [9, 7, 5, 6, 8],
+  14: [9, 5, 6, 4, 3, 2],
   15: [13],
-  16: [8, 7, 6, 5, 2, 1, 4],
-  17: [7, 5, 5, 4, 3, 2],
+  16: [8, 7, 6, 2, 1, 4, 0],
+  17: [7, 5, 4, 3, 2, 1],
   18: [7, 5, 8, 6, 2, 3],
   19: [9, 8, 7, 6],
   20: [14],
   21: [17, 10, 11, 12, 13, 14, 15, 16]
 };
 
-const ENEMY_SLOTS = [[0,0],[7,0],[1,0],[6,0],[2,1],[5,1],[3,1],[4,1]];
+const ENEMY_SLOTS = [[0,0],[7,0],[1,0],[6,0],[2,1],[5,1],[3,1],[4,1],[3,0],[4,0]];
 
 const SINGULAR_ENEMY_NAMES = new Set([
   'Mordred, Black Heir',
@@ -1863,7 +1868,7 @@ function buildEnemyPreview() {
         return template ? { ...template, name: `Echo ${template.name}` } : null;
       })
       .filter(Boolean)
-      .slice(0, ENEMY_SLOTS.length);
+      .slice(0, ENEMY_UNIT_CAP);
     const scale = tricksterScaleForRound(round);
     stats.push({ label: 'Mirrored Round', value: snapshot.round });
     stats.push({ label: 'Copied Units', value: units.length });
@@ -2723,7 +2728,13 @@ function spawnLayoutEnemies(round) {
     const normalScale = round === 14
       ? 2.52
       : 1 + (Math.min(round, state.maxRound) - 1) * NORMAL_ENEMY_SCALE_PER_ROUND;
-    const bossScale = isMegaBossRound ? 1 : 1 + (Math.min(round, state.maxRound) - 1) * BOSS_ENEMY_SCALE_PER_ROUND;
+    const bossScale = isMegaBossRound
+      ? 1
+      : round === state.maxRound
+        ? 2.5
+        : round === 15
+          ? 2.25
+          : 1 + (Math.min(round, state.maxRound) - 1) * BOSS_ENEMY_SCALE_PER_ROUND;
     const scale = isBossUnit ? bossScale : normalScale;
     const unit = makeUnit({
       ...base,
@@ -2741,7 +2752,7 @@ function spawnLayoutEnemies(round) {
 
 function normalizedEnemyLayoutForRound(round) {
   const picks = ENEMY_LAYOUTS[round] || ENEMY_LAYOUTS[state.maxRound] || [];
-  if (round === state.secretRound) return picks;
+  if (round === state.secretRound) return picks.slice(0, ENEMY_UNIT_CAP);
 
   const seenSingular = new Set();
   return picks.filter(idx => {
@@ -2750,7 +2761,7 @@ function normalizedEnemyLayoutForRound(round) {
     if (seenSingular.has(template.name)) return false;
     seenSingular.add(template.name);
     return true;
-  });
+  }).slice(0, ENEMY_UNIT_CAP);
 }
 
 function spawnTricksterEnemies(round) {
@@ -2760,7 +2771,7 @@ function spawnTricksterEnemies(round) {
   return snapshot.units
     .slice()
     .sort((a, b) => (b.star || 1) - (a.star || 1))
-    .slice(0, ENEMY_SLOTS.length)
+    .slice(0, ENEMY_UNIT_CAP)
     .map((snapshotUnit, i) => {
       const template = getTemplateByType(snapshotUnit.type);
       const unit = makeUnit({ ...template, star: snapshotUnit.star || 1 }, 'enemy');
@@ -2777,8 +2788,8 @@ function spawnTricksterEnemies(round) {
 
 function tricksterScaleForRound(round) {
   if (round === TRICKSTER_ROUNDS[0]) return FIRST_TRICKSTER_SCALE;
-  if (round === 13) return 1.32;
-  if (round === 18) return 1.45;
+  if (round === 13) return 1.15;
+  if (round === 18) return 1.22;
   return 0.75 + Math.min(round, state.maxRound) * 0.05;
 }
 
@@ -3043,9 +3054,9 @@ function applyRelicBonuses(player) {
 
 function applyBossCombatPackage(unit, round, isMegaBossRound) {
   if (isMegaBossRound) {
-    unit.maxHp = Math.round(unit.maxHp * 0.9);
+    unit.maxHp = Math.round(unit.maxHp * 0.84);
     unit.hp = unit.maxHp;
-    unit.damage = Math.round(unit.damage * 0.9);
+    unit.damage = Math.round(unit.damage * 0.84);
     return;
   }
   if (round === 20) {
@@ -3611,10 +3622,10 @@ function castEnemyAbility(caster, target) {
       playCastEffect(caster, target, 'aoe');
       let devoured = 0;
       enemies.forEach(enemy => {
-        devoured += deal(enemy, 0.68);
-        if (enemy.alive) applyCorruption(enemy, Math.max(8, Math.round(caster.damage * 0.15)), 3, caster.abilityName);
+        devoured += deal(enemy, 0.64);
+        if (enemy.alive) applyCorruption(enemy, Math.max(8, Math.round(caster.damage * 0.14)), 3, caster.abilityName);
       });
-      if (devoured > 0) healUnit(caster, devoured * 0.16, caster.abilityName, false, caster);
+      if (devoured > 0) healUnit(caster, devoured * 0.14, caster.abilityName, false, caster);
       break;
     }
     case 'boss-britain-coil':
